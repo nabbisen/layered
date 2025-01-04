@@ -1,97 +1,80 @@
 <script lang="ts">
-    import Block from "./Block.svelte";
+  import Block from './Block.svelte'
+  import BlockContent from './BlockContent.svelte'
+  import { dragStart, drop } from '../stores/blockDragDrop'
+  import type { NestedStringArray } from '../type'
 
-    let {
-        src,
-        srcParentItems,
-        level,
-        index,
-        update,
-    }: {
-        src: undefined | Array<undefined>;
-        srcParentItems: Array<undefined>;
-        level: number;
-        index: number;
-        update: Function;
-    } = $props();
+  const editorConfig = {
+    namespace: 'MyEditor',
+    theme: {},
+    onError: console.error,
+  }
 
-    let nextLevel = level + 1;
+  let {
+    indices,
+    content,
+  }: {
+    indices: number[]
+    content: NestedStringArray
+  } = $props()
 
-    let dragStartIndex: number | undefined;
-    function handleDragStart(index: number) {
-        dragStartIndex = index;
-    }
-
-    function handleDragOver(event: MouseEvent) {
-        event.preventDefault();
-    }
-
-    function handleDrop(index: number) {
-        console.log(3, index);
-        const updatedItems = [...srcParentItems];
-        const draggedItem = updatedItems[dragStartIndex!];
-        updatedItems.splice(dragStartIndex!, 1); // 元の位置から削除
-        updatedItems.splice(index, 0, draggedItem); // 新しい位置に挿入
-        update(updatedItems);
-
-        dragStartIndex = undefined;
-    }
-
-    function updateItem(index: number, updated: any) {
-        src![index] = updated;
-    }
+  function handleDragStart(indices: number[]) {
+    console.log(111)
+    dragStart(indices)
+  }
+  function handleDragOver(event: DragEvent) {
+    console.log(222)
+    event.preventDefault()
+  }
+  function handleDrop(indices: number[]) {
+    console.log(333)
+    drop(indices)
+  }
 </script>
 
-{#if Array.isArray(src)}
-    {#each src as item, index}
-        <Block
-            src={item}
-            srcParentItems={src}
-            level={nextLevel}
-            {index}
-            update={(updatedItems: any) => updateItem(index, updatedItems)}
-        ></Block>
+<div class={`level-${indices.length}`}>
+  {#if Array.isArray(content)}
+    {#each content as child, i}
+      <Block indices={[...indices, i]} content={child} />
     {/each}
-{:else}
-    <div class={`level-${level}`}>
-        <span
-            class="op"
-            role="navigation"
-            draggable="true"
-            ondragstart={() => handleDragStart(index)}
-            ondragover={handleDragOver}
-            ondrop={() => handleDrop(index)}>--</span
-        >
-        <span class="content" contenteditable="true">
-            {src}
-        </span>
+  {:else}
+    <div
+      role="region"
+      draggable="true"
+      ondragstart={() => handleDragStart(indices)}
+      ondragover={handleDragOver}
+      ondrop={() => handleDrop(indices)}
+    >
+      <span class="op">---</span>
+      <BlockContent {content} {indices} />
     </div>
-{/if}
+  {/if}
+</div>
 
 <style>
-    .op {
-        cursor: grab;
-    }
-    .content {
-        padding: 0 1.1rem;
-        margin-left: 0.8rem;
-    }
-    .level-1 {
-        margin-left: 0.5rem;
-    }
-    .level-2 {
-        margin-left: 1rem;
-    }
-    .level-3 {
-        margin-left: 1.5rem;
-    }
-    .level-4 {
-        margin-left: 2rem;
-    }
-    .level-5 {
-        margin-left: 2.5rem;
-    }
-    .level-6 {
-        margin-left: 3rem;
-    }
+  .op {
+    cursor: grab;
+  }
+  .content {
+    padding: 0 1.1rem;
+    margin-left: 0.8rem;
+  }
+  .level-1 {
+    margin-left: 0.5rem;
+  }
+  .level-2 {
+    margin-left: 1rem;
+  }
+  .level-3 {
+    margin-left: 1.5rem;
+  }
+  .level-4 {
+    margin-left: 2rem;
+  }
+  .level-5 {
+    margin-left: 2.5rem;
+  }
+  .level-6 {
+    margin-left: 3rem;
+  }
 </style>

@@ -1,19 +1,17 @@
 <script lang="ts">
-    import Block from "../components/Block.svelte";
+  import Editor from '../components/Editor.svelte'
+  import type { NestedStringArray } from '../type'
 
-    const src: any = ["1", ["1", ["1", ["1", "2", "3"]], "2"], "2"];
+  const src: NestedStringArray = [
+    'aaa',
+    'aaaaa',
+    ['aab', 'aaaab', ['aac', 'aaaac', 'aad', ['aaaad']]],
+    'aa',
+  ]
 </script>
 
 <main class="container">
-    {#each src as item, index}
-        <Block
-            src={item}
-            srcParentItems={src}
-            level={1}
-            {index}
-            update={() => {}}
-        ></Block>
-    {/each}
+  <Editor {src} />
 </main>
 
 <style>
