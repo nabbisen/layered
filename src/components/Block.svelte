@@ -18,16 +18,10 @@
     content: NestedStringArray
   } = $props()
 
-  function handleDragStart(indices: number[]) {
-    console.log(111)
+  function handleDragStart() {
     dragStart(indices)
   }
-  function handleDragOver(event: DragEvent) {
-    console.log(222)
-    event.preventDefault()
-  }
-  function handleDrop(indices: number[]) {
-    console.log(333)
+  function handleDrop() {
     drop(indices)
   }
 </script>
@@ -38,13 +32,7 @@
       <Block indices={[...indices, i]} content={child} />
     {/each}
   {:else}
-    <div
-      role="region"
-      draggable="true"
-      ondragstart={() => handleDragStart(indices)}
-      ondragover={handleDragOver}
-      ondrop={() => handleDrop(indices)}
-    >
+    <div onpointerdown={handleDragStart} onpointerup={handleDrop}>
       <span class="op">---</span>
       <BlockContent {content} {indices} />
     </div>

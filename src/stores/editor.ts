@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import type { NestedStringArray } from '../type'
 
 let content = writable<NestedStringArray>()
@@ -14,6 +14,10 @@ const updateContent = (indices: number[], value: string) => {
         setElementByIndices(x, indices, value)
         return x
     })
+}
+
+const getIndicedsContent = (indices: number[]): string | undefined => {
+    return getElementByIndices(get(content), indices)
 }
 
 const exchangeItems = (fromIndices: number[], toIndices: number[]) => {
@@ -34,6 +38,7 @@ export {
     subscribeContent,
     initContent,
     updateContent,
+    getIndicedsContent,
     exchangeItems,
 }
 
