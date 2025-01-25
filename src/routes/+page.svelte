@@ -23,6 +23,7 @@
   const parseMarkdownText = (markdownText: string) => {
     invoke('parse', { markdownText: markdownText })
       .then((ret: unknown) => {
+        console.log(ret)
         parsedMarkdowns = ret as ParsedMarkdown[]
         changeVisibility()
       })
@@ -54,12 +55,22 @@
 
   let content: string = $state('')
   interface ParsedMarkdown {
+    node_id: number
+    ancestors: number[]
+    nesting_level: number
     heading_level: number | null
     heading_text: string | null
     html: string | null
     visible: boolean
   }
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
+  let maxNestingLevel = $derived.by(() => {
+    let maxLevel: number = 0
+    parsedMarkdowns.forEach((x: ParsedMarkdown) => {
+      if (maxLevel < x.nesting_level) maxLevel = x.nesting_level
+    })
+    return maxLevel
+  })
   // interface ContentAst {
   //   type: number
   //   text: string
@@ -114,78 +125,86 @@
 </script>
 
 <main class="container">
-  <input type="number" min="0" max="10" onchange={visibleOnchange} bind:value={visibleLevel} />
+  <input
+    type="number"
+    min="0"
+    max={maxNestingLevel}
+    onchange={visibleOnchange}
+    bind:value={visibleLevel}
+  />
   <div class="d-flex row">
     <textarea class="col" onchange={markdownTextOnchange} bind:value={content}></textarea>
     <div class="col">
       {#each parsedMarkdowns as block, i}
-        {#if block.visible}
-          {#if block.heading_level && 0 < block.heading_level}
-            {#if block.heading_level === 1}
-              <h1
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h1>
-            {:else if block.heading_level === 2}
-              <h2
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h2>
-            {:else if block.heading_level === 3}
-              <h3
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h3>
-            {:else if block.heading_level === 4}
-              <h4
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h4>
-            {:else if block.heading_level === 5}
-              <h5
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h5>
-            {:else if block.heading_level === 6}
-              <h6
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
-              >
-                {block.heading_text}
-              </h6>
+        <div style={`padding-left: ${(block.nesting_level - 1) * 0.6}rem;`}>
+          {#if block.visible}
+            {#if block.heading_level && 0 < block.heading_level}
+              {#if block.heading_level === 1}
+                <h1
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h1>
+              {:else if block.heading_level === 2}
+                <h2
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h2>
+              {:else if block.heading_level === 3}
+                <h3
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h3>
+              {:else if block.heading_level === 4}
+                <h4
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h4>
+              {:else if block.heading_level === 5}
+                <h5
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h5>
+              {:else if block.heading_level === 6}
+                <h6
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </h6>
+              {:else}
+                <div
+                  class={`h${block.heading_level}`}
+                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                    onchange(e.currentTarget.innerText, i, true)}
+                  contenteditable
+                >
+                  {block.heading_text}
+                </div>
+              {/if}
             {:else}
-              <div
-                class={`h${block.heading_level}`}
-                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                  onchange(e.currentTarget.innerText, i, true)}
-                contenteditable
+              <textarea
+                onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
+                  onchange(e.currentTarget.value, i, false)}>{block.html}</textarea
               >
-                {block.heading_text}
-              </div>
             {/if}
-          {:else}
-            <textarea
-              onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
-                onchange(e.currentTarget.value, i, false)}>{block.html}</textarea
-            >
           {/if}
-        {/if}
+        </div>
       {/each}
     </div>
   </div>
