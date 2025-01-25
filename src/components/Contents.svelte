@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ContentType } from '../types'
   import Contents from './Contents.svelte'
-  import ContentText from './ContentText.svelte'
+  import ContentLeading from './ContentLeading.svelte'
 
   const MIN_LAYER_LEVEL: number = 4
 
@@ -21,9 +21,16 @@
 
   const _layerLevel: number = layerLevel ?? MIN_LAYER_LEVEL
   const _indexInParent: number = indexInParent ?? 0
-  const _showsChildren: boolean = showsChildren ?? true
 
-  const _oninput = (index: number, text: string) => {
+  let _showsEachChild: boolean[] = $state(
+    Array.from({ length: contents.length }).map((_) => showsChildren ?? true)
+  )
+
+  const hasChildren = (children: ContentType[] | undefined): boolean => {
+    return (children && 0 < children.length) as boolean
+  }
+
+  const contentLeadingOnchange = (index: number, text: string) => {
     contents[index].text = text
 
     if (onchange) {
@@ -31,7 +38,11 @@
     }
   }
 
-  const _onchange = (index: number, childContents: ContentType[]) => {
+  const contentLeadingToggleChildren = (index: number) => {
+    _showsEachChild[index] = !_showsEachChild[index]
+  }
+
+  const contentsOnchange = (index: number, childContents: ContentType[]) => {
     contents[index].children = childContents
 
     if (onchange) {
@@ -42,19 +53,21 @@
 
 <div class={`layer layer-${_layerLevel}`}>
   {#each contents as content, i}
-    <ContentText
+    <ContentLeading
       text={content.text}
       layerLevel={_layerLevel}
-      hasChildren={content.children && 0 < content.children.length}
-      oninput={(text: string) => _oninput(i, text)}
+      hasChildren={hasChildren(content.children)}
+      showsChildren={_showsEachChild[i]}
+      onchange={(text: string) => contentLeadingOnchange(i, text)}
+      toggleChildren={() => contentLeadingToggleChildren(i)}
     />
     {#if content.children}
-      <div class={_showsChildren ? '' : 'd-none'}>
+      <div class={_showsEachChild[i] ? '' : 'd-none'}>
         <Contents
           contents={content.children}
           layerLevel={_layerLevel + 1}
           indexInParent={i}
-          onchange={_onchange}
+          onchange={contentsOnchange}
         />
       </div>
     {/if}

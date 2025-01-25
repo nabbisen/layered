@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invoke } from '@tauri-apps/api/core'
+
   import { type ContentType } from '../types'
   import Contents from '../components/Contents.svelte'
 
@@ -25,16 +27,24 @@
   const l1: ContentType[] = gen_children(1, 2, [l2_1])
 
   let showsDump: boolean = $state(false)
-</script>
 
-<button
-  onclick={() => {
+  const saveOnClick = (event: Event) => {
+    event.preventDefault()
+    invoke('save', { contents: l1 })
+  }
+
+  const dumpOnClick = () => {
     showsDump = true
     setTimeout(() => {
       showsDump = false
     }, 3000)
-  }}>!!!</button
->
+  }
+</script>
+
+<div class="d-flex">
+  <button onclick={saveOnClick}>Save</button>
+  <button onclick={dumpOnClick}>Dump</button>
+</div>
 {#if showsDump}
   <div
     style="position: fixed; left: 1rem; top: 1rem; width: 100vw; height: auto; padding: 0; margin: 0; backgrond-color: #ffffffb7;"
