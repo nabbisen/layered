@@ -1,127 +1,190 @@
 <script lang="ts">
-  let content: string = $state('')
-  interface ContentAst {
-    type: number
-    text: string
-  }
-  let contentAst: ContentAst[] = $derived.by(() => {
-    let ret: ContentAst[] = []
+  import { onMount } from 'svelte'
+  import { invoke } from '@tauri-apps/api/core'
 
-    let paragragh = ''
-    content.split('\n').forEach((line: string) => {
-      const leading = line.split(' ')[0]
-      if (leading.match(/^#+$/)) {
-        if (paragragh && paragragh.match(/\S/)) {
-          ret.push({
-            type: 0,
-            text: paragragh.replace(/(^\s*|\s*$)/, ''),
-          } as ContentAst)
-          paragragh = ''
-        }
-        const leadingLength = leading.length
-        ret.push({
-          type: leadingLength,
-          text: line.substring(leadingLength + 1),
-        } as ContentAst)
-      } else {
-        paragragh = `${paragragh}\n${line}`
-      }
-    })
-    if (paragragh && paragragh.match(/\S/)) {
-      ret.push({
-        type: 0,
-        text: paragragh.replace(/(^\s*|\s*$)/, ''),
-      } as ContentAst)
-    }
-
-    return ret
+  onMount(() => {
+    invoke('ready', {})
+      .then((ret: unknown) => {
+        content = ret as string
+        parseMarkdownText(content)
+      })
+      .catch((error: unknown) => {
+        console.error(error)
+        return
+      })
   })
 
-  const onchange = (value: string, index: number) => {
-    if (contentAst[index].text === value) return
+  const markdownTextOnchange = (
+    e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }
+  ) => {
+    parseMarkdownText(e.currentTarget.value)
+  }
 
-    const updated: ContentAst[] = [...contentAst]
-    updated[index].text = value
-    let ret: string[] = updated.map((x: ContentAst) => {
-      if (0 < x.type) {
-        return `${'#'.repeat(x.type)} ${x.text}\n`
-      } else {
-        return x.text
+  const parseMarkdownText = (markdownText: string) => {
+    invoke('parse', { markdownText: markdownText })
+      .then((ret: unknown) => {
+        parsedMarkdowns = ret as ParsedMarkdown[]
+        changeVisibility()
+      })
+      .catch((error: unknown) => {
+        console.error(error)
+        return
+      })
+  }
+
+  let visibleLevel: number | null = $state(null)
+  const changeVisibility = () => {
+    parsedMarkdowns = parsedMarkdowns.map((x) => {
+      const updateVisible = x
+      if (!visibleLevel || Number.isNaN(visibleLevel) || Number(visibleLevel) <= 0) {
+        updateVisible.visible = true
+        return updateVisible
       }
+      updateVisible.visible = updateVisible.heading_level
+        ? updateVisible.heading_level <= Number(visibleLevel)
+        : false
+      return updateVisible
     })
-    content = ret.join('\n')
+  }
+
+  const visibleOnchange = (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
+    visibleLevel = Number.isNaN(e.currentTarget.value) ? null : Number(e.currentTarget.value)
+    changeVisibility()
+  }
+
+  let content: string = $state('')
+  interface ParsedMarkdown {
+    heading_level: number | null
+    heading_text: string | null
+    html: string | null
+    visible: boolean
+  }
+  let parsedMarkdowns: ParsedMarkdown[] = $state([])
+  // interface ContentAst {
+  //   type: number
+  //   text: string
+  // }
+  // let contentAst: ContentAst[] = $derived.by(() => {
+  //   let ret: ContentAst[] = []
+
+  //   let paragragh = ''
+  //   content.split('\n').forEach((line: string) => {
+  //     const leading = line.split(' ')[0]
+  //     if (leading.match(/^#+$/)) {
+  //       if (paragragh && paragragh.match(/\S/)) {
+  //         ret.push({
+  //           type: 0,
+  //           text: paragragh.replace(/(^\s*|\s*$)/, ''),
+  //         } as ContentAst)
+  //         paragragh = ''
+  //       }
+  //       const leadingLength = leading.length
+  //       ret.push({
+  //         type: leadingLength,
+  //         text: line.substring(leadingLength + 1),
+  //       } as ContentAst)
+  //     } else {
+  //       paragragh = `${paragragh}\n${line}`
+  //     }
+  //   })
+  //   if (paragragh && paragragh.match(/\S/)) {
+  //     ret.push({
+  //       type: 0,
+  //       text: paragragh.replace(/(^\s*|\s*$)/, ''),
+  //     } as ContentAst)
+  //   }
+
+  //   return ret
+  // })
+
+  const onchange = (value: string, index: number, isHeading: boolean) => {
+    if (isHeading && parsedMarkdowns[index].heading_text === value) return
+
+    // const updated: ContentAst[] = [...contentAst]
+    // updated[index].text = value
+    // let ret: string[] = updated.map((x: ContentAst) => {
+    //   if (0 < x.type) {
+    //     return `${'#'.repeat(x.type)} ${x.text}\n`
+    //   } else {
+    //     return x.text
+    //   }
+    // })
+    // content = ret.join('\n')
   }
 </script>
 
 <main class="container">
+  <input type="number" min="0" max="10" onchange={visibleOnchange} bind:value={visibleLevel} />
   <div class="d-flex row">
-    <textarea bind:value={content}></textarea>
+    <textarea class="col" onchange={markdownTextOnchange} bind:value={content}></textarea>
     <div class="col">
-      {#each contentAst as line, i}
-        {#if 0 < line.type}
-          {#if line.type === 1}
-            <h1
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h1>
-          {:else if line.type === 2}
-            <h2
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h2>
-          {:else if line.type === 3}
-            <h3
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h3>
-          {:else if line.type === 4}
-            <h4
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h4>
-          {:else if line.type === 5}
-            <h5
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h5>
-          {:else if line.type === 6}
-            <h6
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
-            >
-              {line.text}
-            </h6>
+      {#each parsedMarkdowns as block, i}
+        {#if block.visible}
+          {#if block.heading_level && 0 < block.heading_level}
+            {#if block.heading_level === 1}
+              <h1
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h1>
+            {:else if block.heading_level === 2}
+              <h2
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h2>
+            {:else if block.heading_level === 3}
+              <h3
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h3>
+            {:else if block.heading_level === 4}
+              <h4
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h4>
+            {:else if block.heading_level === 5}
+              <h5
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h5>
+            {:else if block.heading_level === 6}
+              <h6
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </h6>
+            {:else}
+              <div
+                class={`h${block.heading_level}`}
+                onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
+                  onchange(e.currentTarget.innerText, i, true)}
+                contenteditable
+              >
+                {block.heading_text}
+              </div>
+            {/if}
           {:else}
-            <div
-              class={`h${line.type}`}
-              onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                onchange(e.currentTarget.innerText, i)}
-              contenteditable
+            <textarea
+              onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
+                onchange(e.currentTarget.value, i, false)}>{block.html}</textarea
             >
-              {line.text}
-            </div>
           {/if}
-        {:else}
-          <textarea
-            onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
-              onchange(e.currentTarget.value, i)}>{line.text}</textarea
-          >
         {/if}
       {/each}
     </div>
