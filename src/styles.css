@@ -1,0 +1,7 @@
+.d-flex {
+    display: flex !important;
+}
+
+.rotate-90 {
+    transform: rotate(90deg) !important;
+}
