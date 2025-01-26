@@ -46,48 +46,100 @@
 
     // todo: update parsedMarkdowns
   }
+
+  type ActiveEditor = 'raw' | 'both' | 'layers'
+  let activeEditor: ActiveEditor = $state('layers')
 </script>
 
-<main class="container">
-  <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />
-  <div class="d-flex row">
-    <div class="col">
-      <RawContent {content} textOnchange={rawContentTextOnchange} />
+<main class="container editor">
+  <nav>
+    <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />
+    <div class="d-flex">
+      <label
+        ><input type="radio" name="active-editor" bind:group={activeEditor} value="raw" />raw</label
+      >
+      <label
+        ><input
+          type="radio"
+          name="active-editor"
+          bind:group={activeEditor}
+          value="both"
+        />both</label
+      >
+      <label
+        ><input
+          type="radio"
+          name="active-editor"
+          bind:group={activeEditor}
+          value="layers"
+        />layers</label
+      >
     </div>
-    <div class="col">
-      {#each parsedMarkdowns as block, i}
-        <div class={`nested nest-${block.nesting_level}`}>
-          {#if visible(block, visibleLevel)}
-            {#if block.heading_level && 0 < block.heading_level}
-              <BlockLeading
-                nesting_level={block.nesting_level}
-                heading_level={block.heading_level}
-                heading_text={block.heading_text ?? ''}
-                {visibleLevel}
-                textOnchange={(value: string) => {
-                  onchange(value, i, true)
-                }}
-                visibleLevelOnChange={(value: number) => {
-                  if (visibleLevel === value) {
-                    visibleLevel = null
-                  } else {
-                    visibleLevel = value
-                  }
-                }}
-              />
-            {:else}
-              <BlockContent
-                html={block.html ?? ''}
-                onchange={(value: string) => onchange(value, i, false)}
-              />
+  </nav>
+  <div class="row">
+    {#if ['raw', 'both'].includes(activeEditor)}
+      <div class="col">
+        <RawContent {content} textOnchange={rawContentTextOnchange} />
+      </div>
+    {/if}
+    {#if ['layers', 'both'].includes(activeEditor)}
+      <div class="col">
+        {#each parsedMarkdowns as block, i}
+          <div class={`nested nest-${block.nesting_level}`}>
+            {#if visible(block, visibleLevel)}
+              {#if block.heading_level && 0 < block.heading_level}
+                <BlockLeading
+                  nesting_level={block.nesting_level}
+                  heading_level={block.heading_level}
+                  heading_text={block.heading_text ?? ''}
+                  {visibleLevel}
+                  textOnchange={(value: string) => {
+                    onchange(value, i, true)
+                  }}
+                  visibleLevelOnChange={(value: number) => {
+                    if (visibleLevel === value) {
+                      visibleLevel = null
+                    } else {
+                      visibleLevel = value
+                    }
+                  }}
+                />
+              {:else}
+                <BlockContent
+                  html={block.html ?? ''}
+                  onchange={(value: string) => onchange(value, i, false)}
+                />
+              {/if}
             {/if}
-          {/if}
-        </div>
-      {/each}
-    </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
 </main>
 
 <style>
-  @import './styles.css';
+  .nested {
+    padding-left: 4.4rem;
+  }
+
+  .nested.nest-0 {
+    padding-left: 0;
+  }
+
+  .nested.nest-1 {
+    padding-left: 0.9rem;
+  }
+
+  .nested.nest-2 {
+    padding-left: 1.8rem;
+  }
+
+  .nested.nest-3 {
+    padding-left: 2.7rem;
+  }
+
+  .nested.nest-4 {
+    padding-left: 3.6rem;
+  }
 </style>

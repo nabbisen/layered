@@ -2,6 +2,27 @@
     display: flex !important;
 }
 
+.row {
+    display: flex;
+    gap: 0.9rem;
+}
+
+.row>.col {
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
 .rotate-90 {
     transform: rotate(90deg) !important;
+}
+
+/* todo: move to components/ ? */
+.editor *[contenteditable],
+.editor textarea {
+    font-size: 1.2rem;
+}
+
+.editor textarea {
+    width: calc(100% - 0.9rem);
+    height: 40vh;
 }
