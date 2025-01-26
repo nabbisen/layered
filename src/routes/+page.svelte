@@ -73,56 +73,11 @@
     })
     return maxLevel
   })
-  // interface ContentAst {
-  //   type: number
-  //   text: string
-  // }
-  // let contentAst: ContentAst[] = $derived.by(() => {
-  //   let ret: ContentAst[] = []
-
-  //   let paragragh = ''
-  //   content.split('\n').forEach((line: string) => {
-  //     const leading = line.split(' ')[0]
-  //     if (leading.match(/^#+$/)) {
-  //       if (paragragh && paragragh.match(/\S/)) {
-  //         ret.push({
-  //           type: 0,
-  //           text: paragragh.replace(/(^\s*|\s*$)/, ''),
-  //         } as ContentAst)
-  //         paragragh = ''
-  //       }
-  //       const leadingLength = leading.length
-  //       ret.push({
-  //         type: leadingLength,
-  //         text: line.substring(leadingLength + 1),
-  //       } as ContentAst)
-  //     } else {
-  //       paragragh = `${paragragh}\n${line}`
-  //     }
-  //   })
-  //   if (paragragh && paragragh.match(/\S/)) {
-  //     ret.push({
-  //       type: 0,
-  //       text: paragragh.replace(/(^\s*|\s*$)/, ''),
-  //     } as ContentAst)
-  //   }
-
-  //   return ret
-  // })
 
   const onchange = (value: string, index: number, isHeading: boolean) => {
     if (isHeading && parsedMarkdowns[index].heading_text === value) return
 
-    // const updated: ContentAst[] = [...contentAst]
-    // updated[index].text = value
-    // let ret: string[] = updated.map((x: ContentAst) => {
-    //   if (0 < x.type) {
-    //     return `${'#'.repeat(x.type)} ${x.text}\n`
-    //   } else {
-    //     return x.text
-    //   }
-    // })
-    // content = ret.join('\n')
+    // todo: update parsedMarkdowns
   }
 </script>
 
