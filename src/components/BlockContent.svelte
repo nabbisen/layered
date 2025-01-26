@@ -3,7 +3,7 @@
   import { Editor } from '@tiptap/core'
   import StarterKit from '@tiptap/starter-kit'
 
-  const { html, onchange }: { html: string; onchange: Function } = $props()
+  const { html, textOnchange }: { html: string; textOnchange: Function } = $props()
 
   let element: HTMLDivElement
 
@@ -19,7 +19,7 @@
       },
       onUpdate: () => {
         if (!editor) return
-        onchange(editor.getText())
+        textOnchange(editor.getText())
       },
     })
   })

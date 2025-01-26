@@ -3,7 +3,7 @@
   import { Editor } from '@tiptap/core'
   import StarterKit from '@tiptap/starter-kit'
 
-  const { content, onchange }: { content: string; onchange: Function } = $props()
+  const { content, textOnchange }: { content: string; textOnchange: Function } = $props()
 
   $effect(() => {
     if (!editor) return
@@ -25,7 +25,7 @@
       },
       onBlur: () => {
         if (!editor) return
-        onchange(editor.getText())
+        textOnchange(editor.getText())
       },
     })
   })

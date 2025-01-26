@@ -19,7 +19,7 @@
       })
   })
 
-  const rawContentOnchange = (value: string) => {
+  const rawTextOnchange = (value: string) => {
     content = value
     parseMarkdownText(value)
   }
@@ -42,7 +42,7 @@
 
   let visibleLevel: number | null = $state(null)
 
-  const onchange = (value: string, index: number, isHeading: boolean) => {
+  const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
     if (isHeading && parsedMarkdowns[index].heading_text === value) return
 
     // todo: update parsedMarkdowns
@@ -80,7 +80,7 @@
   <div class="row">
     {#if ['raw', 'both'].includes(activeEditor)}
       <div class="col">
-        <RawContent {content} onchange={rawContentOnchange} />
+        <RawContent {content} textOnchange={rawTextOnchange} />
       </div>
     {/if}
     {#if ['layers', 'both'].includes(activeEditor)}
@@ -95,7 +95,7 @@
                   heading_text={block.heading_text ?? ''}
                   {visibleLevel}
                   textOnchange={(value: string) => {
-                    onchange(value, i, true)
+                    blockTextOnchange(value, i, true)
                   }}
                   visibleLevelOnChange={(value: number) => {
                     if (visibleLevel === value) {
@@ -108,7 +108,7 @@
               {:else}
                 <BlockContent
                   html={block.html ?? ''}
-                  onchange={(value: string) => onchange(value, i, false)}
+                  textOnchange={(value: string) => blockTextOnchange(value, i, false)}
                 />
               {/if}
             {/if}
