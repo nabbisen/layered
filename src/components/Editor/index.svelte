@@ -6,6 +6,7 @@
   import { type ParsedMarkdown } from './types'
   import { maxNestingLevel, visible } from './scripts'
   import RawContent from '../RawContent.svelte'
+  import './styles.css'
 
   onMount(() => {
     invoke('ready', {})
@@ -118,29 +119,3 @@
     {/if}
   </div>
 </main>
-
-<style>
-  .nested {
-    padding-left: 4.4rem;
-  }
-
-  .nested.nest-0 {
-    padding-left: 0;
-  }
-
-  .nested.nest-1 {
-    padding-left: 0.9rem;
-  }
-
-  .nested.nest-2 {
-    padding-left: 1.8rem;
-  }
-
-  .nested.nest-3 {
-    padding-left: 2.7rem;
-  }
-
-  .nested.nest-4 {
-    padding-left: 3.6rem;
-  }
-</style>
