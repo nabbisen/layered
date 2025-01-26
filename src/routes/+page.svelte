@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { invoke } from '@tauri-apps/api/core'
+  import BlockLeading from '../components/BlockLeading.svelte'
+  import BlockContent from '../components/BlockContent.svelte'
 
   onMount(() => {
     invoke('ready', {})
@@ -136,72 +138,19 @@
     <textarea class="col" onchange={markdownTextOnchange} bind:value={content}></textarea>
     <div class="col">
       {#each parsedMarkdowns as block, i}
-        <div style={`padding-left: ${(block.nesting_level - 1) * 0.6}rem;`}>
+        <div class={`nested nest-${block.nesting_level}`}>
           {#if block.visible}
             {#if block.heading_level && 0 < block.heading_level}
-              {#if block.heading_level === 1}
-                <h1
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h1>
-              {:else if block.heading_level === 2}
-                <h2
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h2>
-              {:else if block.heading_level === 3}
-                <h3
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h3>
-              {:else if block.heading_level === 4}
-                <h4
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h4>
-              {:else if block.heading_level === 5}
-                <h5
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h5>
-              {:else if block.heading_level === 6}
-                <h6
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </h6>
-              {:else}
-                <div
-                  class={`h${block.heading_level}`}
-                  onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
-                    onchange(e.currentTarget.innerText, i, true)}
-                  contenteditable
-                >
-                  {block.heading_text}
-                </div>
-              {/if}
+              <BlockLeading
+                heading_level={block.heading_level}
+                heading_text={block.heading_text ?? ''}
+                onchange={(value: string) => onchange(value, i, true)}
+              />
             {:else}
-              <textarea
-                onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
-                  onchange(e.currentTarget.value, i, false)}>{block.html}</textarea
-              >
+              <BlockContent
+                html={block.html ?? ''}
+                onchange={(value: string) => onchange(value, i, false)}
+              />
             {/if}
           {/if}
         </div>
@@ -219,25 +168,22 @@
     width: 50%;
   }
 
-  h1 {
-    margin-left: 0;
+  .nested {
+    padding-left: 4.4rem;
   }
-  h2 {
-    margin-left: 0.4rem;
+  .nested.nest-0 {
+    padding-left: 0;
   }
-  h3 {
-    margin-left: 0.8rem;
+  .nested.nest-1 {
+    padding-left: 0.9rem;
   }
-  h4 {
-    margin-left: 1.2rem;
+  .nested.nest-2 {
+    padding-left: 1.8rem;
   }
-  h5 {
-    margin-left: 1.6rem;
+  .nested.nest-3 {
+    padding-left: 2.7rem;
   }
-  h6 {
-    margin-left: 2rem;
-  }
-  .h7 {
-    margin-left: 2.4rem;
+  .nested.nest-4 {
+    padding-left: 3.6rem;
   }
 </style>
