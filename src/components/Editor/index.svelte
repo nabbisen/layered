@@ -4,7 +4,8 @@
   import BlockLeading from '../BlockLeading.svelte'
   import BlockContent from '../BlockContent.svelte'
   import { type ParsedMarkdown } from './types'
-  import { maxNestingLevel as getMaxNestingLevel, visible } from './scripts'
+  import { maxNestingLevel, visible } from './scripts'
+  import RawContent from '../RawContent.svelte'
 
   onMount(() => {
     invoke('ready', {})
@@ -18,10 +19,8 @@
       })
   })
 
-  const markdownTextOnchange = (
-    e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }
-  ) => {
-    parseMarkdownText(e.currentTarget.value)
+  const rawContentTextOnchange = (value: string) => {
+    parseMarkdownText(value)
   }
 
   const parseMarkdownText = (markdownText: string) => {
@@ -38,7 +37,7 @@
 
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
-  let maxNestingLevel = $derived.by(() => getMaxNestingLevel(parsedMarkdowns))
+  let _maxNestingLevel = $derived.by(() => maxNestingLevel(parsedMarkdowns))
 
   let visibleLevel: number | null = $state(null)
 
@@ -50,9 +49,11 @@
 </script>
 
 <main class="container">
-  <input type="number" min="0" max={maxNestingLevel} bind:value={visibleLevel} />
+  <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />
   <div class="d-flex row">
-    <textarea class="col" onchange={markdownTextOnchange} bind:value={content}></textarea>
+    <div class="col">
+      <RawContent {content} textOnchange={rawContentTextOnchange} />
+    </div>
     <div class="col">
       {#each parsedMarkdowns as block, i}
         <div class={`nested nest-${block.nesting_level}`}>
