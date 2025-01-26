@@ -78,7 +78,6 @@
   }
   footer nav {
     display: none;
-    margin-left: -1.2rem;
   }
   nav,
   .content:hover ~ footer nav,
