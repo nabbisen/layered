@@ -27,7 +27,6 @@
       .then((ret: unknown) => {
         console.log(ret)
         parsedMarkdowns = ret as ParsedMarkdown[]
-        changeVisibility()
       })
       .catch((error: unknown) => {
         console.error(error)
@@ -36,23 +35,12 @@
   }
 
   let visibleLevel: number | null = $state(null)
-  const changeVisibility = () => {
-    parsedMarkdowns = parsedMarkdowns.map((x) => {
-      const updateVisible = x
-      if (!visibleLevel || Number.isNaN(visibleLevel) || Number(visibleLevel) <= 0) {
-        updateVisible.visible = true
-        return updateVisible
-      }
-      updateVisible.visible = updateVisible.heading_level
-        ? updateVisible.heading_level <= Number(visibleLevel)
-        : false
-      return updateVisible
-    })
-  }
 
-  const visibleOnchange = (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
-    visibleLevel = Number.isNaN(e.currentTarget.value) ? null : Number(e.currentTarget.value)
-    changeVisibility()
+  const visible = (block: ParsedMarkdown): boolean => {
+    if (!visibleLevel || Number.isNaN(visibleLevel) || Number(visibleLevel) <= 0) {
+      return true
+    }
+    return block.heading_level ? block.heading_level <= Number(visibleLevel) : false
   }
 
   let content: string = $state('')
@@ -63,7 +51,6 @@
     heading_level: number | null
     heading_text: string | null
     html: string | null
-    visible: boolean
   }
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
   let maxNestingLevel = $derived.by(() => {
@@ -82,19 +69,13 @@
 </script>
 
 <main class="container">
-  <input
-    type="number"
-    min="0"
-    max={maxNestingLevel}
-    onchange={visibleOnchange}
-    bind:value={visibleLevel}
-  />
+  <input type="number" min="0" max={maxNestingLevel} bind:value={visibleLevel} />
   <div class="d-flex row">
     <textarea class="col" onchange={markdownTextOnchange} bind:value={content}></textarea>
     <div class="col">
       {#each parsedMarkdowns as block, i}
         <div class={`nested nest-${block.nesting_level}`}>
-          {#if block.visible}
+          {#if visible(block)}
             {#if block.heading_level && 0 < block.heading_level}
               <BlockLeading
                 heading_level={block.heading_level}
