@@ -1,17 +1,34 @@
 <script lang="ts">
-  const { content, textOnchange }: { content: string; textOnchange: Function } = $props()
+  import { onMount } from 'svelte'
+  import { Editor } from '@tiptap/core'
+  import StarterKit from '@tiptap/starter-kit'
 
-  let _content: string = $state(content)
+  const { content, onchange }: { content: string; onchange: Function } = $props()
 
   $effect(() => {
-    _content = content
+    if (!editor) return
+    editor.commands.setContent(content.replaceAll('\n', '<br>'))
     return
+  })
+
+  let element: HTMLDivElement
+
+  let editor: Editor | undefined = $state()
+  onMount(() => {
+    editor = new Editor({
+      element: element,
+      extensions: [StarterKit],
+      content: '',
+      onTransaction: () => {
+        // force re-render so `editor.isActive` works as expected
+        editor = editor
+      },
+      onBlur: () => {
+        if (!editor) return
+        onchange(editor.getText())
+      },
+    })
   })
 </script>
 
-<textarea
-  class="col"
-  onchange={(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) =>
-    textOnchange(e.currentTarget.value)}
-  bind:value={_content}
-></textarea>
+<div bind:this={element}></div>

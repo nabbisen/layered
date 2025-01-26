@@ -1,6 +1,6 @@
 {
   "name": "layered",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Editor manipulating layered paragraphs",
   "type": "module",
   "scripts": {
@@ -20,7 +20,10 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@tauri-apps/api": "^2.2.0",
-    "@tauri-apps/plugin-opener": "^2.2.5"
+    "@tauri-apps/plugin-opener": "^2.2.5",
+    "@tiptap/core": "^2.11.3",
+    "@tiptap/pm": "^2.11.3",
+    "@tiptap/starter-kit": "^2.11.3"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",
