@@ -19,7 +19,8 @@
       })
   })
 
-  const rawContentTextOnchange = (value: string) => {
+  const rawContentOnchange = (value: string) => {
+    content = value
     parseMarkdownText(value)
   }
 
@@ -79,7 +80,7 @@
   <div class="row">
     {#if ['raw', 'both'].includes(activeEditor)}
       <div class="col">
-        <RawContent {content} textOnchange={rawContentTextOnchange} />
+        <RawContent {content} onchange={rawContentOnchange} />
       </div>
     {/if}
     {#if ['layers', 'both'].includes(activeEditor)}
