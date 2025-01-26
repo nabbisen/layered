@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { invoke } from '@tauri-apps/api/core'
-  import BlockLeading from '../components/BlockLeading.svelte'
-  import BlockContent from '../components/BlockContent.svelte'
+  import BlockLeading from './BlockLeading.svelte'
+  import BlockContent from './BlockContent.svelte'
+  import { type ParsedMarkdown } from './Editor'
 
   onMount(() => {
     invoke('ready', {})
@@ -44,14 +45,6 @@
   }
 
   let content: string = $state('')
-  interface ParsedMarkdown {
-    node_id: number
-    ancestors: number[]
-    nesting_level: number
-    heading_level: number | null
-    heading_text: string | null
-    html: string | null
-  }
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
   let maxNestingLevel = $derived.by(() => {
     let maxLevel: number = 0
@@ -96,30 +89,5 @@
 </main>
 
 <style>
-  .d-flex {
-    display: flex !important;
-  }
-
-  .row .col {
-    width: 50%;
-  }
-
-  .nested {
-    padding-left: 4.4rem;
-  }
-  .nested.nest-0 {
-    padding-left: 0;
-  }
-  .nested.nest-1 {
-    padding-left: 0.9rem;
-  }
-  .nested.nest-2 {
-    padding-left: 1.8rem;
-  }
-  .nested.nest-3 {
-    padding-left: 2.7rem;
-  }
-  .nested.nest-4 {
-    padding-left: 3.6rem;
-  }
+  @import './Editor.css';
 </style>
