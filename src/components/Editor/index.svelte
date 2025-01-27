@@ -61,42 +61,43 @@
       })
   }
 
-  type ActiveEditor = 'raw' | 'both' | 'layers'
-  let activeEditor: ActiveEditor = $state('layers')
+  type EditorLayout = 'raw' | 'both' | 'layers'
+  const EDITOR_LAYOUTS: EditorLayout[] = ['raw', 'both', 'layers']
+  let activeEditor: EditorLayout = $state('layers')
+
+  const isRawEditorVisible = (): boolean => {
+    const matchers: EditorLayout[] = ['raw', 'both']
+    return matchers.includes(activeEditor)
+  }
+  const isLayersEditorVisible = (): boolean => {
+    const matchers: EditorLayout[] = ['layers', 'both']
+    return matchers.includes(activeEditor)
+  }
 </script>
 
 <main class="container editor">
   <nav>
     <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />
     <div class="d-flex">
-      <label
-        ><input type="radio" name="active-editor" bind:group={activeEditor} value="raw" />raw</label
-      >
-      <label
-        ><input
-          type="radio"
-          name="active-editor"
-          bind:group={activeEditor}
-          value="both"
-        />both</label
-      >
-      <label
-        ><input
-          type="radio"
-          name="active-editor"
-          bind:group={activeEditor}
-          value="layers"
-        />layers</label
-      >
+      {#each EDITOR_LAYOUTS as editorLayout}
+        <label
+          ><input
+            type="radio"
+            name="active-editor"
+            bind:group={activeEditor}
+            value={editorLayout}
+          />{editorLayout}</label
+        >
+      {/each}
     </div>
   </nav>
   <div class="row">
-    {#if ['raw', 'both'].includes(activeEditor)}
+    {#if isRawEditorVisible()}
       <div class="col">
         <RawContent {content} textOnchange={rawTextOnchange} />
       </div>
     {/if}
-    {#if ['layers', 'both'].includes(activeEditor)}
+    {#if isLayersEditorVisible()}
       <div class="col">
         {#each parsedMarkdowns as block, i}
           <div class={`nested nest-${block.nesting_level}`}>

@@ -73,6 +73,7 @@
   }
   nav button {
     background: none;
+    color: var(--theme-color);
     border: none;
     font-size: 1.1rem;
     border-radius: 0.22rem;
