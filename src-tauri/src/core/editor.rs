@@ -1,5 +1,6 @@
+use mdka::from_html;
 use pulldown_cmark::{html::push_html, Event, Options, Parser, Tag, TagEnd};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // todo: test data
 const TEST_MARKDOWN: &str = r#"
@@ -19,7 +20,7 @@ println!("test");
 ```
 "#;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct ParsedMarkdown {
     node_id: usize,
     ancestors: Vec<usize>,
@@ -156,4 +157,34 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
     }
 
     ret
+}
+
+#[tauri::command]
+pub fn compose(parsed_markdowns: Vec<ParsedMarkdown>) -> String {
+    parsed_markdowns
+        .iter()
+        .map(|x| {
+            if x.heading_level.is_some() {
+                format!(
+                    "{} {}",
+                    "#".repeat(x.heading_level.unwrap()),
+                    x.heading_text.clone().unwrap()
+                )
+            } else {
+                let s = from_html(&x.html.clone().unwrap());
+                s.lines()
+                    .map(|line| {
+                        // escape headings-like leading
+                        if line.starts_with('#') {
+                            format!(r"\{}", line)
+                        } else {
+                            line.to_string()
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }

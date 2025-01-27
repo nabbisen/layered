@@ -46,7 +46,19 @@
   const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
     if (isHeading && parsedMarkdowns[index].heading_text === value) return
 
-    // todo: update parsedMarkdowns
+    if (isHeading) {
+      parsedMarkdowns[index].heading_text = value
+    } else {
+      parsedMarkdowns[index].html = value
+    }
+    invoke('compose', { parsedMarkdowns: parsedMarkdowns })
+      .then((ret: unknown) => {
+        content = ret as string
+      })
+      .catch((error: unknown) => {
+        console.error(error)
+        return
+      })
   }
 
   type ActiveEditor = 'raw' | 'both' | 'layers'
