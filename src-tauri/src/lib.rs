@@ -1,7 +1,7 @@
 use tauri::Manager;
 
 mod core;
-use core::editor::{parse, ready};
+use core::editor::{compose, parse, ready};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -17,7 +17,7 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![ready, parse])
+        .invoke_handler(tauri::generate_handler![ready, parse, compose])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

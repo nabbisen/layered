@@ -75,6 +75,12 @@
     background: none;
     border: none;
     font-size: 1.1rem;
+    border-radius: 0.22rem;
+    border: 0.04rem solid transparent;
+  }
+  nav button:hover {
+    opacity: 0.7;
+    border-color: silver;
   }
   footer nav {
     display: none;

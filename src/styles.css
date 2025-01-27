@@ -17,12 +17,8 @@
 }
 
 /* todo: move to components/ ? */
-.editor *[contenteditable],
-.editor textarea {
+.editor *[contenteditable] {
+    padding: 0.1rem 0.4rem;
     font-size: 1.2rem;
-}
-
-.editor textarea {
-    width: calc(100% - 0.9rem);
-    height: 40vh;
+    border: 0.04rem solid orange;
 }

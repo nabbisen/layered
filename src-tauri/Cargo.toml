@@ -1,6 +1,6 @@
 [package]
 name = "layered"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 
 description = "Editor manipulating layered paragraphs "
@@ -30,3 +30,4 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 pulldown-cmark = { version = "^0.12", default-features = false, features = ["html"] }
+mdka = "1.2"

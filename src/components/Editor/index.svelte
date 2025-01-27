@@ -6,6 +6,7 @@
   import { type ParsedMarkdown } from './types'
   import { maxNestingLevel, visible } from './scripts'
   import RawContent from '../RawContent.svelte'
+  import './styles.css'
 
   onMount(() => {
     invoke('ready', {})
@@ -19,7 +20,7 @@
       })
   })
 
-  const rawContentOnchange = (value: string) => {
+  const rawTextOnchange = (value: string) => {
     content = value
     parseMarkdownText(value)
   }
@@ -42,10 +43,22 @@
 
   let visibleLevel: number | null = $state(null)
 
-  const onchange = (value: string, index: number, isHeading: boolean) => {
+  const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
     if (isHeading && parsedMarkdowns[index].heading_text === value) return
 
-    // todo: update parsedMarkdowns
+    if (isHeading) {
+      parsedMarkdowns[index].heading_text = value
+    } else {
+      parsedMarkdowns[index].html = value
+    }
+    invoke('compose', { parsedMarkdowns: parsedMarkdowns })
+      .then((ret: unknown) => {
+        content = ret as string
+      })
+      .catch((error: unknown) => {
+        console.error(error)
+        return
+      })
   }
 
   type ActiveEditor = 'raw' | 'both' | 'layers'
@@ -80,7 +93,7 @@
   <div class="row">
     {#if ['raw', 'both'].includes(activeEditor)}
       <div class="col">
-        <RawContent {content} onchange={rawContentOnchange} />
+        <RawContent {content} textOnchange={rawTextOnchange} />
       </div>
     {/if}
     {#if ['layers', 'both'].includes(activeEditor)}
@@ -95,7 +108,7 @@
                   heading_text={block.heading_text ?? ''}
                   {visibleLevel}
                   textOnchange={(value: string) => {
-                    onchange(value, i, true)
+                    blockTextOnchange(value, i, true)
                   }}
                   visibleLevelOnChange={(value: number) => {
                     if (visibleLevel === value) {
@@ -108,7 +121,7 @@
               {:else}
                 <BlockContent
                   html={block.html ?? ''}
-                  onchange={(value: string) => onchange(value, i, false)}
+                  textOnchange={(value: string) => blockTextOnchange(value, i, false)}
                 />
               {/if}
             {/if}
@@ -118,29 +131,3 @@
     {/if}
   </div>
 </main>
-
-<style>
-  .nested {
-    padding-left: 4.4rem;
-  }
-
-  .nested.nest-0 {
-    padding-left: 0;
-  }
-
-  .nested.nest-1 {
-    padding-left: 0.9rem;
-  }
-
-  .nested.nest-2 {
-    padding-left: 1.8rem;
-  }
-
-  .nested.nest-3 {
-    padding-left: 2.7rem;
-  }
-
-  .nested.nest-4 {
-    padding-left: 3.6rem;
-  }
-</style>
