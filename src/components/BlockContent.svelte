@@ -17,7 +17,7 @@
         // force re-render so `editor.isActive` works as expected
         editor = editor
       },
-      onUpdate: () => {
+      onBlur: () => {
         if (!editor) return
         textOnchange(editor.getText())
       },
