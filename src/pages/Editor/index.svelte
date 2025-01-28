@@ -1,14 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { invoke } from '@tauri-apps/api/core'
-  import BlockLeading from '../BlockLeading.svelte'
-  import BlockContent from '../BlockContent.svelte'
+  import BlockLeading from './Content/BlockLeading.svelte'
+  import BlockContent from './Content/BlockContent.svelte'
+  import RawContent from './Content/RawContent.svelte'
+  import FileHandler from './Helpers/FileHandler.svelte'
   import { type ParsedMarkdown } from './types'
   import { maxNestingLevel, visible } from './scripts'
-  import RawContent from '../RawContent.svelte'
   import './styles.css'
 
   onMount(() => {
+    // todo dev dummy
     invoke('ready', {})
       .then((ret: unknown) => {
         content = ret as string
@@ -75,6 +77,13 @@
   }
 </script>
 
+<FileHandler
+  {parsedMarkdowns}
+  rawContentOnChange={(rawContent: string) => {
+    content = rawContent
+    parseMarkdownText(content)
+  }}
+/>
 <main class="container editor">
   <nav>
     <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />

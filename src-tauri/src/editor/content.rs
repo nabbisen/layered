@@ -1,41 +1,7 @@
+use super::types::ParsedMarkdown;
 use mdka::from_html;
 use pulldown_cmark::{html::push_html, Event, Options, Parser, Tag, TagEnd};
-use serde::{Deserialize, Serialize};
 
-// todo: test data
-const TEST_MARKDOWN: &str = r#"
-# a~~b~~
-## b
-### c1
-123
-- a
-- b
-  1. c
-  1. d
-### c2
-456
-
-```rust
-println!("test");
-```
-"#;
-
-#[derive(Serialize, Deserialize)]
-pub struct ParsedMarkdown {
-    node_id: usize,
-    ancestors: Vec<usize>,
-    nesting_level: usize,
-    heading_level: Option<usize>,
-    heading_text: Option<String>,
-    html: Option<String>,
-}
-
-#[tauri::command]
-pub fn ready() -> String {
-    TEST_MARKDOWN.to_owned()
-}
-
-#[tauri::command]
 pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
     let mut ret: Vec<ParsedMarkdown> = vec![];
 
@@ -159,7 +125,6 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
     ret
 }
 
-#[tauri::command]
 pub fn compose(parsed_markdowns: Vec<ParsedMarkdown>) -> String {
     parsed_markdowns
         .iter()

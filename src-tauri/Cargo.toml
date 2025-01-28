@@ -1,6 +1,6 @@
 [package]
 name = "layered"
-version = "0.3.3"
+version = "0.4.0"
 edition = "2021"
 
 description = "Editor manipulating layered paragraphs "
@@ -31,3 +31,4 @@ serde_json = "1"
 
 pulldown-cmark = { version = "^0.12", default-features = false, features = ["html"] }
 mdka = "1.2"
+tauri-plugin-dialog = "2"

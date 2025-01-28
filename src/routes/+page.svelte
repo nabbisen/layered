@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Editor from '../components/Editor/index.svelte'
+  import Editor from '../pages/Editor/index.svelte'
   import BottomBar from '../layouts/BottomBar.svelte'
 </script>
 
