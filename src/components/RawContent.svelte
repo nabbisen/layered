@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { Editor } from '@tiptap/core'
-  import StarterKit from '@tiptap/starter-kit'
+  import Document from '@tiptap/extension-document'
+  import Paragraph from '@tiptap/extension-paragraph'
+  import Text from '@tiptap/extension-text'
+  import HardBreak from '@tiptap/extension-hard-break'
 
   const { content, textOnchange }: { content: string; textOnchange: Function } = $props()
 
@@ -17,7 +20,7 @@
   onMount(() => {
     editor = new Editor({
       element: element,
-      extensions: [StarterKit],
+      extensions: [Document, Paragraph, Text, HardBreak],
       content: '',
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected
