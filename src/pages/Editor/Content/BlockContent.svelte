@@ -19,7 +19,7 @@
       },
       onBlur: () => {
         if (!editor) return
-        textOnchange(editor.getText())
+        textOnchange(editor.getHTML())
       },
     })
   })
