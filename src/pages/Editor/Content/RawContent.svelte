@@ -10,7 +10,7 @@
 
   $effect(() => {
     if (!editor) return
-    editor.commands.setContent(content.replaceAll('\n', '<br>'))
+    editor.commands.setContent(content, false, { preserveWhitespace: 'full' })
     return
   })
 
