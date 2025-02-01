@@ -3,7 +3,7 @@ import { type ParsedMarkdown } from "./types"
 export const getMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]) => {
     let ret: number = 1
     parsedMarkdowns.forEach((x: ParsedMarkdown) => {
-        if (ret < x.heading_level) ret = x.heading_level
+        if (ret < x.headingLevel) ret = x.headingLevel
     })
     return ret
 }

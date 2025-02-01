@@ -42,10 +42,10 @@
 
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
+  let visibleLevel: number | null = $state(null)
+
   let maxHeadingLevel = $derived.by(() => getMaxHeadingLevel(parsedMarkdowns))
   let maxVisibleLevel = $derived(maxHeadingLevel + 1)
-
-  let visibleLevel: number | null = $state(null)
 
   const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
     if (isHeading && parsedMarkdowns[index].text === value) return
@@ -107,12 +107,12 @@
     {#if isLayersEditorVisible()}
       <div class="col">
         {#each parsedMarkdowns as block, i}
-          <div class={`nested nest-${block.heading_level}`}>
-            {#if block.is_heading}
-              {#if isBlockLeadingVisible(block.heading_level, visibleLevel)}
+          <div class={`nested nest-${block.headingLevel}`}>
+            {#if block.isHeading}
+              {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
                 <BlockLeading
-                  is_heading={block.is_heading}
-                  heading_level={block.heading_level!}
+                  isHeading={block.isHeading}
+                  headingLevel={block.headingLevel!}
                   text={block.text}
                   {visibleLevel}
                   textOnchange={(value: string) => {
@@ -127,7 +127,7 @@
                   }}
                 />
               {/if}
-            {:else if isBlockContentVisible(block.heading_level, visibleLevel, block.text)}
+            {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
               <BlockContent
                 text={block.text}
                 textOnchange={(value: string) => blockTextOnchange(value, i, false)}

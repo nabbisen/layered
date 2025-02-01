@@ -1,14 +1,14 @@
 <script lang="ts">
   const {
-    is_heading,
-    heading_level,
+    isHeading,
+    headingLevel,
     text,
     visibleLevel,
     textOnchange,
     visibleLevelOnChange,
   }: {
-    is_heading: boolean
-    heading_level: number
+    isHeading: boolean
+    headingLevel: number
     text: string
     visibleLevel: number | null
     textOnchange: Function
@@ -16,25 +16,25 @@
   } = $props()
 
   const hasChildrenNested = () => {
-    return visibleLevel && heading_level === visibleLevel
+    return visibleLevel && headingLevel === visibleLevel
   }
 </script>
 
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange(heading_level)}
+      <button onclick={() => visibleLevelOnChange(headingLevel)}
         >{hasChildrenNested() ? '+' : '-'}</button
       >
-      <button class={!visibleLevel ? 'rotate-90' : heading_level < visibleLevel ? 'rotate-90' : ''}
+      <button class={!visibleLevel ? 'rotate-90' : headingLevel < visibleLevel ? 'rotate-90' : ''}
         >></button
       >
     </nav>
   </header>
   <div class="content">
-    {#if heading_level <= 6}
+    {#if headingLevel <= 6}
       <svelte:element
-        this={`h${heading_level}`}
+        this={`h${headingLevel}`}
         onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
           textOnchange(e.currentTarget.innerText)}
         contenteditable
@@ -43,7 +43,7 @@
       </svelte:element>
     {:else}
       <div
-        class={`h${heading_level}`}
+        class={`h${headingLevel}`}
         onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
           textOnchange(e.currentTarget.innerText)}
         contenteditable
