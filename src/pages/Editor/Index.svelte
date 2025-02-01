@@ -5,7 +5,7 @@
   import BlockContent from './Content/BlockContent.svelte'
   import RawContent from './Content/RawContent.svelte'
   import FileHandler from './Helpers/FileHandler.svelte'
-  import { type ParsedMarkdown } from './types'
+  import { type BlockContentVisible, type ParsedMarkdown } from './types'
   import { getMaxHeadingLevel, isBlockLeadingVisible, isBlockContentVisible } from './scripts'
   import './styles.css'
 
@@ -43,9 +43,16 @@
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
   let visibleLevel: number | null = $state(null)
+  let nodeVisibles: BlockContentVisible[] = $state([])
 
   let maxHeadingLevel = $derived.by(() => getMaxHeadingLevel(parsedMarkdowns))
   let maxVisibleLevel = $derived(maxHeadingLevel + 1)
+
+  const isChildrenVisible = (nodeId: number, headingLevel: number): boolean => {
+    const found = nodeVisibles.find((x) => x.nodeId === nodeId)
+    if (found) return found.childrenVisible
+    return visibleLevel ? headingLevel === visibleLevel : false
+  }
 
   const addBlockNode = (
     index: number,
@@ -124,23 +131,26 @@
               {#if block.isHeading}
                 {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
                   <BlockLeading
-                    isHeading={block.isHeading}
                     headingLevel={block.headingLevel!}
                     text={block.text}
-                    {visibleLevel}
+                    childrenVisible={isChildrenVisible(block.nodeId, block.headingLevel)}
                     textOnchange={(value: string) => {
                       blockTextOnchange(value, i, true)
                     }}
-                    visibleLevelOnChange={(value: number) => {
-                      if (visibleLevel === value) {
+                    visibleLevelOnChange={() => {
+                      nodeVisibles = [] // todo: preserve higher levels
+                      if (visibleLevel === block.headingLevel) {
                         visibleLevel = maxVisibleLevel
                       } else {
-                        visibleLevel = value
+                        visibleLevel = block.headingLevel
                       }
                     }}
-                    childrenVisibleOnChange={() => {
-                      // todo
-                      console.log(123)
+                    childrenVisibleOnChange={(updated: boolean) => {
+                      nodeVisibles = nodeVisibles.filter((x) => x.nodeId !== block.nodeId)
+                      nodeVisibles.push({
+                        nodeId: block.nodeId,
+                        childrenVisible: updated,
+                      } as BlockContentVisible)
                     }}
                     addSiblingHeading={() =>
                       addBlockNode(
@@ -170,7 +180,7 @@
                     }}
                   />
                 {/if}
-              {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
+              {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text, nodeVisibles, block.parentNodeId)}
                 <BlockContent
                   text={block.text}
                   textOnchange={(value: string) => blockTextOnchange(value, i, false)}

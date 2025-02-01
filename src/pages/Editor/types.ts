@@ -7,3 +7,8 @@ export interface ParsedMarkdown {
     parentNodeId: number | null
     ancestors: number[]
 }
+
+export interface BlockContentVisible {
+    nodeId: number
+    childrenVisible: boolean
+}

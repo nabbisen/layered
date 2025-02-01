@@ -1,4 +1,4 @@
-import { type ParsedMarkdown } from "./types"
+import { type BlockContentVisible, type ParsedMarkdown } from "./types"
 
 export const getMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]) => {
     let ret: number = 1
@@ -18,7 +18,9 @@ export const isBlockLeadingVisible = (nestingLevel: number | null, visibleLevel:
     return Number(nestingLevel) <= Number(visibleLevel)
 }
 
-export const isBlockContentVisible = (headingLevel: number, visibleLevel: number | null, text: string): boolean => {
+export const isBlockContentVisible = (headingLevel: number, visibleLevel: number | null, text: string, nodeVisibles: BlockContentVisible[], parentNodeId: number | null): boolean => {
+    const found = nodeVisibles.find((x) => x.nodeId === parentNodeId)
+    if (found) return found.childrenVisible
     if (!visibleLevel || Number.isNaN(visibleLevel)) {
         return false
     }
