@@ -6,6 +6,10 @@
     visibleLevel,
     textOnchange,
     visibleLevelOnChange,
+    childrenVisibleOnChange,
+    addSiblingHeading,
+    addChildHeading,
+    addChildContent,
   }: {
     isHeading: boolean
     headingLevel: number
@@ -13,6 +17,10 @@
     visibleLevel: number | null
     textOnchange: Function
     visibleLevelOnChange: Function
+    childrenVisibleOnChange: Function
+    addSiblingHeading: Function
+    addChildHeading: Function
+    addChildContent: Function
   } = $props()
 
   const hasChildrenNested = () => {
@@ -26,8 +34,9 @@
       <button onclick={() => visibleLevelOnChange(headingLevel)}
         >{hasChildrenNested() ? '+' : '-'}</button
       >
-      <button class={!visibleLevel ? 'rotate-90' : headingLevel < visibleLevel ? 'rotate-90' : ''}
-        >></button
+      <button
+        class={!visibleLevel ? 'rotate-90' : headingLevel < visibleLevel ? 'rotate-90' : ''}
+        onclick={() => childrenVisibleOnChange()}>></button
       >
     </nav>
   </header>
@@ -54,8 +63,12 @@
   </div>
   <footer>
     <nav>
-      <button>+-</button>
-      <button>+|</button>
+      <button onclick={() => addSiblingHeading()}>+-</button>
+      <button>--</button>
+      <button onclick={() => addChildHeading()}>+/</button>
+      <button>-/</button>
+      <button onclick={() => addChildContent()}>+|</button>
+      <button>-|</button>
     </nav>
   </footer>
 </div>
