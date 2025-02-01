@@ -6,7 +6,7 @@
   import RawContent from './Content/RawContent.svelte'
   import FileHandler from './Helpers/FileHandler.svelte'
   import { type ParsedMarkdown } from './types'
-  import { maxNestingLevel, visible } from './scripts'
+  import { getMaxHeadingLevel, isBlockLeadingVisible, isBlockContentVisible } from './scripts'
   import './styles.css'
 
   onMount(() => {
@@ -30,8 +30,9 @@
   const parseMarkdownText = (markdownText: string) => {
     invoke('parse', { markdownText: markdownText })
       .then((ret: unknown) => {
-        console.log(ret)
+        console.log(ret) // todo
         parsedMarkdowns = ret as ParsedMarkdown[]
+        if (!visibleLevel) visibleLevel = maxVisibleLevel
       })
       .catch((error: unknown) => {
         console.error(error)
@@ -41,18 +42,33 @@
 
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
-  let _maxNestingLevel = $derived.by(() => maxNestingLevel(parsedMarkdowns))
-
   let visibleLevel: number | null = $state(null)
 
-  const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
-    if (isHeading && parsedMarkdowns[index].heading_text === value) return
+  let maxHeadingLevel = $derived.by(() => getMaxHeadingLevel(parsedMarkdowns))
+  let maxVisibleLevel = $derived(maxHeadingLevel + 1)
 
-    if (isHeading) {
-      parsedMarkdowns[index].heading_text = value
-    } else {
-      parsedMarkdowns[index].html = value
-    }
+  const addBlockNode = (
+    index: number,
+    isHeading: boolean,
+    headinLevel: number,
+    parentNodeId: number | null,
+    ancestors: number[]
+  ) => {
+    parsedMarkdowns.splice(index, 0, {
+      nodeId: parsedMarkdowns.length + 1,
+      isHeading: isHeading,
+      headingLevel: headinLevel,
+      text: '',
+      parentNodeId: parentNodeId,
+      ancestors: ancestors,
+    } as ParsedMarkdown)
+    parsedMarkdowns = [...parsedMarkdowns]
+  }
+
+  const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
+    if (isHeading && parsedMarkdowns[index].text === value) return
+
+    parsedMarkdowns[index].text = value
     invoke('compose', { parsedMarkdowns: parsedMarkdowns })
       .then((ret: unknown) => {
         content = ret as string
@@ -71,22 +87,16 @@
     const matchers: EditorLayout[] = ['raw', 'both']
     return matchers.includes(activeEditor)
   }
+
   const isLayersEditorVisible = (): boolean => {
     const matchers: EditorLayout[] = ['layers', 'both']
     return matchers.includes(activeEditor)
   }
 </script>
 
-<FileHandler
-  {parsedMarkdowns}
-  rawContentOnChange={(rawContent: string) => {
-    content = rawContent
-    parseMarkdownText(content)
-  }}
-/>
 <main class="container editor">
-  <nav>
-    <input type="number" min="0" max={_maxNestingLevel} bind:value={visibleLevel} />
+  <nav class="d-flex">
+    <input type="number" min={1} max={maxVisibleLevel} bind:value={visibleLevel} />
     <div class="d-flex">
       {#each EDITOR_LAYOUTS as editorLayout}
         <label
@@ -109,31 +119,56 @@
     {#if isLayersEditorVisible()}
       <div class="col">
         {#each parsedMarkdowns as block, i}
-          <div class={`nested nest-${block.nesting_level}`}>
-            {#if visible(block, visibleLevel)}
-              {#if block.heading_level && 0 < block.heading_level}
+          <div class={`nested nest-${block.headingLevel}`}>
+            {#if block.isHeading}
+              {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
                 <BlockLeading
-                  nesting_level={block.nesting_level}
-                  heading_level={block.heading_level}
-                  heading_text={block.heading_text ?? ''}
+                  isHeading={block.isHeading}
+                  headingLevel={block.headingLevel!}
+                  text={block.text}
                   {visibleLevel}
                   textOnchange={(value: string) => {
                     blockTextOnchange(value, i, true)
                   }}
                   visibleLevelOnChange={(value: number) => {
                     if (visibleLevel === value) {
-                      visibleLevel = null
+                      visibleLevel = maxVisibleLevel
                     } else {
                       visibleLevel = value
                     }
                   }}
-                />
-              {:else}
-                <BlockContent
-                  html={block.html ?? ''}
-                  textOnchange={(value: string) => blockTextOnchange(value, i, false)}
+                  childrenVisibleOnChange={() => {
+                    // todo
+                    console.log(123)
+                  }}
+                  addSiblingHeading={() =>
+                    addBlockNode(
+                      i + 1,
+                      true,
+                      block.headingLevel,
+                      block.parentNodeId,
+                      block.ancestors
+                    )}
+                  addChildHeading={() =>
+                    addBlockNode(
+                      i + 1,
+                      true,
+                      block.headingLevel + 1,
+                      block.parentNodeId,
+                      block.ancestors
+                    )}
+                  addChildContent={() =>
+                    addBlockNode(i + 1, false, block.headingLevel, block.nodeId, [
+                      ...block.ancestors,
+                      block.nodeId,
+                    ])}
                 />
               {/if}
+            {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
+              <BlockContent
+                text={block.text}
+                textOnchange={(value: string) => blockTextOnchange(value, i, false)}
+              />
             {/if}
           </div>
         {/each}
@@ -141,3 +176,10 @@
     {/if}
   </div>
 </main>
+<FileHandler
+  {parsedMarkdowns}
+  rawContentOnChange={(rawContent: string) => {
+    content = rawContent
+    parseMarkdownText(content)
+  }}
+/>

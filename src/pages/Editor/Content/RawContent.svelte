@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { Editor } from '@tiptap/core'
   import Document from '@tiptap/extension-document'
   import Paragraph from '@tiptap/extension-paragraph'
@@ -31,6 +31,10 @@
         textOnchange(editor.getText())
       },
     })
+  })
+
+  onDestroy(() => {
+    if (editor) editor.destroy()
   })
 </script>
 

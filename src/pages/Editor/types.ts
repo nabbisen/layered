@@ -1,9 +1,9 @@
 
 export interface ParsedMarkdown {
-    node_id: number
+    nodeId: number
+    headingLevel: number
+    isHeading: boolean
+    text: string
+    parentNodeId: number | null
     ancestors: number[]
-    nesting_level: number
-    heading_level: number | null
-    heading_text: string | null
-    html: string | null
 }

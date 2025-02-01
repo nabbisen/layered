@@ -1,58 +1,74 @@
 <script lang="ts">
   const {
-    nesting_level,
-    heading_level,
-    heading_text,
+    isHeading,
+    headingLevel,
+    text,
     visibleLevel,
     textOnchange,
     visibleLevelOnChange,
+    childrenVisibleOnChange,
+    addSiblingHeading,
+    addChildHeading,
+    addChildContent,
   }: {
-    nesting_level: number
-    heading_level: number
-    heading_text: string
+    isHeading: boolean
+    headingLevel: number
+    text: string
     visibleLevel: number | null
     textOnchange: Function
     visibleLevelOnChange: Function
+    childrenVisibleOnChange: Function
+    addSiblingHeading: Function
+    addChildHeading: Function
+    addChildContent: Function
   } = $props()
+
+  const hasChildrenNested = () => {
+    return visibleLevel && headingLevel === visibleLevel
+  }
 </script>
 
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange(nesting_level + 1)}
-        >{visibleLevel && nesting_level === visibleLevel - 1 ? '+' : '-'}</button
+      <button onclick={() => visibleLevelOnChange(headingLevel)}
+        >{hasChildrenNested() ? '+' : '-'}</button
       >
       <button
-        class={!visibleLevel ? 'rotate-90' : nesting_level < visibleLevel - 1 ? 'rotate-90' : ''}
-        >></button
+        class={!visibleLevel ? 'rotate-90' : headingLevel < visibleLevel ? 'rotate-90' : ''}
+        onclick={() => childrenVisibleOnChange()}>></button
       >
     </nav>
   </header>
   <div class="content">
-    {#if heading_level <= 6}
+    {#if headingLevel <= 6}
       <svelte:element
-        this={`h${heading_level}`}
+        this={`h${headingLevel}`}
         onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
           textOnchange(e.currentTarget.innerText)}
         contenteditable
       >
-        {heading_text}
+        {text}
       </svelte:element>
     {:else}
       <div
-        class={`h${heading_level}`}
+        class={`h${headingLevel}`}
         onblur={(e: FocusEvent & { currentTarget: EventTarget & HTMLElement }) =>
           textOnchange(e.currentTarget.innerText)}
         contenteditable
       >
-        {heading_text}
+        {text}
       </div>
     {/if}
   </div>
   <footer>
     <nav>
-      <button>+-</button>
-      <button>+|</button>
+      <button onclick={() => addSiblingHeading()}>+-</button>
+      <button>--</button>
+      <button onclick={() => addChildHeading()}>+/</button>
+      <button>-/</button>
+      <button onclick={() => addChildContent()}>+|</button>
+      <button>-|</button>
     </nav>
   </footer>
 </div>
