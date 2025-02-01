@@ -14,16 +14,19 @@
     textOnchange: Function
     visibleLevelOnChange: Function
   } = $props()
+
+  const hasChildrenNested = () => {
+    return visibleLevel && nesting_level === visibleLevel
+  }
 </script>
 
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange(nesting_level + 1)}
-        >{visibleLevel && nesting_level === visibleLevel - 1 ? '+' : '-'}</button
+      <button onclick={() => visibleLevelOnChange(nesting_level)}
+        >{hasChildrenNested() ? '+' : '-'}</button
       >
-      <button
-        class={!visibleLevel ? 'rotate-90' : nesting_level < visibleLevel - 1 ? 'rotate-90' : ''}
+      <button class={!visibleLevel ? 'rotate-90' : nesting_level < visibleLevel ? 'rotate-90' : ''}
         >></button
       >
     </nav>

@@ -2,6 +2,8 @@ use super::types::ParsedMarkdown;
 use mdka::from_html;
 use pulldown_cmark::{html::push_html, Event, Options, Parser, Tag, TagEnd};
 
+const MIN_NESTING_LEVEL: usize = 1;
+
 pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
     let mut ret: Vec<ParsedMarkdown> = vec![];
 
@@ -11,7 +13,7 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
     let mut heading_parsed_markdown = ParsedMarkdown {
         node_id: 0,
         ancestors: vec![],
-        nesting_level: 0,
+        nesting_level: MIN_NESTING_LEVEL,
         heading_level: None,
         heading_text: None,
         html: None,
@@ -30,7 +32,7 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
                         ret.push(ParsedMarkdown {
                             node_id,
                             ancestors: ancestors.clone(),
-                            nesting_level: ancestors.len(),
+                            nesting_level: ancestors.len() + 1,
                             heading_level: None,
                             heading_text: None,
                             html: Some(html_buf),
@@ -64,7 +66,7 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
                     ret.push(ParsedMarkdown {
                         node_id,
                         ancestors: heading_parsed_markdown.ancestors.clone(),
-                        nesting_level: heading_parsed_markdown.ancestors.len(),
+                        nesting_level: heading_parsed_markdown.ancestors.len() + 1,
                         heading_level: heading_parsed_markdown.heading_level.clone(),
                         heading_text: heading_parsed_markdown.heading_text.clone(),
                         html: None,
@@ -75,7 +77,7 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
                     heading_parsed_markdown = ParsedMarkdown {
                         node_id,
                         ancestors: ancestors.clone(),
-                        nesting_level: ancestors.len(),
+                        nesting_level: ancestors.len() + 1,
                         heading_level: None,
                         heading_text: None,
                         html: None,
@@ -115,7 +117,7 @@ pub fn parse(markdown_text: &str) -> Vec<ParsedMarkdown> {
         ret.push(ParsedMarkdown {
             node_id,
             ancestors: ancestors.clone(),
-            nesting_level: ancestors.len(),
+            nesting_level: ancestors.len() + 1,
             heading_level: None,
             heading_text: None,
             html: Some(html_buf),
