@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { Editor } from '@tiptap/core'
   import StarterKit from '@tiptap/starter-kit'
 
@@ -22,6 +22,10 @@
         textOnchange(editor.getHTML())
       },
     })
+  })
+
+  onDestroy(() => {
+    if (editor) editor.destroy()
   })
 </script>
 
