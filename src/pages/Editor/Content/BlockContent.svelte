@@ -3,7 +3,7 @@
   import { Editor } from '@tiptap/core'
   import StarterKit from '@tiptap/starter-kit'
 
-  const { html, textOnchange }: { html: string; textOnchange: Function } = $props()
+  const { text, textOnchange }: { text: string; textOnchange: Function } = $props()
 
   let element: HTMLDivElement
 
@@ -12,7 +12,7 @@
     editor = new Editor({
       element: element,
       extensions: [StarterKit],
-      content: html,
+      content: text,
       onTransaction: () => {
         // force re-render so `editor.isActive` works as expected
         editor = editor

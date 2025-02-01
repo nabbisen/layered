@@ -1,32 +1,32 @@
 <script lang="ts">
   const {
-    nesting_level,
+    is_heading,
     heading_level,
-    heading_text,
+    text,
     visibleLevel,
     textOnchange,
     visibleLevelOnChange,
   }: {
-    nesting_level: number
+    is_heading: boolean
     heading_level: number
-    heading_text: string
+    text: string
     visibleLevel: number | null
     textOnchange: Function
     visibleLevelOnChange: Function
   } = $props()
 
   const hasChildrenNested = () => {
-    return visibleLevel && nesting_level === visibleLevel
+    return visibleLevel && heading_level === visibleLevel
   }
 </script>
 
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange(nesting_level)}
+      <button onclick={() => visibleLevelOnChange(heading_level)}
         >{hasChildrenNested() ? '+' : '-'}</button
       >
-      <button class={!visibleLevel ? 'rotate-90' : nesting_level < visibleLevel ? 'rotate-90' : ''}
+      <button class={!visibleLevel ? 'rotate-90' : heading_level < visibleLevel ? 'rotate-90' : ''}
         >></button
       >
     </nav>
@@ -39,7 +39,7 @@
           textOnchange(e.currentTarget.innerText)}
         contenteditable
       >
-        {heading_text}
+        {text}
       </svelte:element>
     {:else}
       <div
@@ -48,7 +48,7 @@
           textOnchange(e.currentTarget.innerText)}
         contenteditable
       >
-        {heading_text}
+        {text}
       </div>
     {/if}
   </div>

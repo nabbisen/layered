@@ -1,1 +1,0 @@
-export const MIN_NESTING_LEVEL: number = 1

@@ -6,9 +6,8 @@
   import RawContent from './Content/RawContent.svelte'
   import FileHandler from './Helpers/FileHandler.svelte'
   import { type ParsedMarkdown } from './types'
-  import { getMaxNestingLevel, isBlockLeadingVisible, isBlockContentVisible } from './scripts'
+  import { getMaxHeadingLevel, isBlockLeadingVisible, isBlockContentVisible } from './scripts'
   import './styles.css'
-  import { MIN_NESTING_LEVEL } from './consts'
 
   onMount(() => {
     // todo dev dummy
@@ -43,19 +42,15 @@
 
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
-  let maxNestingLevel = $derived.by(() => getMaxNestingLevel(parsedMarkdowns))
-  let maxVisibleLevel = $derived(maxNestingLevel)
+  let maxHeadingLevel = $derived.by(() => getMaxHeadingLevel(parsedMarkdowns))
+  let maxVisibleLevel = $derived(maxHeadingLevel + 1)
 
   let visibleLevel: number | null = $state(null)
 
   const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
-    if (isHeading && parsedMarkdowns[index].heading_text === value) return
+    if (isHeading && parsedMarkdowns[index].text === value) return
 
-    if (isHeading) {
-      parsedMarkdowns[index].heading_text = value
-    } else {
-      parsedMarkdowns[index].html = value
-    }
+    parsedMarkdowns[index].text = value
     invoke('compose', { parsedMarkdowns: parsedMarkdowns })
       .then((ret: unknown) => {
         content = ret as string
@@ -89,7 +84,7 @@
 />
 <main class="container editor">
   <nav>
-    <input type="number" min={MIN_NESTING_LEVEL} max={maxVisibleLevel} bind:value={visibleLevel} />
+    <input type="number" min={1} max={maxVisibleLevel} bind:value={visibleLevel} />
     <div class="d-flex">
       {#each EDITOR_LAYOUTS as editorLayout}
         <label
@@ -112,28 +107,29 @@
     {#if isLayersEditorVisible()}
       <div class="col">
         {#each parsedMarkdowns as block, i}
-          <div class={`nested nest-${block.nesting_level}`}>
-            {#if isBlockLeadingVisible(block.heading_level, visibleLevel)}
-              <BlockLeading
-                nesting_level={block.nesting_level}
-                heading_level={block.heading_level!}
-                heading_text={block.heading_text ?? ''}
-                {visibleLevel}
-                textOnchange={(value: string) => {
-                  blockTextOnchange(value, i, true)
-                }}
-                visibleLevelOnChange={(value: number) => {
-                  if (visibleLevel === value) {
-                    visibleLevel = maxVisibleLevel
-                  } else {
-                    visibleLevel = value
-                  }
-                }}
-              />
-            {/if}
-            {#if isBlockContentVisible(block.nesting_level, visibleLevel, block.html)}
+          <div class={`nested nest-${block.heading_level}`}>
+            {#if block.is_heading}
+              {#if isBlockLeadingVisible(block.heading_level, visibleLevel)}
+                <BlockLeading
+                  is_heading={block.is_heading}
+                  heading_level={block.heading_level!}
+                  text={block.text}
+                  {visibleLevel}
+                  textOnchange={(value: string) => {
+                    blockTextOnchange(value, i, true)
+                  }}
+                  visibleLevelOnChange={(value: number) => {
+                    if (visibleLevel === value) {
+                      visibleLevel = maxVisibleLevel
+                    } else {
+                      visibleLevel = value
+                    }
+                  }}
+                />
+              {/if}
+            {:else if isBlockContentVisible(block.heading_level, visibleLevel, block.text)}
               <BlockContent
-                html={block.html!}
+                text={block.text}
                 textOnchange={(value: string) => blockTextOnchange(value, i, false)}
               />
             {/if}
