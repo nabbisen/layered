@@ -10,6 +10,7 @@
     addSiblingHeading,
     addChildHeading,
     addChildContent,
+    remove,
   }: {
     isHeading: boolean
     headingLevel: number
@@ -21,6 +22,7 @@
     addSiblingHeading: Function
     addChildHeading: Function
     addChildContent: Function
+    remove: Function
   } = $props()
 
   const hasChildrenNested = () => {
@@ -66,7 +68,7 @@
       <button onclick={() => addSiblingHeading()}>+-</button>
       <button onclick={() => addChildHeading()}>+/</button>
       <button onclick={() => addChildContent()}>+|</button>
-      <button>--</button>
+      <button onclick={() => remove()}>--</button>
     </nav>
   </footer>
 </div>

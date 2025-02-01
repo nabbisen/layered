@@ -163,6 +163,11 @@
                         ...block.ancestors,
                         block.nodeId,
                       ])}
+                    remove={() => {
+                      parsedMarkdowns = parsedMarkdowns.filter(
+                        (x) => x.nodeId !== block.nodeId && !x.ancestors.includes(block.nodeId)
+                      )
+                    }}
                   />
                 {/if}
               {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
