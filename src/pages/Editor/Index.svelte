@@ -119,57 +119,59 @@
     {#if isLayersEditorVisible()}
       <div class="col">
         {#each parsedMarkdowns as block, i}
-          <div class={`nested nest-${block.headingLevel}`}>
-            {#if block.isHeading}
-              {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
-                <BlockLeading
-                  isHeading={block.isHeading}
-                  headingLevel={block.headingLevel!}
+          <div class="line" data-line={i + 1}>
+            <div class={`nested nest-${block.headingLevel}`}>
+              {#if block.isHeading}
+                {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
+                  <BlockLeading
+                    isHeading={block.isHeading}
+                    headingLevel={block.headingLevel!}
+                    text={block.text}
+                    {visibleLevel}
+                    textOnchange={(value: string) => {
+                      blockTextOnchange(value, i, true)
+                    }}
+                    visibleLevelOnChange={(value: number) => {
+                      if (visibleLevel === value) {
+                        visibleLevel = maxVisibleLevel
+                      } else {
+                        visibleLevel = value
+                      }
+                    }}
+                    childrenVisibleOnChange={() => {
+                      // todo
+                      console.log(123)
+                    }}
+                    addSiblingHeading={() =>
+                      addBlockNode(
+                        i + 1,
+                        true,
+                        block.headingLevel,
+                        block.parentNodeId,
+                        block.ancestors
+                      )}
+                    addChildHeading={() =>
+                      addBlockNode(
+                        i + 1,
+                        true,
+                        block.headingLevel + 1,
+                        block.parentNodeId,
+                        block.ancestors
+                      )}
+                    addChildContent={() =>
+                      addBlockNode(i + 1, false, block.headingLevel, block.nodeId, [
+                        ...block.ancestors,
+                        block.nodeId,
+                      ])}
+                  />
+                {/if}
+              {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
+                <BlockContent
                   text={block.text}
-                  {visibleLevel}
-                  textOnchange={(value: string) => {
-                    blockTextOnchange(value, i, true)
-                  }}
-                  visibleLevelOnChange={(value: number) => {
-                    if (visibleLevel === value) {
-                      visibleLevel = maxVisibleLevel
-                    } else {
-                      visibleLevel = value
-                    }
-                  }}
-                  childrenVisibleOnChange={() => {
-                    // todo
-                    console.log(123)
-                  }}
-                  addSiblingHeading={() =>
-                    addBlockNode(
-                      i + 1,
-                      true,
-                      block.headingLevel,
-                      block.parentNodeId,
-                      block.ancestors
-                    )}
-                  addChildHeading={() =>
-                    addBlockNode(
-                      i + 1,
-                      true,
-                      block.headingLevel + 1,
-                      block.parentNodeId,
-                      block.ancestors
-                    )}
-                  addChildContent={() =>
-                    addBlockNode(i + 1, false, block.headingLevel, block.nodeId, [
-                      ...block.ancestors,
-                      block.nodeId,
-                    ])}
+                  textOnchange={(value: string) => blockTextOnchange(value, i, false)}
                 />
               {/if}
-            {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
-              <BlockContent
-                text={block.text}
-                textOnchange={(value: string) => blockTextOnchange(value, i, false)}
-              />
-            {/if}
+            </div>
           </div>
         {/each}
       </div>

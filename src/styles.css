@@ -43,10 +43,3 @@ html body {
 .rotate-90 {
     transform: rotate(90deg) !important;
 }
-
-/* todo: move to components/ ? */
-.editor *[contenteditable] {
-    padding: 0.1rem 0.4rem;
-    font-size: 1.2rem;
-    border: 0.04rem solid orange;
-}

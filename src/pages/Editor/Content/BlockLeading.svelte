@@ -64,11 +64,9 @@
   <footer>
     <nav>
       <button onclick={() => addSiblingHeading()}>+-</button>
-      <button>--</button>
       <button onclick={() => addChildHeading()}>+/</button>
-      <button>-/</button>
       <button onclick={() => addChildContent()}>+|</button>
-      <button>-|</button>
+      <button>--</button>
     </nav>
   </footer>
 </div>
@@ -85,7 +83,7 @@
   }
 
   nav {
-    padding: 0 1.1rem;
+    padding-right: 1.1rem;
   }
   nav button {
     background: none;
