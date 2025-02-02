@@ -4,7 +4,7 @@
     text,
     childrenVisible,
     textOnchange,
-    visibleLevelOnChange,
+    maxVisibleNodeLevelOnChange,
     childrenVisibleOnChange,
     addSiblingHeading,
     addChildHeading,
@@ -15,7 +15,7 @@
     text: string
     childrenVisible: boolean | null
     textOnchange: Function
-    visibleLevelOnChange: Function
+    maxVisibleNodeLevelOnChange: Function
     childrenVisibleOnChange: Function
     addSiblingHeading: Function
     addChildHeading: Function
@@ -27,7 +27,7 @@
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange()}>{!childrenVisible ? '+' : '-'}</button>
+      <button onclick={() => maxVisibleNodeLevelOnChange()}>{!childrenVisible ? '+' : '-'}</button>
       <button
         class={childrenVisible ? 'rotate-90' : ''}
         onclick={() => childrenVisibleOnChange(!childrenVisible)}>></button
