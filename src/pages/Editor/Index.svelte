@@ -1,13 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { invoke } from '@tauri-apps/api/core'
-  import BlockLeading from './Content/BlockLeading.svelte'
-  import BlockContent from './Content/BlockContent.svelte'
+  import HeadingNode from './Content/HeadingNode.svelte'
+  import ContentNode from './Content/ContentNode.svelte'
   import RawContent from './Content/RawContent.svelte'
   import FileHandler from './Helpers/FileHandler.svelte'
   import { type ParsedMarkdown } from './types'
-  import { getMaxHeadingLevel, isBlockLeadingVisible, isBlockContentVisible } from './scripts'
+  import { findMaxHeadingLevel, isNodeChildrenVisible, mapNodeVisibles } from './scripts'
   import './styles.css'
+
+  let content: string = $state('')
+  let parsedMarkdowns: ParsedMarkdown[] = $state([])
+  let maxVisibleNodeLevel: number | null = $state(null)
+
+  let maxHeadingLevel = $derived.by(() => findMaxHeadingLevel(parsedMarkdowns))
+  let maxMaxVisibleNodeLevel = $derived(maxHeadingLevel + 1)
 
   onMount(() => {
     // todo dev dummy
@@ -32,7 +39,10 @@
       .then((ret: unknown) => {
         console.log(ret) // todo
         parsedMarkdowns = ret as ParsedMarkdown[]
-        if (!visibleLevel) visibleLevel = maxVisibleLevel
+        if (!maxVisibleNodeLevel) {
+          maxVisibleNodeLevel = maxMaxVisibleNodeLevel
+        }
+        parsedMarkdowns = mapNodeVisibles(parsedMarkdowns, maxMaxVisibleNodeLevel)
       })
       .catch((error: unknown) => {
         console.error(error)
@@ -40,14 +50,21 @@
       })
   }
 
-  let content: string = $state('')
-  let parsedMarkdowns: ParsedMarkdown[] = $state([])
-  let visibleLevel: number | null = $state(null)
+  const nodeTextOnchange = (value: string, index: number, isHeading: boolean) => {
+    if (isHeading && parsedMarkdowns[index].text === value) return
 
-  let maxHeadingLevel = $derived.by(() => getMaxHeadingLevel(parsedMarkdowns))
-  let maxVisibleLevel = $derived(maxHeadingLevel + 1)
+    parsedMarkdowns[index].text = value
+    invoke('compose', { parsedMarkdowns: parsedMarkdowns })
+      .then((ret: unknown) => {
+        content = ret as string
+      })
+      .catch((error: unknown) => {
+        console.error(error)
+        return
+      })
+  }
 
-  const addBlockNode = (
+  const addNode = (
     index: number,
     isHeading: boolean,
     headinLevel: number,
@@ -61,22 +78,15 @@
       text: '',
       parentNodeId: parentNodeId,
       ancestors: ancestors,
+      visible: true,
     } as ParsedMarkdown)
-    parsedMarkdowns = [...parsedMarkdowns]
+    parsedMarkdowns = parsedMarkdowns
   }
 
-  const blockTextOnchange = (value: string, index: number, isHeading: boolean) => {
-    if (isHeading && parsedMarkdowns[index].text === value) return
-
-    parsedMarkdowns[index].text = value
-    invoke('compose', { parsedMarkdowns: parsedMarkdowns })
-      .then((ret: unknown) => {
-        content = ret as string
-      })
-      .catch((error: unknown) => {
-        console.error(error)
-        return
-      })
+  const removeNode = (nodeId: number) => {
+    parsedMarkdowns = parsedMarkdowns.filter(
+      (x) => x.nodeId !== nodeId && !x.ancestors.includes(nodeId)
+    )
   }
 
   type EditorLayout = 'raw' | 'both' | 'layers'
@@ -96,7 +106,7 @@
 
 <main class="container editor">
   <nav class="d-flex">
-    <input type="number" min={1} max={maxVisibleLevel} bind:value={visibleLevel} />
+    <input type="number" min={1} max={maxMaxVisibleNodeLevel} bind:value={maxVisibleNodeLevel} />
     <div class="d-flex">
       {#each EDITOR_LAYOUTS as editorLayout}
         <label
@@ -118,66 +128,61 @@
     {/if}
     {#if isLayersEditorVisible()}
       <div class="col">
-        {#each parsedMarkdowns as block, i}
-          <div class="line" data-line={i + 1}>
-            <div class={`nested nest-${block.headingLevel}`}>
-              {#if block.isHeading}
-                {#if isBlockLeadingVisible(block.headingLevel, visibleLevel)}
-                  <BlockLeading
-                    isHeading={block.isHeading}
-                    headingLevel={block.headingLevel!}
-                    text={block.text}
-                    {visibleLevel}
+        {#each parsedMarkdowns as node, i}
+          {#if node.visible}
+            <div class="line">
+              <div class={`nested nest-${node.headingLevel}`}>
+                {#if node.isHeading}
+                  <HeadingNode
+                    headingLevel={node.headingLevel}
+                    childrenVisible={isNodeChildrenVisible(node.nodeId, parsedMarkdowns)}
+                    text={node.text}
                     textOnchange={(value: string) => {
-                      blockTextOnchange(value, i, true)
+                      nodeTextOnchange(value, i, true)
                     }}
-                    visibleLevelOnChange={(value: number) => {
-                      if (visibleLevel === value) {
-                        visibleLevel = maxVisibleLevel
+                    maxVisibleNodeLevelOnChange={() => {
+                      if (maxVisibleNodeLevel === node.headingLevel) {
+                        maxVisibleNodeLevel = maxMaxVisibleNodeLevel
                       } else {
-                        visibleLevel = value
+                        maxVisibleNodeLevel = node.headingLevel
                       }
+                      parsedMarkdowns = mapNodeVisibles(parsedMarkdowns, maxVisibleNodeLevel)
                     }}
-                    childrenVisibleOnChange={() => {
-                      // todo
-                      console.log(123)
+                    childrenVisibleOnChange={(updated: boolean) => {
+                      parsedMarkdowns = parsedMarkdowns.map((x) => {
+                        const mod = x
+                        if (mod.ancestors.includes(node.nodeId)) {
+                          mod.visible = updated
+                        }
+                        return mod
+                      })
                     }}
                     addSiblingHeading={() =>
-                      addBlockNode(
-                        i + 1,
-                        true,
-                        block.headingLevel,
-                        block.parentNodeId,
-                        block.ancestors
-                      )}
+                      addNode(i + 1, true, node.headingLevel, node.parentNodeId, node.ancestors)}
                     addChildHeading={() =>
-                      addBlockNode(
+                      addNode(
                         i + 1,
                         true,
-                        block.headingLevel + 1,
-                        block.parentNodeId,
-                        block.ancestors
+                        node.headingLevel + 1,
+                        node.parentNodeId,
+                        node.ancestors
                       )}
                     addChildContent={() =>
-                      addBlockNode(i + 1, false, block.headingLevel, block.nodeId, [
-                        ...block.ancestors,
-                        block.nodeId,
+                      addNode(i + 1, false, node.headingLevel, node.nodeId, [
+                        ...node.ancestors,
+                        node.nodeId,
                       ])}
-                    remove={() => {
-                      parsedMarkdowns = parsedMarkdowns.filter(
-                        (x) => x.nodeId !== block.nodeId && !x.ancestors.includes(block.nodeId)
-                      )
-                    }}
+                    remove={() => removeNode(node.nodeId)}
+                  />
+                {:else}
+                  <ContentNode
+                    text={node.text}
+                    textOnchange={(value: string) => nodeTextOnchange(value, i, false)}
                   />
                 {/if}
-              {:else if isBlockContentVisible(block.headingLevel, visibleLevel, block.text)}
-                <BlockContent
-                  text={block.text}
-                  textOnchange={(value: string) => blockTextOnchange(value, i, false)}
-                />
-              {/if}
+              </div>
             </div>
-          </div>
+          {/if}
         {/each}
       </div>
     {/if}

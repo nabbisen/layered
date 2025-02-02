@@ -1,6 +1,6 @@
 import { type ParsedMarkdown } from "./types"
 
-export const getMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]) => {
+export const findMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]): number => {
     let ret: number = 1
     parsedMarkdowns.forEach((x: ParsedMarkdown) => {
         if (ret < x.headingLevel) ret = x.headingLevel
@@ -8,19 +8,25 @@ export const getMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]) => {
     return ret
 }
 
-export const isBlockLeadingVisible = (nestingLevel: number | null, visibleLevel: number | null): boolean => {
-    if (!visibleLevel || Number.isNaN(visibleLevel)) {
-        return true
-    }
-    if (!nestingLevel || Number.isNaN(nestingLevel)) {
-        return false
-    }
-    return Number(nestingLevel) <= Number(visibleLevel)
+export const mapNodeVisibles = (parsedMarkdowns: ParsedMarkdown[], maxVisibleNodeLevel: number | null): ParsedMarkdown[] => {
+    const ret = parsedMarkdowns.map((x) => {
+        const mod = x
+
+        if (maxVisibleNodeLevel === null) {
+            mod.visible = true
+            return mod
+        }
+
+        if (mod.isHeading) {
+            mod.visible = mod.headingLevel <= maxVisibleNodeLevel
+        } else {
+            mod.visible = mod.headingLevel < maxVisibleNodeLevel
+        }
+        return mod
+    })
+    return ret
 }
 
-export const isBlockContentVisible = (headingLevel: number, visibleLevel: number | null, text: string): boolean => {
-    if (!visibleLevel || Number.isNaN(visibleLevel)) {
-        return false
-    }
-    return Number(headingLevel) < Number(visibleLevel) ? text !== null : false
+export const isNodeChildrenVisible = (nodeId: number, parsedMarkdowns: ParsedMarkdown[]): boolean => {
+    return parsedMarkdowns.some((x) => x.parentNodeId === nodeId && x.visible === true)
 }

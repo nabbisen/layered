@@ -1,6 +1,7 @@
 .nested {
     width: calc(100% - 4.4rem);
     padding-left: 4.4rem;
+    counter-reset: node-line-number;
 }
 
 .nested.nest-1 {
@@ -26,10 +27,11 @@
 .line {
     width: 100%;
     display: flex;
+    counter-increment: node-line-number;
 }
 
 .line::before {
-    content: attr(data-line);
+    content: counter(node-line-number);
     width: 2.2em;
     padding-right: 0.4rem;
     display: inline-flex;

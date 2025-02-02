@@ -1,44 +1,36 @@
 <script lang="ts">
   const {
-    isHeading,
     headingLevel,
     text,
-    visibleLevel,
+    childrenVisible,
     textOnchange,
-    visibleLevelOnChange,
+    maxVisibleNodeLevelOnChange,
     childrenVisibleOnChange,
     addSiblingHeading,
     addChildHeading,
     addChildContent,
     remove,
   }: {
-    isHeading: boolean
     headingLevel: number
     text: string
-    visibleLevel: number | null
+    childrenVisible: boolean | null
     textOnchange: Function
-    visibleLevelOnChange: Function
+    maxVisibleNodeLevelOnChange: Function
     childrenVisibleOnChange: Function
     addSiblingHeading: Function
     addChildHeading: Function
     addChildContent: Function
     remove: Function
   } = $props()
-
-  const hasChildrenNested = () => {
-    return visibleLevel && headingLevel === visibleLevel
-  }
 </script>
 
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => visibleLevelOnChange(headingLevel)}
-        >{hasChildrenNested() ? '+' : '-'}</button
-      >
+      <button onclick={() => maxVisibleNodeLevelOnChange()}>{!childrenVisible ? '+' : '-'}</button>
       <button
-        class={!visibleLevel ? 'rotate-90' : headingLevel < visibleLevel ? 'rotate-90' : ''}
-        onclick={() => childrenVisibleOnChange()}>></button
+        class={childrenVisible ? 'rotate-90' : ''}
+        onclick={() => childrenVisibleOnChange(!childrenVisible)}>></button
       >
     </nav>
   </header>

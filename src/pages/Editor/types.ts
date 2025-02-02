@@ -6,4 +6,5 @@ export interface ParsedMarkdown {
     text: string
     parentNodeId: number | null
     ancestors: number[]
+    visible: boolean | null
 }

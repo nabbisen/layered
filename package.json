@@ -1,6 +1,6 @@
 {
   "name": "layered",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Editor manipulating layered paragraphs",
   "type": "module",
   "scripts": {
