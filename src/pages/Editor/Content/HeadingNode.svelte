@@ -1,8 +1,9 @@
 <script lang="ts">
   const {
     headingLevel,
-    text,
+    hasChildren,
     childrenVisible,
+    text,
     textOnchange,
     maxVisibleNodeLevelOnChange,
     childrenVisibleOnChange,
@@ -12,8 +13,9 @@
     remove,
   }: {
     headingLevel: number
+    hasChildren: boolean
+    childrenVisible: boolean
     text: string
-    childrenVisible: boolean | null
     textOnchange: Function
     maxVisibleNodeLevelOnChange: Function
     childrenVisibleOnChange: Function
@@ -27,10 +29,13 @@
 <div class="d-flex">
   <header>
     <nav>
-      <button onclick={() => maxVisibleNodeLevelOnChange()}>{!childrenVisible ? '+' : '-'}</button>
+      <button onclick={() => maxVisibleNodeLevelOnChange()} disabled={!hasChildren}
+        >{!childrenVisible ? '+' : '-'}</button
+      >
       <button
         class={childrenVisible ? 'rotate-90' : ''}
-        onclick={() => childrenVisibleOnChange(!childrenVisible)}>></button
+        onclick={() => childrenVisibleOnChange(!childrenVisible)}
+        disabled={!hasChildren}>></button
       >
     </nav>
   </header>
@@ -98,5 +103,9 @@
   .content:hover ~ footer nav,
   footer nav:hover {
     display: flex;
+  }
+
+  button:disabled {
+    color: grey;
   }
 </style>

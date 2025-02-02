@@ -27,6 +27,10 @@ export const mapNodeVisibles = (parsedMarkdowns: ParsedMarkdown[], maxVisibleNod
     return ret
 }
 
+export const hasNodeChildren = (nodeId: number, parsedMarkdowns: ParsedMarkdown[]): boolean => {
+    return parsedMarkdowns.some((x) => x.parentNodeId === nodeId)
+}
+
 export const isNodeChildrenVisible = (nodeId: number, parsedMarkdowns: ParsedMarkdown[]): boolean => {
     return parsedMarkdowns.some((x) => x.parentNodeId === nodeId && x.visible === true)
 }

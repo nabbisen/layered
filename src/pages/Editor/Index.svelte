@@ -6,7 +6,12 @@
   import RawContent from './Content/RawContent.svelte'
   import FileHandler from './Helpers/FileHandler.svelte'
   import { type ParsedMarkdown } from './types'
-  import { findMaxHeadingLevel, isNodeChildrenVisible, mapNodeVisibles } from './scripts'
+  import {
+    findMaxHeadingLevel,
+    hasNodeChildren,
+    isNodeChildrenVisible,
+    mapNodeVisibles,
+  } from './scripts'
   import './styles.css'
 
   let content: string = $state('')
@@ -83,6 +88,21 @@
     parsedMarkdowns = parsedMarkdowns
   }
 
+  const addHeadingNode = (
+    index: number,
+    headingLevel: number,
+    nodeParentId: number | null,
+    ancestors: number[]
+  ) => {
+    const nextHeadingIndex = parsedMarkdowns.findIndex((x, i) => {
+      if (i <= index) return false
+      return x.isHeading && x.headingLevel < headingLevel
+    })
+    const found = nextHeadingIndex !== -1
+    const headingToAddIndex = found ? nextHeadingIndex : parsedMarkdowns.length
+    addNode(headingToAddIndex, true, headingLevel, nodeParentId, ancestors)
+  }
+
   const removeNode = (nodeId: number) => {
     parsedMarkdowns = parsedMarkdowns.filter(
       (x) => x.nodeId !== nodeId && !x.ancestors.includes(nodeId)
@@ -135,6 +155,7 @@
                 {#if node.isHeading}
                   <HeadingNode
                     headingLevel={node.headingLevel}
+                    hasChildren={hasNodeChildren(node.nodeId, parsedMarkdowns)}
                     childrenVisible={isNodeChildrenVisible(node.nodeId, parsedMarkdowns)}
                     text={node.text}
                     textOnchange={(value: string) => {
@@ -158,15 +179,12 @@
                       })
                     }}
                     addSiblingHeading={() =>
-                      addNode(i + 1, true, node.headingLevel, node.parentNodeId, node.ancestors)}
+                      addHeadingNode(i, node.headingLevel, node.parentNodeId, node.ancestors)}
                     addChildHeading={() =>
-                      addNode(
-                        i + 1,
-                        true,
-                        node.headingLevel + 1,
-                        node.parentNodeId,
-                        node.ancestors
-                      )}
+                      addHeadingNode(i, node.headingLevel + 1, node.nodeId, [
+                        ...node.ancestors,
+                        node.nodeId,
+                      ])}
                     addChildContent={() =>
                       addNode(i + 1, false, node.headingLevel, node.nodeId, [
                         ...node.ancestors,
