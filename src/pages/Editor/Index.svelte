@@ -109,6 +109,10 @@
     )
   }
 
+  const maxVisibleNodeLevelOnChange = () => {
+    parsedMarkdowns = mapNodeVisibles(parsedMarkdowns, maxVisibleNodeLevel)
+  }
+
   type EditorLayout = 'raw' | 'both' | 'layers'
   const EDITOR_LAYOUTS: EditorLayout[] = ['raw', 'both', 'layers']
   let activeEditor: EditorLayout = $state('layers')
@@ -126,7 +130,13 @@
 
 <main class="container editor">
   <nav class="d-flex">
-    <input type="number" min={1} max={maxMaxVisibleNodeLevel} bind:value={maxVisibleNodeLevel} />
+    <input
+      type="number"
+      min={1}
+      max={maxMaxVisibleNodeLevel}
+      bind:value={maxVisibleNodeLevel}
+      onchange={maxVisibleNodeLevelOnChange}
+    />
     <div class="d-flex">
       {#each EDITOR_LAYOUTS as editorLayout}
         <label
