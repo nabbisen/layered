@@ -43,6 +43,38 @@
     opacity: 0.57;
 }
 
+.editor-tab {
+    position: relative;
+    height: 100%;
+    padding-right: 2.1em;
+}
+
+.editor-tab>aside {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 2.1em;
+    background-color: white;
+    color: grey;
+}
+
+.editor-tab>aside>nav,
+.editor-tab>footer>nav {
+    display: flex;
+}
+
+.editor-tab>aside>nav {
+    flex-direction: column;
+}
+
+.editor-tab>footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+}
+
 .editor *[contenteditable] {
     min-width: 7.2em;
     padding: 0.1rem 0.4rem;
