@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Editor from '../pages/Editor/Index.svelte'
   import BottomBar from '../layouts/BottomBar.svelte'
+  import Tabs from '../layouts/Tabs.svelte'
 </script>
 
-<Editor />
+<Tabs />
 <BottomBar />
