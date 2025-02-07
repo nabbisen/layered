@@ -7,8 +7,9 @@
   import FileHandler from './FileHandler.svelte'
   import TextEditor from './TextEditor/TextEditor.svelte'
   import TreeEditor from './TreeEditor/TreeEditor.svelte'
+  import LayerEditor from './LayerEditor/LayerEditor.svelte'
 
-  const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
+  const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layer'
 
   const { markdownText }: { markdownText: string } = $props()
 
@@ -36,51 +37,56 @@
     _markdownText = updated
     parseMarkdownText(updated)
   }
-
-  const isRawEditorVisibleMatchers: EditorLayout[] = ['raw', 'both']
-  const isRawEditorVisible: boolean = $derived(isRawEditorVisibleMatchers.includes(activeEditor))
-
-  const isLayersEditorVisibleMatchers: EditorLayout[] = ['layers', 'both']
-  const isLayersEditorVisible: boolean = $derived(
-    isLayersEditorVisibleMatchers.includes(activeEditor)
-  )
 </script>
 
-<nav class="d-flex">
-  <div class="d-flex">
-    {#each EDITOR_LAYOUTS as editorLayout}
-      <label
-        ><input
-          type="radio"
-          name="active-editor"
-          bind:group={activeEditor}
-          value={editorLayout}
-        />{editorLayout}</label
-      >
-    {/each}
-  </div>
-</nav>
-
-<div class="editor">
-  {#if isLayersEditorVisible}
-    {#key parsedMarkdowns}
-      <TreeEditor
+<div class="editor-tab">
+  <div class="editor">
+    {#if activeEditor === 'layer'}
+      <LayerEditor
         {parsedMarkdowns}
-        parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-        contentOnChange={(updated: string) => (_markdownText = updated)}
+        parsedMarkdownsOnChange={(updated) => {
+          parsedMarkdowns = updated
+          // todo: update md text
+        }}
       />
-    {/key}
-  {/if}
-  {#if isRawEditorVisible}
-    <div class="col">
-      <TextEditor markdownText={_markdownText} markdownTextOnchange={textEditorContentOnchange} />
-    </div>
-  {/if}
+    {:else if activeEditor === 'tree'}
+      {#key parsedMarkdowns}
+        <TreeEditor
+          {parsedMarkdowns}
+          parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
+          contentOnChange={(updated: string) => (_markdownText = updated)}
+        />
+      {/key}
+    {:else if activeEditor === 'text'}
+      <div class="col">
+        <TextEditor markdownText={_markdownText} markdownTextOnchange={textEditorContentOnchange} />
+      </div>
+    {/if}
+  </div>
 
-  <FileHandler
-    {parsedMarkdowns}
-    markdownTextOnChange={(markdownText: string) => {
-      updateEditorContent(markdownText)
-    }}
-  />
+  <aside>
+    <nav class="d-flex">
+      {#each EDITOR_LAYOUTS as editorLayout}
+        <label
+          ><input
+            type="radio"
+            name="active-editor"
+            bind:group={activeEditor}
+            value={editorLayout}
+          />{editorLayout}</label
+        >
+      {/each}
+    </nav>
+  </aside>
+
+  <footer>
+    <nav>
+      <FileHandler
+        {parsedMarkdowns}
+        markdownTextOnChange={(markdownText: string) => {
+          updateEditorContent(markdownText)
+        }}
+      />
+    </nav>
+  </footer>
 </div>
