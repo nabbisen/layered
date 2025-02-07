@@ -7,12 +7,14 @@
   import HardBreak from '@tiptap/extension-hard-break'
   import '../../../styles/editors.css'
 
-  const { content, textOnchange }: { content: string; textOnchange: (updated: string) => void } =
-    $props()
+  const {
+    markdownText,
+    markdownTextOnchange,
+  }: { markdownText: string; markdownTextOnchange: (updated: string) => void } = $props()
 
   $effect(() => {
     if (!editor) return
-    editor.commands.setContent(content, false, { preserveWhitespace: 'full' })
+    editor.commands.setContent(markdownText, false, { preserveWhitespace: 'full' })
     return
   })
 
@@ -30,7 +32,7 @@
       },
       onBlur: () => {
         if (!editor) return
-        textOnchange(editor.getText())
+        markdownTextOnchange(editor.getText())
       },
     })
   })

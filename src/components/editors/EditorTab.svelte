@@ -10,15 +10,15 @@
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
-  let content: string = $state('')
+  const { markdownText }: { markdownText: string } = $props()
+
+  let _markdownText: string = $state(markdownText)
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
 
   let activeEditor: EditorLayout = $state(DEFAULT_EDITOR_LAYOUT)
 
   onMount(async () => {
-    // todo dev dummy
-    const markdownText = (await invoke('ready', {})) as string
-    await updateEditorContent(markdownText)
+    await updateEditorContent(_markdownText)
   })
 
   const parseMarkdownText = async (markdownText: string): Promise<ParsedMarkdown[]> => {
@@ -29,11 +29,11 @@
     parsedMarkdowns = await parseMarkdownText(markdownText)
     console.log($state.snapshot(parsedMarkdowns)) // todo
 
-    content = markdownText
+    _markdownText = markdownText
   }
 
   const textEditorContentOnchange = (updated: string) => {
-    content = updated
+    _markdownText = updated
     parseMarkdownText(updated)
   }
 
@@ -67,13 +67,13 @@
       <Editor
         {parsedMarkdowns}
         parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-        contentOnChange={(updated: string) => (content = updated)}
+        contentOnChange={(updated: string) => (_markdownText = updated)}
       />
     {/key}
   {/if}
   {#if isRawEditorVisible}
     <div class="col">
-      <TextEditor {content} textOnchange={textEditorContentOnchange} />
+      <TextEditor markdownText={_markdownText} markdownTextOnchange={textEditorContentOnchange} />
     </div>
   {/if}
 
