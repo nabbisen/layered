@@ -6,26 +6,30 @@
   import { type EditorLayout, type ParsedMarkdown } from '../../types'
   import FileHandler from './FileHandler.svelte'
   import TextEditor from '../TextEditor/TextEditor.svelte'
-  import Editor from '../Editor/Editor.svelte'
+  import Editor from '../TreeEditor/TreeEditor.svelte'
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
 
-  let activeEditor: EditorLayout = $state('raw') // todo: array initialization not work
+  let activeEditor: EditorLayout = $state(DEFAULT_EDITOR_LAYOUT)
 
   onMount(async () => {
     // todo dev dummy
     const markdownText = (await invoke('ready', {})) as string
-    parsedMarkdowns = await parseMarkdownText(markdownText)
-    content = markdownText
-
-    activeEditor = DEFAULT_EDITOR_LAYOUT // todo: array initialization not work
+    await updateEditorContent(markdownText)
   })
 
   const parseMarkdownText = async (markdownText: string): Promise<ParsedMarkdown[]> => {
     return (await invoke('parse', { markdownText: markdownText })) as ParsedMarkdown[]
+  }
+
+  const updateEditorContent = async (markdownText: string) => {
+    parsedMarkdowns = await parseMarkdownText(markdownText)
+    console.log($state.snapshot(parsedMarkdowns)) // todo
+
+    content = markdownText
   }
 
   const textEditorContentOnchange = (updated: string) => {
@@ -58,11 +62,13 @@
 </nav>
 
 {#if isLayersEditorVisible}
-  <Editor
-    {parsedMarkdowns}
-    parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-    contentOnChange={(updated: string) => (content = updated)}
-  />
+  {#key parsedMarkdowns}
+    <Editor
+      {parsedMarkdowns}
+      parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
+      contentOnChange={(updated: string) => (content = updated)}
+    />
+  {/key}
 {/if}
 {#if isRawEditorVisible}
   <div class="col">
@@ -73,6 +79,6 @@
 <FileHandler
   {parsedMarkdowns}
   markdownTextOnChange={(markdownText: string) => {
-    parseMarkdownText(markdownText)
+    updateEditorContent(markdownText)
   }}
 />

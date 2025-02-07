@@ -22,7 +22,7 @@
     contentOnChange: (updated: string) => void
   } = $props()
 
-  let _parsedMarkdowns: ParsedMarkdown[] = $state([...parsedMarkdowns])
+  let _parsedMarkdowns: ParsedMarkdown[] = $state(parsedMarkdowns)
   let maxVisibleNodeLevel: number | null = $state(null)
 
   let maxHeadingLevel = $derived.by(() => findMaxHeadingLevel(_parsedMarkdowns))
