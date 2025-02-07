@@ -6,7 +6,7 @@
   import { type EditorLayout, type ParsedMarkdown } from '../../types'
   import FileHandler from './FileHandler.svelte'
   import TextEditor from './TextEditor/TextEditor.svelte'
-  import Editor from './TreeEditor/TreeEditor.svelte'
+  import TreeEditor from './TreeEditor/TreeEditor.svelte'
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
@@ -64,7 +64,7 @@
 <div class="editor">
   {#if isLayersEditorVisible}
     {#key parsedMarkdowns}
-      <Editor
+      <TreeEditor
         {parsedMarkdowns}
         parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
         contentOnChange={(updated: string) => (_markdownText = updated)}
