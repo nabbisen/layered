@@ -6,7 +6,7 @@
   import { type EditorLayout, type ParsedMarkdown } from '../../types'
   import FileHandler from './FileHandler.svelte'
   import TextEditor from '../TextEditor/TextEditor.svelte'
-  import Editor from '../Editor/Editor.svelte'
+  import Editor from '../TreeEditor/TreeEditor.svelte'
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
@@ -72,7 +72,8 @@
 
 <FileHandler
   {parsedMarkdowns}
-  markdownTextOnChange={(markdownText: string) => {
-    parseMarkdownText(markdownText)
+  markdownTextOnChange={async (markdownText: string) => {
+    parsedMarkdowns = await parseMarkdownText(markdownText)
+    content = markdownText
   }}
 />

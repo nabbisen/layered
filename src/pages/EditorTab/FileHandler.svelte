@@ -10,7 +10,7 @@
     markdownTextOnChange,
   }: {
     parsedMarkdowns: ParsedMarkdown[]
-    markdownTextOnChange: (rawContent: string) => void
+    markdownTextOnChange: (markdownText: string) => void
   } = $props()
 
   let openedFilepath: string | undefined = $state()
