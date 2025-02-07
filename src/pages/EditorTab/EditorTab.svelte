@@ -18,14 +18,20 @@
   onMount(async () => {
     // todo dev dummy
     const markdownText = (await invoke('ready', {})) as string
-    parsedMarkdowns = await parseMarkdownText(markdownText)
-    content = markdownText
+    await updateEditorContent(markdownText)
 
     activeEditor = DEFAULT_EDITOR_LAYOUT // todo: array initialization not work
   })
 
   const parseMarkdownText = async (markdownText: string): Promise<ParsedMarkdown[]> => {
     return (await invoke('parse', { markdownText: markdownText })) as ParsedMarkdown[]
+  }
+
+  const updateEditorContent = async (markdownText: string) => {
+    parsedMarkdowns = await parseMarkdownText(markdownText)
+    console.log($state.snapshot(parsedMarkdowns)) // todo
+
+    content = markdownText
   }
 
   const textEditorContentOnchange = (updated: string) => {
@@ -72,8 +78,7 @@
 
 <FileHandler
   {parsedMarkdowns}
-  markdownTextOnChange={async (markdownText: string) => {
-    parsedMarkdowns = await parseMarkdownText(markdownText)
-    content = markdownText
+  markdownTextOnChange={(markdownText: string) => {
+    updateEditorContent(markdownText)
   }}
 />
