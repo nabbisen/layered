@@ -5,8 +5,8 @@
   import { EDITOR_LAYOUTS } from '../../constants'
   import { type EditorLayout, type ParsedMarkdown } from '../../types'
   import FileHandler from './FileHandler.svelte'
-  import TextEditor from '../TextEditor/TextEditor.svelte'
-  import Editor from '../TreeEditor/TreeEditor.svelte'
+  import TextEditor from './TextEditor/TextEditor.svelte'
+  import Editor from './TreeEditor/TreeEditor.svelte'
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
@@ -61,24 +61,26 @@
   </div>
 </nav>
 
-{#if isLayersEditorVisible}
-  {#key parsedMarkdowns}
-    <Editor
-      {parsedMarkdowns}
-      parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-      contentOnChange={(updated: string) => (content = updated)}
-    />
-  {/key}
-{/if}
-{#if isRawEditorVisible}
-  <div class="col">
-    <TextEditor {content} textOnchange={textEditorContentOnchange} />
-  </div>
-{/if}
+<div class="editor">
+  {#if isLayersEditorVisible}
+    {#key parsedMarkdowns}
+      <Editor
+        {parsedMarkdowns}
+        parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
+        contentOnChange={(updated: string) => (content = updated)}
+      />
+    {/key}
+  {/if}
+  {#if isRawEditorVisible}
+    <div class="col">
+      <TextEditor {content} textOnchange={textEditorContentOnchange} />
+    </div>
+  {/if}
 
-<FileHandler
-  {parsedMarkdowns}
-  markdownTextOnChange={(markdownText: string) => {
-    updateEditorContent(markdownText)
-  }}
-/>
+  <FileHandler
+    {parsedMarkdowns}
+    markdownTextOnChange={(markdownText: string) => {
+      updateEditorContent(markdownText)
+    }}
+  />
+</div>

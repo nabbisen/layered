@@ -5,7 +5,7 @@
   import Paragraph from '@tiptap/extension-paragraph'
   import Text from '@tiptap/extension-text'
   import HardBreak from '@tiptap/extension-hard-break'
-  import '../../styles/editors.css'
+  import '../../../styles/editors.css'
 
   const { content, textOnchange }: { content: string; textOnchange: (updated: string) => void } =
     $props()
