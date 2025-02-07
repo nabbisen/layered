@@ -91,7 +91,6 @@
 
   const maxVisibleNodeLevelOnChange = () => {
     let ret = mapNodeVisibles(_parsedMarkdowns, maxVisibleNodeLevel)
-    parsedMarkdownsOnChange(ret)
   }
 </script>
 
