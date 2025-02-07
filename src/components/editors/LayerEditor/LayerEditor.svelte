@@ -10,7 +10,7 @@
     parsedMarkdownsOnChange: (parsedMarkdowns: ParsedMarkdown[]) => void
   } = $props()
 
-  let parentNodeId: number | null = $state(1)
+  let parentNodeId: number | null = $state(null)
 
   const filteredParsedMarkdowns: ParsedMarkdown[] = $derived(
     parsedMarkdowns.filter((x) => x.parentNodeId === parentNodeId)
