@@ -1,4 +1,4 @@
-import { type ParsedMarkdown } from "./types"
+import { type ParsedMarkdown } from "../../types"
 
 export const findMaxHeadingLevel = (parsedMarkdowns: ParsedMarkdown[]): number => {
     let ret: number = 1
