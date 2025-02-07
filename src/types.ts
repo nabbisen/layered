@@ -1,3 +1,4 @@
+export type EditorLayout = 'raw' | 'both' | 'layers'
 
 export interface ParsedMarkdown {
     nodeId: number

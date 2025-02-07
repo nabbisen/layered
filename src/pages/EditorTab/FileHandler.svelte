@@ -1,30 +1,19 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
   import { invoke } from '@tauri-apps/api/core'
   import { open as tauriDialogOpen, save as tauriDialogSave } from '@tauri-apps/plugin-dialog'
-  import DragDrop from '../../../components/DragDrop.svelte'
-  import { type ParsedMarkdown } from '../types'
+
+  import DragDrop from '../../components/DragDrop.svelte'
+  import { type ParsedMarkdown } from '../../types'
 
   const {
     parsedMarkdowns,
-    rawContentOnChange,
+    markdownTextOnChange,
   }: {
     parsedMarkdowns: ParsedMarkdown[]
-    rawContentOnChange: (rawContent: string) => void
+    markdownTextOnChange: (rawContent: string) => void
   } = $props()
 
   let openedFilepath: string | undefined = $state()
-
-  onMount(() => {
-    invoke('ready', {})
-      .then((ret: unknown) => {
-        rawContentOnChange(ret as string)
-      })
-      .catch((error: unknown) => {
-        console.error(error)
-        return
-      })
-  })
 
   const openOnClick = async () => {
     const filepath: string | null = await tauriDialogOpen({
@@ -44,7 +33,7 @@
     invoke('open', { filepath: filepath })
       .then((ret: unknown) => {
         openedFilepath = filepath
-        rawContentOnChange(ret as string)
+        markdownTextOnChange(ret as string)
       })
       .catch((error: unknown) => {
         console.error(error)
