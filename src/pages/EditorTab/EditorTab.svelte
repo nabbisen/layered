@@ -13,14 +13,12 @@
   let content: string = $state('')
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
 
-  let activeEditor: EditorLayout = $state('raw') // todo: array initialization not work
+  let activeEditor: EditorLayout = $state(DEFAULT_EDITOR_LAYOUT)
 
   onMount(async () => {
     // todo dev dummy
     const markdownText = (await invoke('ready', {})) as string
     await updateEditorContent(markdownText)
-
-    activeEditor = DEFAULT_EDITOR_LAYOUT // todo: array initialization not work
   })
 
   const parseMarkdownText = async (markdownText: string): Promise<ParsedMarkdown[]> => {
@@ -64,11 +62,13 @@
 </nav>
 
 {#if isLayersEditorVisible}
-  <Editor
-    {parsedMarkdowns}
-    parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-    contentOnChange={(updated: string) => (content = updated)}
-  />
+  {#key parsedMarkdowns}
+    <Editor
+      {parsedMarkdowns}
+      parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
+      contentOnChange={(updated: string) => (content = updated)}
+    />
+  {/key}
 {/if}
 {#if isRawEditorVisible}
   <div class="col">
