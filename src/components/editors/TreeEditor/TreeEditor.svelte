@@ -3,14 +3,14 @@
   import { invoke } from '@tauri-apps/api/core'
   import HeadingNode from './Content/HeadingNode.svelte'
   import ContentNode from './Content/ContentNode.svelte'
-  import { type ParsedMarkdown } from '../../types'
+  import { type ParsedMarkdown } from '../../../types'
   import {
     findMaxHeadingLevel,
     hasNodeChildren,
     isNodeChildrenVisible,
     mapNodeVisibles,
   } from './scripts'
-  import '../../styles/editors.css'
+  import '../../../styles/editors.css'
 
   const {
     parsedMarkdowns,

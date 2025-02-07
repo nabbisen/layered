@@ -2,7 +2,7 @@
   import { invoke } from '@tauri-apps/api/core'
   import { open as tauriDialogOpen, save as tauriDialogSave } from '@tauri-apps/plugin-dialog'
 
-  import DragDrop from '../../components/DragDrop.svelte'
+  import DragDrop from '../../components/common/DragDrop.svelte'
   import { type ParsedMarkdown } from '../../types'
 
   const {

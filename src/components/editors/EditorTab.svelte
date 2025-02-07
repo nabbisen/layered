@@ -5,20 +5,20 @@
   import { EDITOR_LAYOUTS } from '../../constants'
   import { type EditorLayout, type ParsedMarkdown } from '../../types'
   import FileHandler from './FileHandler.svelte'
-  import TextEditor from '../TextEditor/TextEditor.svelte'
-  import Editor from '../TreeEditor/TreeEditor.svelte'
+  import TextEditor from './TextEditor/TextEditor.svelte'
+  import Editor from './TreeEditor/TreeEditor.svelte'
 
   const DEFAULT_EDITOR_LAYOUT: EditorLayout = 'layers'
 
-  let content: string = $state('')
+  const { markdownText }: { markdownText: string } = $props()
+
+  let _markdownText: string = $state(markdownText)
   let parsedMarkdowns: ParsedMarkdown[] = $state([])
 
   let activeEditor: EditorLayout = $state(DEFAULT_EDITOR_LAYOUT)
 
   onMount(async () => {
-    // todo dev dummy
-    const markdownText = (await invoke('ready', {})) as string
-    await updateEditorContent(markdownText)
+    await updateEditorContent(_markdownText)
   })
 
   const parseMarkdownText = async (markdownText: string): Promise<ParsedMarkdown[]> => {
@@ -29,11 +29,11 @@
     parsedMarkdowns = await parseMarkdownText(markdownText)
     console.log($state.snapshot(parsedMarkdowns)) // todo
 
-    content = markdownText
+    _markdownText = markdownText
   }
 
   const textEditorContentOnchange = (updated: string) => {
-    content = updated
+    _markdownText = updated
     parseMarkdownText(updated)
   }
 
@@ -61,24 +61,26 @@
   </div>
 </nav>
 
-{#if isLayersEditorVisible}
-  {#key parsedMarkdowns}
-    <Editor
-      {parsedMarkdowns}
-      parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
-      contentOnChange={(updated: string) => (content = updated)}
-    />
-  {/key}
-{/if}
-{#if isRawEditorVisible}
-  <div class="col">
-    <TextEditor {content} textOnchange={textEditorContentOnchange} />
-  </div>
-{/if}
+<div class="editor">
+  {#if isLayersEditorVisible}
+    {#key parsedMarkdowns}
+      <Editor
+        {parsedMarkdowns}
+        parsedMarkdownsOnChange={(updated: ParsedMarkdown[]) => (parsedMarkdowns = updated)}
+        contentOnChange={(updated: string) => (_markdownText = updated)}
+      />
+    {/key}
+  {/if}
+  {#if isRawEditorVisible}
+    <div class="col">
+      <TextEditor markdownText={_markdownText} markdownTextOnchange={textEditorContentOnchange} />
+    </div>
+  {/if}
 
-<FileHandler
-  {parsedMarkdowns}
-  markdownTextOnChange={(markdownText: string) => {
-    updateEditorContent(markdownText)
-  }}
-/>
+  <FileHandler
+    {parsedMarkdowns}
+    markdownTextOnChange={(markdownText: string) => {
+      updateEditorContent(markdownText)
+    }}
+  />
+</div>

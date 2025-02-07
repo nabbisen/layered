@@ -43,7 +43,6 @@
     opacity: 0.57;
 }
 
-
 .editor *[contenteditable] {
     min-width: 7.2em;
     padding: 0.1rem 0.4rem;
