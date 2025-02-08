@@ -1,4 +1,5 @@
-pub mod content;
-pub mod dev;
-pub mod file;
-pub mod types;
+mod content;
+mod dev;
+mod file;
+pub mod handlers;
+mod types;

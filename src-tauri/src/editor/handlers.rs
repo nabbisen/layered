@@ -1,4 +1,4 @@
-use crate::editor::types::ParsedMarkdown;
+use super::types::ParsedMarkdown;
 
 #[tauri::command]
 pub fn ready() -> String {
