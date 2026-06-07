@@ -394,3 +394,58 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
   border-radius: 6px; padding: 5px 14px; cursor: pointer;
 }
 .btn-danger:hover:not(:disabled) { filter: brightness(1.1); }
+
+/* ── M6 additions (RFC-027..030) ─────────────────────────────────────────── */
+
+/* RFC-027: header landmark styling (toolbar now uses <header>) */
+header.toolbar { display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px; background: var(--panel);
+  border-bottom: 1px solid var(--panel-edge); }
+
+/* RFC-029: error status styling */
+.status-error { color: var(--danger); }
+.status-action {
+  font-size: 11px; padding: 1px 6px; margin-left: 4px;
+  border: 1px solid var(--danger); border-radius: 4px;
+  color: var(--danger); background: transparent; cursor: pointer;
+}
+.status-action:hover { background: rgba(255,122,122,.12); }
+
+/* RFC-030: light theme via system preference */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ebedf0;
+    --panel-edge: #cdd1d8;
+    --text: #1e2227;
+    --muted: #6b737d;
+    --accent: #1a6fcc;
+    --accent-soft: rgba(26, 111, 204, 0.12);
+    --danger: #c0392b;
+  }
+}
+
+/* RFC-030: respect reduced-motion — disable any transition/animation */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* RFC-030: enhanced focus ring — sufficient contrast in both themes */
+:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* RFC-028: skip-link for keyboard users (hidden until focused) */
+.skip-link {
+  position: absolute; left: -999px; top: 4px;
+  background: var(--accent); color: #fff;
+  padding: 4px 10px; border-radius: 4px; z-index: 9999;
+  font-size: 13px; text-decoration: none;
+}
+.skip-link:focus { left: 8px; }

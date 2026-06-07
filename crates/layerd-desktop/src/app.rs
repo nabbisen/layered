@@ -533,7 +533,10 @@ pub fn App() -> Element {
                 }
             }
 
-            StatusBar { session, locale, status }
+            StatusBar {
+                session, locale, status,
+                on_save_as: move |()| do_save_as.call(()),
+            }
 
             // ── overlays and modal dialogs ────────────────────────────────────
             if *search_open.read() {

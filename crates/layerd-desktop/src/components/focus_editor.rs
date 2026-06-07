@@ -167,6 +167,8 @@ pub fn FocusEditor(
                 class: "body-editor",
                 "aria-label": t(lang, "aria.editor"),
                 placeholder: t(lang, "editor.body.placeholder"),
+                // RFC-028: move focus into the editor when the section is zoomed into.
+                autofocus: true,
                 value: "{draft}",
                 oninput: move |event| draft.set(event.value()),
                 onblur: do_blur,

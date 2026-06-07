@@ -67,7 +67,7 @@ pub fn Toolbar(
     };
 
     rsx! {
-        div { class: "toolbar",
+        header { class: "toolbar", role: "toolbar", "aria-label": t(lang, "menu.file"),
             button { onclick: move |_| on_open.call(()), {t(lang, "menu.file.open")} }
             button { onclick: move |_| on_save.call(()), {t(lang, "menu.file.save")} }
             button { onclick: move |_| on_save_as.call(()), {t(lang, "menu.file.save_as")} }
@@ -79,7 +79,7 @@ pub fn Toolbar(
             button { disabled: !can_forward, onclick: forward, {t(lang, "nav.forward")} }
             div { class: "spacer" }
             if dirty {
-                span { class: "dirty-indicator", "●" }
+                span { class: "dirty-indicator", "aria-label": t(lang, "status.unsaved"), "●" }
             }
             span { class: "file-label", "{file}" }
             select {

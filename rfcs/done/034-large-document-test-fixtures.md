@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor  
 **Milestone:** M7 — Performance and Large Document Readiness  
-**Status.** Proposed  
+**Status.** Implemented (v0.10.0)  
 **Document type:** Detailed RFC design  
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer  
 

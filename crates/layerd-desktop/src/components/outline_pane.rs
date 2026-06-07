@@ -23,7 +23,7 @@ pub fn OutlinePane(
     let sel = *selected_card.read();
 
     rsx! {
-        nav {
+        aside {
             class: "outline-pane",
             "aria-label": t(lang, "aria.outline"),
             h2 { {t(lang, "outline.title")} }
@@ -32,8 +32,7 @@ pub fn OutlinePane(
                 p { class: "outline-empty", {t(lang, "outline.empty")} }
                 p { class: "outline-hint", {t(lang, "outline.no-headings.hint")} }
             } else {
-                // RFC-011 accessibility: list of navigable items exposed with
-                // role="listbox" / role="option" semantics.
+                // RFC-011/027: listbox with roving tabindex (RFC-028).
                 div { role: "listbox", "aria-label": t(lang, "aria.outline"),
                     for (idx , item) in items.iter().enumerate() {
                         {

@@ -38,6 +38,14 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 024 | [Move Section Operations](./done/024-move-section-operations.md) | v0.9.0 |
 | 025 | [Split, Merge, and Delete Section Operations](./done/025-split-merge-and-delete-section-operations.md) | v0.9.0 |
 | 026 | [Structural Edit Validation and Conflict Rules](./done/026-structural-edit-validation-and-conflict-rules.md) | v0.9.0 |
+| 027 | [Semantic HTML and ARIA Model](./done/027-semantic-html-and-aria-model.md) | v0.10.0 |
+| 028 | [Keyboard Focus and Navigation Accessibility](./done/028-keyboard-focus-and-navigation-accessibility.md) | v0.10.0 |
+| 029 | [Accessible Editor Status and Error Feedback](./done/029-accessible-editor-status-and-error-feedback.md) | v0.10.0 |
+| 030 | [Visual Clarity, Contrast, and Motion Policy](./done/030-visual-clarity-contrast-and-motion-policy.md) | v0.10.0 |
+| 031 | [Performance Targets and Measurement Plan](./done/031-performance-targets-and-measurement-plan.md) | v0.10.0 |
+| 032 | [Re-index Strategy and Debounce Lifecycle](./done/032-re-index-strategy-and-debounce-lifecycle.md) | v0.10.0 |
+| 033 | [Render Boundary and State Update Policy](./done/033-render-boundary-and-state-update-policy.md) | v0.10.0 |
+| 034 | [Large Document Test Fixtures](./done/034-large-document-test-fixtures.md) | v0.10.0 |
 | 043 | [GUI Internationalization and Locale Policy](./done/043-gui-internationalization-and-locale-policy.md) | v0.1.0 |
 | 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.1.0 |
 
@@ -45,14 +53,6 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 | ID | Title | Milestone |
 |----|-------|-----------|
-| 027 | [Semantic HTML and ARIA Model](./proposed/027-semantic-html-and-aria-model.md) | M6 — Accessibility and Usability Hardening |
-| 028 | [Keyboard Focus and Navigation Accessibility](./proposed/028-keyboard-focus-and-navigation-accessibility.md) | M6 — Accessibility and Usability Hardening |
-| 029 | [Accessible Editor Status and Error Feedback](./proposed/029-accessible-editor-status-and-error-feedback.md) | M6 — Accessibility and Usability Hardening |
-| 030 | [Visual Clarity, Contrast, and Motion Policy](./proposed/030-visual-clarity-contrast-and-motion-policy.md) | M6 — Accessibility and Usability Hardening |
-| 031 | [Performance Targets and Measurement Plan](./proposed/031-performance-targets-and-measurement-plan.md) | M7 — Performance and Large Document Readiness |
-| 032 | [Re-index Strategy and Debounce Lifecycle](./proposed/032-re-index-strategy-and-debounce-lifecycle.md) | M7 — Performance and Large Document Readiness |
-| 033 | [Render Boundary and State Update Policy](./proposed/033-render-boundary-and-state-update-policy.md) | M7 — Performance and Large Document Readiness |
-| 034 | [Large Document Test Fixtures](./proposed/034-large-document-test-fixtures.md) | M7 — Performance and Large Document Readiness |
 | 035 | [Cross-Platform Desktop Runtime Policy](./proposed/035-cross-platform-desktop-runtime-policy.md) | M8 — Cross-Platform Delivery |
 | 036 | [Settings and Recent Files Storage](./proposed/036-settings-and-recent-files-storage.md) | M8 — Cross-Platform Delivery |
 | 037 | [Packaging and Release Artifacts](./proposed/037-packaging-and-release-artifacts.md) | M8 — Cross-Platform Delivery |

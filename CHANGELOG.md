@@ -4,7 +4,62 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.9.0] - 2026-06-07
+## [0.10.0] - 2026-06-07
+
+Sixth + seventh milestone release (M6 — Accessibility Hardening, RFC-027..030;
+M7 — Performance and Large Document Readiness, RFC-031..034).
+
+### Added
+
+**Accessibility (M6):**
+
+- **Semantic landmark regions** (RFC-027): toolbar rendered as `<header
+  role="toolbar">`, the outline side-panel as `<aside>`, keeping `<main>` for
+  the focus editor and `<footer>` for the status bar. Interactive elements
+  across every component carry explicit accessible names.
+- **Keyboard focus after zoom** (RFC-028): the body editor textarea now
+  receives `autofocus` when a section is entered, so keyboard-only users land
+  directly in the editor without extra Tab presses.
+- **Polite vs assertive live regions** (RFC-029): the status bar now uses
+  `aria-live="assertive"` for error keys (anything starting with `error.`) so
+  screen readers interrupt to announce failures, while save confirmations and
+  status updates remain `polite`. Save-failure status now includes an inline
+  **Save As** recovery affordance rendered as a button (RFC-029 error pattern).
+- **Light theme via `prefers-color-scheme: light`** (RFC-030): CSS custom
+  properties remap the full token set to a light palette automatically.
+- **Reduced-motion support** (RFC-030): `@media (prefers-reduced-motion:
+  reduce)` disables all transitions and animations site-wide.
+- **Enhanced focus ring** (RFC-030): `:focus-visible` rule now applies `!important`
+  to ensure visibility overrides component-level styles. Focus ring is visible
+  in both light and dark themes at sufficient contrast.
+- `dirty-indicator` in toolbar now carries `aria-label` for screen readers.
+
+**Performance and large-document readiness (M7):**
+
+- **Three new test fixtures** (RFC-034): `large-10k-words.md` (~15 000 words,
+  deterministically generated), `academic-paper.md` (realistic academic
+  structure with nested sections and references), `technical-rfc.md` (RFC-style
+  document with code fences and tables in body ranges). All fixtures are
+  version-controlled and covered by golden tests.
+- **Fixture catalog** (RFC-034): 11 new tests in
+  `crates/layerd-core/tests/fixture_catalog.rs` verify outline shape, heading
+  count, round-trip byte-preservation, and source integrity across every
+  fixture.
+- **Criterion benchmarks** (RFC-031): `crates/layerd-core/benches/indexing.rs`
+  measures parse+index, section body replacement, promote, move, and split on
+  small, medium, and large fixtures. Run with `cargo bench -p layerd-core`.
+- **Architecture documentation** (RFC-033): `docs/src/architecture.md` records
+  the render boundary contract, state ownership table, re-index lifecycle, and
+  anti-patterns. Added to `SUMMARY.md` alongside a new structural-editing
+  user guide page.
+
+### Changed
+
+- `StatusBar` gains an `on_save_as: EventHandler<()>` prop for the inline
+  recovery affordance; all callers updated.
+- Workspace version bumped to 1.0.0.
+
+
 
 Fifth milestone release (M5 — Structural Editing, per RFCs 023–026).
 
