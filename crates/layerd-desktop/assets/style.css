@@ -148,3 +148,224 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
 }
 .statusbar .dirty { color: var(--danger); }
 .statusbar .file { flex: 1; text-align: right; }
+
+/* ── M2 additions (RFC-010..013, RFC-014) ───────────────────────────────── */
+
+/* Toolbar separators and meta labels */
+.toolbar-sep { width: 1px; height: 18px; background: var(--panel-edge); margin: 0 2px; }
+.dirty-indicator { color: var(--danger); font-size: 14px; }
+.file-label { color: var(--muted); font-size: 12px; max-width: 240px;
+              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Selected outline item (keyboard navigation) */
+.outline-item--selected {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.outline-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.outline-up {
+  display: block; width: 100%; margin-top: 10px;
+  color: var(--muted); font-size: 12px; border-style: dashed;
+}
+
+/* Keyboard hint line */
+.outline-hint { color: var(--muted); font-size: 11px; margin: 6px 0 0;
+                font-style: italic; line-height: 1.4; }
+
+/* Overview cards (main canvas in outline mode) */
+.overview-cards { display: flex; flex-direction: column; gap: 10px; }
+.overview-card {
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+.overview-card:hover { border-color: var(--accent); }
+.overview-card--selected {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.overview-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-header { display: flex; align-items: baseline; gap: 8px; }
+.card-level {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); background: var(--panel-edge); border-radius: 3px;
+  padding: 1px 5px; flex-shrink: 0;
+}
+.card-title { font-size: 16px; font-weight: 600; }
+.card-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
+
+/* Breadcrumb: semantic nav, accessible ellipsis */
+.breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 0;
+              color: var(--muted); margin-bottom: 10px; }
+.crumb-btn {
+  border: none; background: transparent; padding: 0 2px;
+  color: var(--muted); cursor: pointer; font-size: inherit;
+}
+.crumb-btn:hover { color: var(--accent); }
+.ellipsis { color: var(--muted); padding: 0 2px; }
+
+/* Focus editor: local dirty marker */
+.local-dirty { color: var(--danger); font-size: 14px; margin-left: 4px; }
+.hint-text { color: var(--muted); font-size: 13px; font-style: italic; }
+
+/* Welcome screen */
+.welcome { display: flex; align-items: center; justify-content: center; }
+.welcome-inner { text-align: center; max-width: 420px; }
+.welcome-title { font-size: 32px; margin: 0 0 12px; }
+.welcome-hint { color: var(--muted); margin: 0 0 24px; line-height: 1.6; }
+.welcome-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; }
+.welcome-shortcut { color: var(--muted); font-size: 12px; font-family: ui-monospace, monospace; }
+
+/* ARIA and high-contrast: visible focus rings everywhere */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── M3 additions (RFC-015..018) ────────────────────────────────────────── */
+
+/* Modal overlay and dialog */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  padding: 24px 28px;
+  min-width: 320px; max-width: 480px;
+}
+.modal h2 { margin: 0 0 10px; font-size: 18px; }
+.modal p  { margin: 0 0 18px; color: var(--muted); line-height: 1.5; }
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Raw source view */
+.raw-source { display: flex; flex-direction: column; }
+.raw-toolbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 0 12px; flex-shrink: 0;
+}
+.raw-toolbar h2 { margin: 0; font-size: 16px; }
+.raw-meta { margin-left: auto; }
+.raw-back { margin-left: 0; }
+.raw-notice { margin: 0 0 10px; }
+.raw-pre {
+  flex: 1; overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0;
+}
+.raw-code {
+  display: block;
+  font: 12px/1.65 ui-monospace, "Cascadia Mono", "BIZ UDGothic", monospace;
+  color: var(--text);
+  white-space: pre;
+  word-break: break-all;
+}
+
+/* Status bar additions */
+.newline-label {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 1px 5px;
+  border: 1px solid var(--panel-edge);
+  border-radius: 3px;
+}
+.raw-badge {
+  font-size: 11px;
+  color: var(--accent);
+  padding: 1px 5px;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+}
+
+/* ── M4 additions (RFC-019..022) ────────────────────────────────────────── */
+
+/* Sibling/depth navigation bar */
+.sibling-nav {
+  display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.sibling-btn { font-size: 12px; padding: 3px 8px; }
+
+/* Search overlay */
+.search-overlay {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(380px, 100vw);
+  background: var(--panel);
+  border-left: 1px solid var(--panel-edge);
+  display: flex; flex-direction: column;
+  padding: 16px;
+  z-index: 900;
+  box-shadow: -4px 0 16px rgba(0,0,0,.3);
+}
+.search-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.search-header h2 { margin: 0; font-size: 16px; flex: 1; }
+.search-close { padding: 2px 8px; font-size: 16px; }
+.search-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.search-input {
+  width: 100%;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--panel-edge); border-radius: 6px;
+  padding: 7px 10px; font-size: 13px;
+}
+.search-input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+.search-scope { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+.search-scope label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.search-results { flex: 1; overflow-y: auto; }
+.search-count { margin: 0 0 8px; font-size: 12px; }
+.search-empty { margin-top: 16px; font-style: italic; }
+.search-result {
+  display: flex; flex-direction: column; gap: 4px;
+  width: 100%; text-align: left;
+  padding: 8px 10px; margin-bottom: 4px;
+  background: var(--bg);
+  border: 1px solid var(--panel-edge); border-radius: 6px;
+}
+.search-result:hover { border-color: var(--accent); }
+.result-path { font-size: 11px; }
+.result-preview { font-size: 12px; color: var(--text); line-height: 1.4; }
+
+/* Command palette */
+.palette-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 80px;
+  z-index: 1100;
+}
+.palette-inner {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  width: min(520px, 90vw);
+  max-height: 70vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.palette-input {
+  width: 100%;
+  background: transparent; color: var(--text);
+  border: none; border-bottom: 1px solid var(--panel-edge);
+  padding: 14px 16px; font-size: 15px;
+}
+.palette-input:focus { outline: none; }
+.palette-list { overflow-y: auto; flex: 1; padding: 6px; }
+.palette-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 8px 12px; border-radius: 6px;
+  border: none; background: transparent;
+  margin-bottom: 2px;
+}
+.palette-item:hover { background: var(--accent-soft); }
+.palette-title { flex: 1; font-size: 14px; }
+.palette-shortcut { font-size: 11px; font-family: ui-monospace, monospace; }
+.palette-empty { padding: 12px; font-style: italic; }

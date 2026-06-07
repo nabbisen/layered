@@ -4,6 +4,8 @@
 //! dirty tracking (content-based, so undoing back to the saved bytes clears
 //! the flag), routes focused-body edits through the core command API, and
 //! prunes navigation history when sections disappear after structural edits.
+//! It also stores the `FileTextProfile` detected when the file was opened
+//! (line endings, BOM, trailing newline — RFC-018).
 
 use std::hash::{DefaultHasher, Hash, Hasher};
 
@@ -12,6 +14,7 @@ use layerd_core::{
     OutlineItem, ReplaceSectionBody,
 };
 
+use crate::file_profile::FileTextProfile;
 use crate::view_state::{ViewMode, ViewState};
 
 /// Length + hash of the text at the last save. Undo and redo mint fresh
@@ -51,11 +54,14 @@ pub struct EditorSession {
     saved: SavedFingerprint,
     /// Display name or path of the backing file, if any.
     file_name: Option<String>,
+    /// File-level text characteristics detected at open time (RFC-018).
+    profile: FileTextProfile,
 }
 
 impl EditorSession {
     /// Opens a session over Markdown text (e.g. file contents just read).
     pub fn open(markdown: String, file_name: Option<String>) -> Result<Self, DocumentError> {
+        let profile = FileTextProfile::detect(&markdown, false);
         let document = Document::parse(markdown)?;
         let saved = SavedFingerprint::of(document.source(), document.revision());
         Ok(Self {
@@ -63,6 +69,26 @@ impl EditorSession {
             view: ViewState::new(),
             saved,
             file_name,
+            profile,
+        })
+    }
+
+    /// Opens a session with a pre-computed file text profile (RFC-018). Use
+    /// this when the desktop crate has already stripped a BOM or detected
+    /// line endings before passing the text here.
+    pub fn open_with_profile(
+        markdown: String,
+        file_name: Option<String>,
+        profile: FileTextProfile,
+    ) -> Result<Self, DocumentError> {
+        let document = Document::parse(markdown)?;
+        let saved = SavedFingerprint::of(document.source(), document.revision());
+        Ok(Self {
+            document,
+            view: ViewState::new(),
+            saved,
+            file_name,
+            profile,
         })
     }
 
@@ -81,6 +107,11 @@ impl EditorSession {
         self.file_name.as_deref()
     }
 
+    /// File text profile detected at open time (line endings, BOM — RFC-018).
+    pub fn profile(&self) -> &FileTextProfile {
+        &self.profile
+    }
+
     /// True when the text differs byte-wise from the last saved text.
     pub fn is_dirty(&self) -> bool {
         !self
@@ -96,9 +127,25 @@ impl EditorSession {
         }
     }
 
-    /// Current view (outline or focused section).
+    /// Current view (outline, focused section, or raw-source overlay).
     pub fn view_mode(&self) -> ViewMode {
         self.view.mode()
+    }
+
+    /// Whether the raw-source overlay is currently active (RFC-017).
+    pub fn is_raw(&self) -> bool {
+        self.view.is_raw()
+    }
+
+    /// Enters the read-only raw-source overlay; returns to structured view via
+    /// `leave_raw()`. Does not push a navigation history entry.
+    pub fn show_raw(&mut self) {
+        self.view.show_raw();
+    }
+
+    /// Leaves the raw-source overlay, returning to the mode that was active.
+    pub fn leave_raw(&mut self) {
+        self.view.leave_raw();
     }
 
     /// Read-only navigation state for toolbar enablement.
@@ -135,6 +182,44 @@ impl EditorSession {
         } else {
             root.children
         }
+    }
+
+    /// Outline items relevant to the current view:
+    /// - In overview mode: the top-level items (same as [`outline_items`]).
+    /// - In focus mode: the immediate children of the focused section.
+    ///
+    /// Used to populate the left outline pane and the card list for keyboard
+    /// selection (RFC-011, RFC-014).
+    pub fn current_children(&self) -> Vec<OutlineItem> {
+        match self.view.focused() {
+            Some(_) => self
+                .current_snapshot()
+                .map(|s| s.children)
+                .unwrap_or_default(),
+            None => self.outline_items(),
+        }
+    }
+
+    /// Zooms out one level: moves focus to the parent section, or returns to
+    /// the outline overview if the current focus is a direct child of the root.
+    ///
+    /// This is the structural "Esc" action (RFC-014). It pushes the current
+    /// node onto the back history (via `ViewState::focus`/`show_outline`) so
+    /// the user can return forward with Alt+Right.
+    pub fn zoom_out(&mut self) {
+        let Some(id) = self.view.focused() else {
+            return;
+        };
+        let parent_id = self.document.outline().node(id).and_then(|n| n.parent_id);
+        match parent_id {
+            Some(pid) if pid != self.document.outline().root_id() => {
+                self.view.focus(pid);
+            }
+            _ => {
+                self.view.show_outline();
+            }
+        }
+        self.prune_dead_history();
     }
 
     /// Focuses a section and returns its snapshot.
@@ -197,9 +282,107 @@ impl EditorSession {
         Ok(result)
     }
 
-    fn prune_dead_history(&mut self) {
+    fn prune_dead_history(&mut self) -> bool {
+        let mode_before = self.view.mode();
         let outline = self.document.outline();
         self.view.retain_alive(|id| outline.contains(id));
+        // If the current mode changed, a stale node was pruned.
+        self.view.mode() != mode_before
+    }
+
+    /// Prunes dead history and returns `true` if a stale focus target was
+    /// encountered (the UI can then show a non-blocking status message per
+    /// RFC-019).
+    pub fn prune_and_report(&mut self) -> bool {
+        self.prune_dead_history()
+    }
+
+    /// Navigation availability from the currently focused node (RFC-020).
+    pub fn sibling_info(&self) -> crate::navigation::SiblingInfo {
+        match self.view.focused() {
+            Some(id) => crate::navigation::sibling_info(self.document.outline(), id),
+            None => crate::navigation::SiblingInfo::default(),
+        }
+    }
+
+    /// Navigates to the parent section (or overview if parent is root).
+    /// Returns `true` if navigation happened.
+    pub fn navigate_parent(&mut self) -> bool {
+        let Some(id) = self.view.focused() else {
+            return false;
+        };
+        let outline = self.document.outline();
+        let Some(node) = outline.node(id) else {
+            return false;
+        };
+        match node.parent_id {
+            Some(pid) if pid != outline.root_id() => {
+                self.view.focus(pid);
+                true
+            }
+            Some(_) => {
+                self.view.show_outline();
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Navigates to the first child of the focused section.
+    pub fn navigate_first_child(&mut self) -> bool {
+        let Some(id) = self.view.focused() else {
+            return false;
+        };
+        let outline = self.document.outline();
+        let Some(node) = outline.node(id) else {
+            return false;
+        };
+        let Some(&child_id) = node.children.first() else {
+            return false;
+        };
+        self.view.focus(child_id);
+        true
+    }
+
+    /// Navigates to the previous sibling in source order.
+    pub fn navigate_prev_sibling(&mut self) -> bool {
+        let Some(id) = self.view.focused() else {
+            return false;
+        };
+        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        if let Some(prev) = info.prev_sibling {
+            self.view.focus(prev);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Navigates to the next sibling in source order.
+    pub fn navigate_next_sibling(&mut self) -> bool {
+        let Some(id) = self.view.focused() else {
+            return false;
+        };
+        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        if let Some(next) = info.next_sibling {
+            self.view.focus(next);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Searches the whole document for `query` (RFC-021).
+    pub fn search_document(&self, query: &str) -> Vec<crate::search::SearchMatch> {
+        crate::search::search_document(&self.document, query)
+    }
+
+    /// Searches only the focused section's body for `query`.
+    pub fn search_section(&self, query: &str) -> Vec<crate::search::SearchMatch> {
+        match self.view.focused() {
+            Some(id) => crate::search::search_section(&self.document, id, query),
+            None => crate::search::search_document(&self.document, query),
+        }
     }
 }
 

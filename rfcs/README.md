@@ -1,11 +1,7 @@
 # layerd RFCs
 
 Design documents for **layerd — Layer EDitor**, governed by the lifecycle
-policy in [RFC 000](./done/000-rfc-lifecycle-policy.md): an RFC's folder is
-the source of truth for its state, numbers are permanent, and completed
-RFCs are never deleted.
-
-Core invariant protected by every RFC:
+policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 > The canonical document is the raw Markdown source text. The outline tree
 > is a derived navigational index. Editing one section must not rewrite
@@ -16,39 +12,35 @@ Core invariant protected by every RFC:
 | ID | Title | Shipped in |
 |----|-------|------------|
 | 000 | [RFC lifecycle policy](./done/000-rfc-lifecycle-policy.md) | —(policy) |
-| 001 | [Project Architecture and Crate Boundaries](./done/001-project-architecture-and-crate-boundaries.md) | v0.7.0 |
-| 002 | [Canonical Markdown Text Model](./done/002-canonical-markdown-text-model.md) | v0.7.0 |
-| 003 | [Heading Indexing Spike](./done/003-heading-indexing-spike.md) | v0.7.0 |
-| 004 | [Source-Preserving Section Replacement](./done/004-source-preserving-section-replacement.md) | v0.7.0 |
-| 005 | [Core Document API](./done/005-core-document-api.md) | v0.7.0 |
-| 006 | [Node Identity and Range Semantics](./done/006-node-identity-and-range-semantics.md) | v0.7.0 |
-| 007 | [Markdown Heading Tree Construction](./done/007-markdown-heading-tree-construction.md) | v0.7.0 |
-| 008 | [Core Edit Operation Model](./done/008-core-edit-operation-model.md) | v0.7.0 |
-| 009 | [Core Error and Validation Model](./done/009-core-error-and-validation-model.md) | v0.7.0 |
-| 043 | [GUI Internationalization and Locale Policy](./done/043-gui-internationalization-and-locale-policy.md) | v0.7.0 |
-| 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.7.0 |
+| 001 | [Project Architecture and Crate Boundaries](./done/001-project-architecture-and-crate-boundaries.md) | v0.1.0 |
+| 002 | [Canonical Markdown Text Model](./done/002-canonical-markdown-text-model.md) | v0.1.0 |
+| 003 | [Heading Indexing Spike](./done/003-heading-indexing-spike.md) | v0.1.0 |
+| 004 | [Source-Preserving Section Replacement](./done/004-source-preserving-section-replacement.md) | v0.1.0 |
+| 005 | [Core Document API](./done/005-core-document-api.md) | v0.1.0 |
+| 006 | [Node Identity and Range Semantics](./done/006-node-identity-and-range-semantics.md) | v0.1.0 |
+| 007 | [Markdown Heading Tree Construction](./done/007-markdown-heading-tree-construction.md) | v0.1.0 |
+| 008 | [Core Edit Operation Model](./done/008-core-edit-operation-model.md) | v0.1.0 |
+| 009 | [Core Error and Validation Model](./done/009-core-error-and-validation-model.md) | v0.1.0 |
+| 010 | [Desktop Application Shell](./done/010-desktop-application-shell.md) | v0.2.0 |
+| 011 | [Outline and Overview UI](./done/011-outline-and-overview-ui.md) | v0.2.0 |
+| 012 | [Focus Editor UI](./done/012-focus-editor-ui.md) | v0.2.0 |
+| 013 | [Breadcrumb and Hierarchical Navigation](./done/013-breadcrumb-and-hierarchical-navigation.md) | v0.2.0 |
+| 014 | [Basic Keyboard Interaction](./done/014-basic-keyboard-interaction.md) | v0.2.0 |
+| 015 | [File Open and Save Lifecycle](./done/015-file-open-and-save-lifecycle.md) | v0.3.0 |
+| 016 | [Dirty State and Unsaved Change Protection](./done/016-dirty-state-and-unsaved-change-protection.md) | v0.3.0 |
+| 017 | [Raw Markdown Escape Hatch](./done/017-raw-markdown-escape-hatch.md) | v0.3.0 |
+| 018 | [Line Endings, Encoding, and File Integrity](./done/018-line-endings-encoding-and-file-integrity.md) | v0.3.0 |
+| 019 | [Focus History and Back/Forward Navigation](./done/019-focus-history-and-back-forward-navigation.md) | v0.8.0 |
+| 020 | [Sibling and Depth Navigation](./done/020-sibling-and-depth-navigation.md) | v0.8.0 |
+| 021 | [Search and Result Navigation](./done/021-search-and-result-navigation.md) | v0.8.0 |
+| 022 | [Command Palette and Command Registry](./done/022-command-palette-and-command-registry.md) | v0.8.0 |
+| 043 | [GUI Internationalization and Locale Policy](./done/043-gui-internationalization-and-locale-policy.md) | v0.1.0 |
+| 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.1.0 |
 
 ## Proposed
 
-Grouped by roadmap milestone. Review before implementation; any behavior
-touching source preservation, file lifecycle, or structural editing must be
-converted into tests before its RFC moves to `done/`.
-
 | ID | Title | Milestone |
 |----|-------|-----------|
-| 010 | [Desktop Application Shell](./proposed/010-desktop-application-shell.md) | M2 — Basic Desktop UX |
-| 011 | [Outline and Overview UI](./proposed/011-outline-and-overview-ui.md) | M2 — Basic Desktop UX |
-| 012 | [Focus Editor UI](./proposed/012-focus-editor-ui.md) | M2 — Basic Desktop UX |
-| 013 | [Breadcrumb and Hierarchical Navigation](./proposed/013-breadcrumb-and-hierarchical-navigation.md) | M2 — Basic Desktop UX |
-| 014 | [Basic Keyboard Interaction](./proposed/014-basic-keyboard-interaction.md) | M2 — Basic Desktop UX |
-| 015 | [File Open and Save Lifecycle](./proposed/015-file-open-and-save-lifecycle.md) | M3 — File Lifecycle and Recovery |
-| 016 | [Dirty State and Unsaved Change Protection](./proposed/016-dirty-state-and-unsaved-change-protection.md) | M3 — File Lifecycle and Recovery |
-| 017 | [Raw Markdown Escape Hatch](./proposed/017-raw-markdown-escape-hatch.md) | M3 — File Lifecycle and Recovery |
-| 018 | [Line Endings, Encoding, and File Integrity](./proposed/018-line-endings-encoding-and-file-integrity.md) | M3 — File Lifecycle and Recovery |
-| 019 | [Focus History and Back/Forward Navigation](./proposed/019-focus-history-and-back-forward-navigation.md) | M4 — Navigation and Search |
-| 020 | [Sibling and Depth Navigation](./proposed/020-sibling-and-depth-navigation.md) | M4 — Navigation and Search |
-| 021 | [Search and Result Navigation](./proposed/021-search-and-result-navigation.md) | M4 — Navigation and Search |
-| 022 | [Command Palette and Command Registry](./proposed/022-command-palette-and-command-registry.md) | M4 — Navigation and Search |
 | 023 | [Promote and Demote Heading Operations](./proposed/023-promote-and-demote-heading-operations.md) | M5 — Structural Editing |
 | 024 | [Move Section Operations](./proposed/024-move-section-operations.md) | M5 — Structural Editing |
 | 025 | [Split, Merge, and Delete Section Operations](./proposed/025-split-merge-and-delete-section-operations.md) | M5 — Structural Editing |
@@ -72,13 +64,8 @@ converted into tests before its RFC moves to `done/`.
 
 ## Archive
 
-No RFCs have been withdrawn or superseded yet.
+No RFCs withdrawn or superseded yet.
 
-## Conventions
+Next free RFC number: **045**.
 
-- Filenames: `NNN-slug.md`; numbers assigned at creation and never reused.
-- Status field mirrors the folder and is updated in the same commit as a move.
-- New RFCs start in `proposed/`; the next free number is 045.
-
-Run `scripts/check-rfcs.sh` from the repository root to verify these
-invariants.
+Run `scripts/check-rfcs.sh` to verify invariants.

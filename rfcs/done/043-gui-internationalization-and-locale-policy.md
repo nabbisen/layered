@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor
 **Milestone:** M2 — Basic Desktop UX (catalog infrastructure) / M8 — Cross-Platform Delivery (locale switching UX)
-**Status.** Implemented (v0.7.0) — deferred: explicit locale setting persistence awaits RFC-036; startup detection is environment-based until then
+**Status.** Implemented (v0.1.0) — deferred: explicit locale setting persistence awaits RFC-036; startup detection is environment-based until then
 **Document type:** Detailed RFC design
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer
 

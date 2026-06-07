@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor  
 **Milestone:** M2 — Basic Desktop UX  
-**Status.** Proposed  
+**Status.** Implemented (v0.2.0)  
 **Document type:** Detailed RFC design  
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer  
 

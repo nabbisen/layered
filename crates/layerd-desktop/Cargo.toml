@@ -20,3 +20,4 @@ layerd-core.workspace = true
 layerd-ui.workspace = true
 dioxus = { version = "0.7", features = ["desktop"] }
 rfd = "0.15"
+keyboard-types = "0.7"

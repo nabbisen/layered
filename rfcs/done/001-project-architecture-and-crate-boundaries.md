@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor  
 **Milestone:** M0 — Technical Spike  
-**Status.** Implemented (v0.7.0)  
+**Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer  
 
@@ -35,7 +35,7 @@ Define the workspace architecture for layerd. The primary decision is that the s
 
 ### Workspace Layout
 
-Adopted layout (design review, v0.7.0):
+Adopted layout (design review, v0.1.0):
 
 ```text
 layerd/

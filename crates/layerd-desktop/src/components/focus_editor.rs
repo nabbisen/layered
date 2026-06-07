@@ -1,0 +1,215 @@
+//! Focus editor: edit the body of one section while seeing immediate children
+//! (RFC-012). Keeps a local draft buffer; commits on blur, explicit save, and
+//! Esc (zoom-out).
+//!
+//! The editor receives an accessible label (RFC-027) and signals the App when
+//! a commit succeeds so the status bar can update.
+
+use dioxus::prelude::*;
+use layerd_ui::EditorSession;
+use layerd_ui::i18n::{Locale, t};
+
+use super::Breadcrumb;
+
+#[component]
+pub fn FocusEditor(
+    session: Signal<EditorSession>,
+    locale: Signal<Locale>,
+    draft: Signal<String>,
+    status: Signal<String>,
+) -> Element {
+    let lang = *locale.read();
+    let Some(snapshot) = session.read().current_snapshot() else {
+        return rsx! { main { class: "main-pane" } };
+    };
+
+    // Local dirty: draft differs from the committed body.
+    let local_dirty = *draft.read() != snapshot.body;
+
+    let commit_base = snapshot.clone();
+    let do_commit = move |_: Event<MouseData>| {
+        let body = draft.read().clone();
+        // Assign to a let so the write guard drops before the match arms
+        // can call session.read() (RFC-012).
+        let result = session.write().commit_focused_body(&commit_base, body);
+        match result {
+            Ok(_) => {
+                status.set("status.unsaved".into());
+                let refreshed = session
+                    .read()
+                    .current_snapshot()
+                    .map(|s| s.body)
+                    .unwrap_or_default();
+                draft.set(refreshed);
+            }
+            Err(_) => {
+                // Keep draft unchanged so the user can see and recover
+                // their unsaved text (RFC-012 AC: local edit recoverable
+                // after commit failure).
+                status.set("error.stale_edit".into());
+            }
+        }
+    };
+
+    // Commit on textarea blur (RFC-012 commit lifecycle).
+    let blur_base = snapshot.clone();
+    let do_blur = move |_: Event<FocusData>| {
+        let body = draft.read().clone();
+        if body == blur_base.body {
+            return;
+        }
+        let result = session.write().commit_focused_body(&blur_base, body);
+        match result {
+            Ok(_) => {
+                let refreshed = session
+                    .read()
+                    .current_snapshot()
+                    .map(|s| s.body)
+                    .unwrap_or_default();
+                draft.set(refreshed);
+            }
+            Err(_) => {
+                // Leave draft in place on failure.
+            }
+        }
+    };
+
+    rsx! {
+        main { class: "main-pane",
+            Breadcrumb { session, locale, draft }
+            h1 { class: "focus-title",
+                if snapshot.title.is_empty() {
+                    {t(lang, "breadcrumb.root")}
+                } else {
+                    "{snapshot.title}"
+                }
+                if let Some(level) = snapshot.level {
+                    span { class: "level", "H{level.as_u8()}" }
+                }
+                if local_dirty {
+                    span { class: "local-dirty", " \u{25cf}" }
+                }
+            }
+
+            // ── sibling/depth navigation bar (RFC-020) ───────────────────
+            {
+                let info = session.read().sibling_info();
+                let has_prev   = info.prev_sibling.is_some();
+                let has_parent = info.parent.is_some();
+                let has_child  = info.first_child.is_some();
+                let has_next   = info.next_sibling.is_some();
+
+                let commit_and_navigate = |nav: fn(&mut layerd_ui::EditorSession) -> bool,
+                                            mut session: Signal<layerd_ui::EditorSession>,
+                                            mut draft: Signal<String>| {
+                    let snap = session.read().current_snapshot();
+                    if let Some(s) = snap {
+                        let d = draft.read().clone();
+                        if d != s.body {
+                            let _ = session.write().commit_focused_body(&s, d);
+                        }
+                    }
+                    let navigated = nav(&mut session.write());
+                    if navigated {
+                        let body = session.read().current_snapshot()
+                            .map(|s| s.body).unwrap_or_default();
+                        draft.set(body);
+                    }
+                };
+
+                rsx! {
+                    div { class: "sibling-nav",
+                        button {
+                            class: "sibling-btn",
+                            disabled: !has_prev,
+                            title: t(lang, "nav.prev_sibling"),
+                            onclick: move |_| commit_and_navigate(
+                                layerd_ui::EditorSession::navigate_prev_sibling,
+                                session, draft
+                            ),
+                            "\u{2190} {t(lang, \"nav.prev_sibling\")}"
+                        }
+                        button {
+                            class: "sibling-btn",
+                            disabled: !has_parent,
+                            title: t(lang, "nav.parent"),
+                            onclick: move |_| commit_and_navigate(
+                                layerd_ui::EditorSession::navigate_parent,
+                                session, draft
+                            ),
+                            "\u{2191} {t(lang, \"nav.parent\")}"
+                        }
+                        button {
+                            class: "sibling-btn",
+                            disabled: !has_child,
+                            title: t(lang, "nav.first_child"),
+                            onclick: move |_| commit_and_navigate(
+                                layerd_ui::EditorSession::navigate_first_child,
+                                session, draft
+                            ),
+                            "\u{2193} {t(lang, \"nav.first_child\")}"
+                        }
+                        button {
+                            class: "sibling-btn",
+                            disabled: !has_next,
+                            title: t(lang, "nav.next_sibling"),
+                            onclick: move |_| commit_and_navigate(
+                                layerd_ui::EditorSession::navigate_next_sibling,
+                                session, draft
+                            ),
+                            "{t(lang, \"nav.next_sibling\")} \u{2192}"
+                        }
+                    }
+                }
+            }
+
+            textarea {
+                class: "body-editor",
+                "aria-label": t(lang, "aria.editor"),
+                placeholder: t(lang, "editor.body.placeholder"),
+                value: "{draft}",
+                oninput: move |event| draft.set(event.value()),
+                onblur: do_blur,
+            }
+            div { class: "editor-actions",
+                button {
+                    class: "primary",
+                    onclick: do_commit,
+                    {t(lang, "toolbar.edit")}
+                }
+                if snapshot.body.is_empty() {
+                    span { class: "hint-text", {t(lang, "focus.empty_body")} }
+                }
+            }
+            if !snapshot.children.is_empty() {
+                section { class: "children",
+                    h3 { {t(lang, "focus.children")} }
+                    for child in snapshot.children.clone() {
+                        button {
+                            class: "child-card",
+                            key: "{child.id.0}",
+                            onclick: move |_| {
+                                // Commit before zooming into child.
+                                let snap = session.read().current_snapshot();
+                                if let Some(s) = snap {
+                                    let d = draft.read().clone();
+                                    if d != s.body {
+                                        let _ = session.write().commit_focused_body(&s, d);
+                                    }
+                                }
+                                let _ = session.write().focus(child.id);
+                                let body = session.read().current_snapshot()
+                                    .map(|s| s.body).unwrap_or_default();
+                                draft.set(body);
+                            },
+                            "{child.title}"
+                            if child.child_count > 0 {
+                                span { class: "count", " ({child.child_count})" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

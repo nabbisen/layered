@@ -176,3 +176,63 @@ fn new_empty_session_is_clean_and_editable() {
     assert!(session.is_dirty());
     assert_eq!(session.source(), "# First Idea\n");
 }
+
+#[test]
+fn zoom_out_from_child_focuses_parent() {
+    let mut session = session();
+    let one = id_of(&session, "One");
+    let snapshot = session.focus(one).unwrap();
+    let child = snapshot.children.first().expect("One has a child").id;
+    session.focus(child).unwrap();
+    assert!(matches!(session.view_mode(), ViewMode::Focus(_)));
+
+    session.zoom_out();
+
+    // Should now focus "One" (the parent), not go all the way to outline.
+    assert!(
+        matches!(session.view_mode(), ViewMode::Focus(id) if id == one),
+        "zoom_out from child should focus the parent section"
+    );
+}
+
+#[test]
+fn zoom_out_from_top_level_shows_outline() {
+    let mut session = session();
+    let one = id_of(&session, "One");
+    session.focus(one).unwrap();
+    session.zoom_out();
+    assert_eq!(
+        session.view_mode(),
+        ViewMode::Outline,
+        "zoom_out from a top-level section must return to the outline overview"
+    );
+}
+
+#[test]
+fn zoom_out_from_outline_is_a_no_op() {
+    let mut session = session();
+    session.zoom_out(); // already at overview
+    assert_eq!(session.view_mode(), ViewMode::Outline);
+}
+
+#[test]
+fn current_children_in_outline_mode_returns_top_level_items() {
+    let session = session();
+    let overview = session.current_children();
+    let direct = session.outline_items();
+    assert_eq!(
+        overview.iter().map(|i| &i.title).collect::<Vec<_>>(),
+        direct.iter().map(|i| &i.title).collect::<Vec<_>>(),
+        "current_children in outline mode should equal outline_items"
+    );
+}
+
+#[test]
+fn current_children_in_focus_mode_returns_section_children() {
+    let mut session = session();
+    let one = id_of(&session, "One");
+    session.focus(one).unwrap();
+    let children = session.current_children();
+    assert_eq!(children.len(), 1, "section One has one child (Child)");
+    assert_eq!(children[0].title, "Child");
+}

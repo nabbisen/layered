@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor
 **Milestone:** M1 — Core Document Engine (engine) / M2 — Basic Desktop UX (shortcuts)
-**Status.** Implemented (v0.7.0) — deferred: Ctrl/Cmd+Z/Y keyboard bindings land with RFC-014; toolbar undo/redo shipped
+**Status.** Implemented (v0.1.0) — deferred: Ctrl/Cmd+Z/Y keyboard bindings land with RFC-014; toolbar undo/redo shipped
 **Document type:** Detailed RFC design
 **Primary audience:** Architect, Rust developer, QA engineer
 

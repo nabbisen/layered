@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor  
 **Milestone:** M1 — Core Document Engine  
-**Status.** Implemented (v0.7.0)  
+**Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer  
 
@@ -41,7 +41,7 @@ M1 uses deterministic IDs derived from source-order structure, not title alone.
 pub struct NodeId(u64);
 ```
 
-Adopted algorithm (design review, v0.7.0):
+Adopted algorithm (design review, v0.1.0):
 
 ```text
 NodeId = FNV-1a hash of the node's ordinal path from the root

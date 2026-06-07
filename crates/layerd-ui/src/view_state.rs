@@ -2,8 +2,9 @@
 //!
 //! The GUI shows either the whole-document outline or a single focused
 //! section ("one layer at a time"). Navigation keeps browser-style
-//! back/forward history of focused nodes. None of this touches the
-//! document text; it only records *where* the user is looking.
+//! back/forward history of focused nodes. A raw-source overlay (RFC-017) can
+//! be activated from any mode; it preserves the underlying mode so the user
+//! returns to where they were. None of this touches the document text.
 
 use layerd_core::NodeId;
 
@@ -15,14 +16,21 @@ pub enum ViewMode {
     Outline,
     /// One section focused as the current working layer.
     Focus(NodeId),
+    /// Full canonical Markdown source, read-only in M3 (RFC-017).
+    RawSource,
 }
 
 /// Focus location plus browser-style navigation history.
+///
+/// Raw-source mode is an orthogonal overlay: it does not push a history
+/// entry; leaving it returns to the mode that was active on entry.
 #[derive(Debug, Clone, Default)]
 pub struct ViewState {
     mode: ViewMode,
     back: Vec<ViewMode>,
     forward: Vec<ViewMode>,
+    /// Saved mode to restore when leaving raw-source view.
+    pre_raw: Option<ViewMode>,
 }
 
 impl ViewState {
@@ -38,9 +46,10 @@ impl ViewState {
 
     /// The currently focused node, if any.
     pub fn focused(&self) -> Option<NodeId> {
-        match self.mode {
+        let effective = self.pre_raw.unwrap_or(self.mode);
+        match effective {
             ViewMode::Focus(id) => Some(id),
-            ViewMode::Outline => None,
+            ViewMode::Outline | ViewMode::RawSource => None,
         }
     }
 
@@ -58,16 +67,40 @@ impl ViewState {
     /// clearing the forward history (a new branch, like a browser).
     /// Re-focusing the current node is a no-op.
     pub fn focus(&mut self, id: NodeId) {
+        self.leave_raw();
         self.navigate(ViewMode::Focus(id));
     }
 
     /// Returns to the whole-document outline through the same history rules.
     pub fn show_outline(&mut self) {
+        self.leave_raw();
         self.navigate(ViewMode::Outline);
+    }
+
+    /// Enters the raw-source overlay (RFC-017). Does not push a history entry;
+    /// `leave_raw()` restores exactly this mode.
+    pub fn show_raw(&mut self) {
+        if self.mode != ViewMode::RawSource {
+            self.pre_raw = Some(self.mode);
+            self.mode = ViewMode::RawSource;
+        }
+    }
+
+    /// Leaves raw-source view, returning to the mode that was active on entry.
+    pub fn leave_raw(&mut self) {
+        if self.mode == ViewMode::RawSource {
+            self.mode = self.pre_raw.take().unwrap_or(ViewMode::Outline);
+        }
+    }
+
+    /// Whether the raw-source overlay is currently active.
+    pub fn is_raw(&self) -> bool {
+        self.mode == ViewMode::RawSource
     }
 
     /// Steps back in history; returns the new mode, or `None` at the start.
     pub fn back(&mut self) -> Option<ViewMode> {
+        self.leave_raw();
         let previous = self.back.pop()?;
         self.forward.push(self.mode);
         self.mode = previous;
@@ -76,6 +109,7 @@ impl ViewState {
 
     /// Steps forward in history; returns the new mode, or `None` at the end.
     pub fn forward(&mut self) -> Option<ViewMode> {
+        self.leave_raw();
         let next = self.forward.pop()?;
         self.back.push(self.mode);
         self.mode = next;
@@ -87,14 +121,17 @@ impl ViewState {
     /// `is_alive` reports whether a node still exists in the outline.
     pub fn retain_alive(&mut self, mut is_alive: impl FnMut(NodeId) -> bool) {
         let alive = |mode: &ViewMode, is_alive: &mut dyn FnMut(NodeId) -> bool| match mode {
-            ViewMode::Outline => true,
+            ViewMode::Outline | ViewMode::RawSource => true,
             ViewMode::Focus(id) => is_alive(*id),
         };
         self.back.retain(|mode| alive(mode, &mut is_alive));
         self.forward.retain(|mode| alive(mode, &mut is_alive));
+        if let Some(pre) = &self.pre_raw {
+            if !alive(pre, &mut is_alive) {
+                self.pre_raw = Some(ViewMode::Outline);
+            }
+        }
         if !alive(&self.mode, &mut is_alive) {
-            // The focused section vanished: fall back to the outline without
-            // polluting history with the dead node.
             self.mode = ViewMode::Outline;
         }
     }

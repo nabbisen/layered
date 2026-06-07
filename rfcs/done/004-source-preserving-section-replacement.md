@@ -8,7 +8,7 @@ Language: English
 
 **Project:** layerd — Layer EDitor  
 **Milestone:** M0 — Technical Spike  
-**Status.** Implemented (v0.7.0)  
+**Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
 **Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer  
 

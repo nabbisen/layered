@@ -1,310 +1,493 @@
-//! Root component of the desktop GUI: an MVP subset of the application
-//! shell (RFC-010) and focus editor (RFC-012) with breadcrumb navigation
-//! (RFC-013) and the localized string catalog (RFC-043).
+//! Root Dioxus component and global keyboard dispatcher (RFC-010 shell,
+//! RFC-014 keyboard contract, RFC-015/016 file lifecycle and dirty guards,
+//! RFC-017 raw-source overlay, RFC-019..022 navigation and search).
 //!
-//! One `EditorSession` signal is the single source of truth; the focused
-//! section's draft body lives in its own signal and is committed explicitly
-//! through the session, which enforces the core revision check (RFC-008).
+//! Signal mutation: `use_callback(move |()| { let mut sig = sig; … })` shadows
+//! signals with `let mut` so closures are `Fn` (Dioxus 0.6 Writable &mut self).
+
+use std::time::SystemTime;
 
 use dioxus::prelude::*;
-use layerd_ui::i18n::{Locale, t};
+use layerd_ui::i18n::Locale;
 use layerd_ui::{EditorSession, ViewMode};
 
+use crate::components::{
+    CommandPalette, ExtModifiedChoice, ExtModifiedDialog, FocusEditor, OutlinePane, OverviewPane,
+    RawSourceView, SearchPanel, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
+};
 use crate::file_dialog::{self, OpenOutcome, SaveOutcome};
+use crate::keyboard::{self, AppCommand};
 
 const STYLE: &str = include_str!("../assets/style.css");
 
+/// Syncs the draft editor to the committed body of the focused section.
+fn sync_draft(session: &EditorSession, draft: &mut Signal<String>) {
+    draft.set(
+        session
+            .current_snapshot()
+            .map(|s| s.body)
+            .unwrap_or_default(),
+    );
+}
+
+// ── modal state ──────────────────────────────────────────────────────────────
+
+/// Which modal dialog (if any) is currently visible.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+enum Modal {
+    #[default]
+    None,
+    /// Unsaved changes guard: the pending action runs after the user decides.
+    UnsavedBeforeOpen,
+    UnsavedBeforeNew,
+    /// External modification detected before overwriting the disk file.
+    ExternalModified,
+}
+
 #[component]
 pub fn App() -> Element {
-    // Startup locale: detected by main.rs (RFC-043 layer table) and provided
-    // through context; defaults to English when no context is supplied.
     let initial_locale = try_consume_context::<Locale>().unwrap_or_default();
+
     let session = use_signal(EditorSession::new_empty);
     let locale = use_signal(move || initial_locale);
     let draft = use_signal(String::new);
     let status = use_signal(|| "status.ready".to_string());
+    let selected_card = use_signal(|| 0usize);
+    let modal = use_signal(Modal::default);
+    // Last-known mtime of the file on disk; used to detect external changes.
+    let saved_mtime: Signal<Option<SystemTime>> = use_signal(|| None);
 
-    rsx! {
-        style { {STYLE} }
-        div { class: "app",
-            Toolbar { session, locale, draft, status }
-            div { class: "body",
-                OutlinePane { session, locale, draft }
-                MainPane { session, locale, draft, status }
+    // ── helpers ───────────────────────────────────────────────────────────────
+
+    // Commit any pending draft into core before a save.
+    let commit_pending = |session: &mut Signal<EditorSession>, draft: &mut Signal<String>| {
+        let snap = session.read().current_snapshot();
+        if let Some(snapshot) = snap {
+            let d = draft.read().clone();
+            if d != snapshot.body {
+                let _ = session.write().commit_focused_body(&snapshot, d);
             }
-            StatusBar { session, locale, status }
         }
-    }
-}
-
-/// Loads the focused section's body into the draft editor.
-fn sync_draft(session: &EditorSession, mut draft: Signal<String>) {
-    let body = session
-        .current_snapshot()
-        .map(|snapshot| snapshot.body)
-        .unwrap_or_default();
-    draft.set(body);
-}
-
-#[component]
-fn Toolbar(
-    session: Signal<EditorSession>,
-    locale: Signal<Locale>,
-    draft: Signal<String>,
-    status: Signal<String>,
-) -> Element {
-    let lang = *locale.read();
-    let open = move |_| match file_dialog::open_markdown() {
-        OpenOutcome::Cancelled => {}
-        OpenOutcome::Failed => status.set("error.open_failed".into()),
-        OpenOutcome::Loaded { text, name } => match EditorSession::open(text, Some(name)) {
-            Ok(opened) => {
-                session.set(opened);
-                sync_draft(&session.read(), draft);
-                status.set("status.ready".into());
-            }
-            Err(_) => status.set("error.open_failed".into()),
-        },
     };
-    let save = move |_| {
-        // The canonical text is written back verbatim (RFC-002).
-        let outcome = {
-            let current = session.read();
-            file_dialog::save_markdown(current.file_name(), current.source())
+
+    // ── action callbacks ──────────────────────────────────────────────────────
+
+    let do_load = use_callback(move |outcome: OpenOutcome| {
+        let mut session = session;
+        let mut draft = draft;
+        let mut status = status;
+        let mut selected_card = selected_card;
+        let mut saved_mtime = saved_mtime;
+        match outcome {
+            OpenOutcome::Cancelled => {}
+            OpenOutcome::Failed => status.set("error.open_failed".into()),
+            OpenOutcome::Loaded {
+                text,
+                name,
+                profile,
+                mtime,
+            } => match EditorSession::open_with_profile(text, Some(name), profile) {
+                Ok(opened) => {
+                    session.set(opened);
+                    selected_card.set(0);
+                    sync_draft(&session.read(), &mut draft);
+                    saved_mtime.set(mtime);
+                    status.set("status.ready".into());
+                }
+                Err(_) => status.set("error.open_failed".into()),
+            },
+        }
+    });
+
+    let do_open_guarded = use_callback(move |()| {
+        let mut modal = modal;
+        if session.read().is_dirty() {
+            modal.set(Modal::UnsavedBeforeOpen);
+        } else {
+            do_load.call(file_dialog::open_markdown());
+        }
+    });
+
+    let perform_save = use_callback(move |force_new_path: bool| {
+        let mut session = session;
+        let mut draft = draft;
+        let mut status = status;
+        let mut saved_mtime = saved_mtime;
+        let mut modal = modal;
+        commit_pending(&mut session, &mut draft);
+        let existing = if force_new_path {
+            None
+        } else {
+            session.read().file_name().map(|s| s.to_string())
         };
+        // External modification check (RFC-015).
+        if let (Some(path), Some(mtime)) = (existing.as_deref(), *saved_mtime.read()) {
+            if file_dialog::was_modified_externally(path, mtime) {
+                modal.set(Modal::ExternalModified);
+                return;
+            }
+        }
+        let profile = session.read().profile().clone();
+        let outcome =
+            file_dialog::save_markdown(existing.as_deref(), session.read().source(), &profile);
         match outcome {
             SaveOutcome::Cancelled => {}
             SaveOutcome::Failed => status.set("error.save_failed".into()),
-            SaveOutcome::Saved { name } => {
+            SaveOutcome::Saved { name, mtime } => {
                 session.write().mark_saved(Some(name));
+                saved_mtime.set(mtime);
                 status.set("status.saved".into());
             }
         }
-    };
-    let undo = move |_| {
-        if session.write().undo().is_ok() {
-            sync_draft(&session.read(), draft);
+    });
+
+    let do_save = use_callback(move |()| perform_save.call(false));
+    let do_save_as = use_callback(move |()| perform_save.call(true));
+
+    let do_new_guarded = use_callback(move |()| {
+        let mut modal = modal;
+        if session.read().is_dirty() {
+            modal.set(Modal::UnsavedBeforeNew);
+        } else {
+            let mut session = session;
+            let mut draft = draft;
+            let mut status = status;
+            let mut selected_card = selected_card;
+            let mut saved_mtime = saved_mtime;
+            session.set(EditorSession::new_empty());
+            selected_card.set(0);
+            draft.set(String::new());
+            saved_mtime.set(None);
+            status.set("status.ready".into());
         }
-    };
-    let redo = move |_| {
-        if session.write().redo().is_ok() {
-            sync_draft(&session.read(), draft);
+    });
+
+    // ── modal handlers ────────────────────────────────────────────────────────
+
+    let on_unsaved_choice = use_callback(move |choice: UnsavedChoice| {
+        let mut modal = modal;
+        let pending = *modal.read();
+        match choice {
+            UnsavedChoice::Save => {
+                do_save.call(());
+                // If save succeeded (no longer dirty), execute the deferred action.
+                if !session.read().is_dirty() {
+                    modal.set(Modal::None);
+                    match pending {
+                        Modal::UnsavedBeforeOpen => do_load.call(file_dialog::open_markdown()),
+                        Modal::UnsavedBeforeNew => {
+                            let mut session = session;
+                            let mut draft = draft;
+                            let mut status = status;
+                            let mut selected_card = selected_card;
+                            let mut saved_mtime = saved_mtime;
+                            session.set(EditorSession::new_empty());
+                            selected_card.set(0);
+                            draft.set(String::new());
+                            saved_mtime.set(None);
+                            status.set("status.ready".into());
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            UnsavedChoice::Discard => {
+                modal.set(Modal::None);
+                match pending {
+                    Modal::UnsavedBeforeOpen => do_load.call(file_dialog::open_markdown()),
+                    Modal::UnsavedBeforeNew => {
+                        let mut session = session;
+                        let mut draft = draft;
+                        let mut status = status;
+                        let mut selected_card = selected_card;
+                        let mut saved_mtime = saved_mtime;
+                        session.set(EditorSession::new_empty());
+                        selected_card.set(0);
+                        draft.set(String::new());
+                        saved_mtime.set(None);
+                        status.set("status.ready".into());
+                    }
+                    _ => {}
+                }
+            }
+            UnsavedChoice::Cancel => modal.set(Modal::None),
         }
-    };
-    let back = move |_| {
-        session.write().back();
-        sync_draft(&session.read(), draft);
-    };
-    let forward = move |_| {
-        session.write().forward();
-        sync_draft(&session.read(), draft);
-    };
+    });
+
+    let on_ext_modified_choice = use_callback(move |choice: ExtModifiedChoice| {
+        let mut modal = modal;
+        modal.set(Modal::None);
+        match choice {
+            ExtModifiedChoice::Overwrite => {
+                // Force write, ignoring the stale mtime.
+                let mut session = session;
+                let mut draft = draft;
+                let mut status = status;
+                let mut saved_mtime = saved_mtime;
+                commit_pending(&mut session, &mut draft);
+                let existing = session.read().file_name().map(|s| s.to_string());
+                let profile = session.read().profile().clone();
+                let outcome = file_dialog::save_markdown(
+                    existing.as_deref(),
+                    session.read().source(),
+                    &profile,
+                );
+                match outcome {
+                    SaveOutcome::Saved { name, mtime } => {
+                        session.write().mark_saved(Some(name));
+                        saved_mtime.set(mtime);
+                        status.set("status.saved".into());
+                    }
+                    SaveOutcome::Failed => status.set("error.save_failed".into()),
+                    SaveOutcome::Cancelled => {}
+                }
+            }
+            ExtModifiedChoice::SaveAs => do_save_as.call(()),
+            ExtModifiedChoice::Cancel => {}
+        }
+    });
+
+    // ── global keyboard handler ───────────────────────────────────────────────
+
+    let search_open = use_signal(|| false);
+    let palette_open = use_signal(|| false);
+
+    let on_keydown = use_callback(move |event: Event<KeyboardData>| {
+        let Some(cmd) = keyboard::interpret(&event.data()) else {
+            return;
+        };
+        let mut session = session;
+        let mut draft = draft;
+        let mut selected_card = selected_card;
+        let mut search_open = search_open;
+        let mut palette_open = palette_open;
+        let mut status = status;
+        let mode = session.read().view_mode();
+
+        match cmd {
+            AppCommand::Open => do_open_guarded.call(()),
+            AppCommand::Save => do_save.call(()),
+            AppCommand::SaveAs => do_save_as.call(()),
+            AppCommand::ToggleRaw => {
+                if session.read().is_raw() {
+                    session.write().leave_raw();
+                } else {
+                    session.write().show_raw();
+                }
+            }
+            AppCommand::OpenSearch => {
+                let v = !*search_open.read();
+                search_open.set(v);
+            }
+            AppCommand::OpenPalette => {
+                let v = !*palette_open.read();
+                palette_open.set(v);
+            }
+            AppCommand::Undo => {
+                let in_focus = matches!(mode, ViewMode::Focus(_));
+                let uncommitted = in_focus && {
+                    let d = draft.read().clone();
+                    session
+                        .read()
+                        .current_snapshot()
+                        .is_some_and(|s| d != s.body)
+                };
+                if !uncommitted && session.write().undo().is_ok() {
+                    sync_draft(&session.read(), &mut draft);
+                }
+            }
+            AppCommand::Redo => {
+                let in_focus = matches!(mode, ViewMode::Focus(_));
+                let uncommitted = in_focus && {
+                    let d = draft.read().clone();
+                    session
+                        .read()
+                        .current_snapshot()
+                        .is_some_and(|s| d != s.body)
+                };
+                if !uncommitted && session.write().redo().is_ok() {
+                    sync_draft(&session.read(), &mut draft);
+                }
+            }
+            AppCommand::Back => {
+                session.write().back();
+                let stale = session.write().prune_and_report();
+                sync_draft(&session.read(), &mut draft);
+                if stale {
+                    status.set("nav.stale_section".into());
+                }
+            }
+            AppCommand::Forward => {
+                session.write().forward();
+                let stale = session.write().prune_and_report();
+                sync_draft(&session.read(), &mut draft);
+                if stale {
+                    status.set("nav.stale_section".into());
+                }
+            }
+            AppCommand::Escape => {
+                if *search_open.read() {
+                    search_open.set(false);
+                } else if *palette_open.read() {
+                    palette_open.set(false);
+                } else if session.read().is_raw() {
+                    session.write().leave_raw();
+                } else if matches!(mode, ViewMode::Focus(_)) {
+                    let snap = session.read().current_snapshot();
+                    if let Some(snapshot) = snap {
+                        let d = draft.read().clone();
+                        if d != snapshot.body {
+                            let _ = session.write().commit_focused_body(&snapshot, d);
+                        }
+                    }
+                    session.write().zoom_out();
+                    sync_draft(&session.read(), &mut draft);
+                    selected_card.set(0);
+                }
+            }
+            AppCommand::Enter => {
+                if matches!(mode, ViewMode::Outline) {
+                    let items = session.read().current_children();
+                    let idx = *selected_card.read();
+                    if let Some(item) = items.get(idx) {
+                        let id = item.id;
+                        let _ = session.write().focus(id);
+                        sync_draft(&session.read(), &mut draft);
+                    }
+                }
+            }
+            AppCommand::SelectUp => {
+                if matches!(mode, ViewMode::Outline) {
+                    let len = session.read().current_children().len();
+                    if len > 0 {
+                        let cur = *selected_card.read();
+                        selected_card.set(if cur == 0 { len - 1 } else { cur - 1 });
+                    }
+                }
+            }
+            AppCommand::SelectDown => {
+                if matches!(mode, ViewMode::Outline) {
+                    let len = session.read().current_children().len();
+                    if len > 0 {
+                        let next = (*selected_card.read() + 1) % len;
+                        selected_card.set(next);
+                    }
+                }
+            }
+        }
+    });
+
+    // Palette command execution: translate id → action.
+    let on_palette_execute = use_callback(move |id: crate::components::CommandId| match id {
+        "file.open" => do_open_guarded.call(()),
+        "file.new" => do_new_guarded.call(()),
+        "file.save" => do_save.call(()),
+        "file.save_as" => do_save_as.call(()),
+        "view.raw" => {
+            let mut session = session;
+            if session.read().is_raw() {
+                session.write().leave_raw();
+            } else {
+                session.write().show_raw();
+            }
+        }
+        "search.open" => {
+            let mut so = search_open;
+            so.set(true);
+        }
+        _ => {}
+    });
+
+    // ── layout ────────────────────────────────────────────────────────────────
+
+    let is_welcome = session.read().source().is_empty() && !session.read().is_dirty();
+    let is_raw = session.read().is_raw();
+    let mode = session.read().view_mode();
 
     rsx! {
-        div { class: "toolbar",
-            button { onclick: open, {t(lang, "menu.file.open")} }
-            button { onclick: save, {t(lang, "menu.file.save")} }
-            button {
-                disabled: !session.read().can_undo(),
-                onclick: undo,
-                {t(lang, "toolbar.undo")}
+        style { {STYLE} }
+        div {
+            class: "app",
+            tabindex: 0,
+            onkeydown: move |event| on_keydown.call(event),
+
+            Toolbar {
+                session, locale, draft, status,
+                on_open: move |()| do_open_guarded.call(()),
+                on_save: move |()| do_save.call(()),
+                on_save_as: move |()| do_save_as.call(()),
             }
-            button {
-                disabled: !session.read().can_redo(),
-                onclick: redo,
-                {t(lang, "toolbar.redo")}
+
+            if is_welcome {
+                WelcomeScreen {
+                    locale,
+                    on_open: move |()| do_open_guarded.call(()),
+                    on_new: move |()| do_new_guarded.call(()),
+                }
+            } else {
+                div { class: "body",
+                    OutlinePane { session, locale, draft, selected_card }
+                    if is_raw {
+                        RawSourceView {
+                            session,
+                            locale,
+                            on_back: move |()| {
+                                let mut session = session;
+                                session.write().leave_raw();
+                            },
+                        }
+                    } else {
+                        match mode {
+                            ViewMode::Outline | ViewMode::RawSource => rsx! {
+                                OverviewPane { session, locale, draft, selected_card }
+                            },
+                            ViewMode::Focus(_) => rsx! {
+                                FocusEditor { session, locale, draft, status }
+                            },
+                        }
+                    }
+                }
             }
-            button {
-                disabled: !session.read().can_go_back(),
-                onclick: back,
-                {t(lang, "nav.back")}
+
+            StatusBar { session, locale, status }
+
+            // ── overlays and modal dialogs ────────────────────────────────────
+            if *search_open.read() {
+                SearchPanel {
+                    session, locale,
+                    on_close: move |()| { let mut so = search_open; so.set(false); },
+                    on_navigate: move |id| {
+                        let mut session = session;
+                        let mut draft = draft;
+                        let _ = session.write().focus(id);
+                        sync_draft(&session.read(), &mut draft);
+                    },
+                }
             }
-            button {
-                disabled: !session.read().can_go_forward(),
-                onclick: forward,
-                {t(lang, "nav.forward")}
+
+            if *palette_open.read() {
+                CommandPalette {
+                    locale,
+                    on_close: move |()| { let mut po = palette_open; po.set(false); },
+                    on_execute: move |id| on_palette_execute.call(id),
+                }
             }
-            div { class: "spacer" }
-            select {
-                onchange: move |event| {
-                    if let Some(picked) = Locale::from_tag(&event.value()) {
-                        locale.set(picked);
+
+            match *modal.read() {
+                Modal::None => rsx! {},
+                Modal::UnsavedBeforeOpen | Modal::UnsavedBeforeNew => rsx! {
+                    UnsavedDialog {
+                        locale,
+                        on_choice: move |choice| on_unsaved_choice.call(choice),
                     }
                 },
-                for entry in Locale::ALL {
-                    option {
-                        value: entry.tag(),
-                        selected: *entry == lang,
-                        {entry.native_name()}
+                Modal::ExternalModified => rsx! {
+                    ExtModifiedDialog {
+                        locale,
+                        on_choice: move |choice| on_ext_modified_choice.call(choice),
                     }
-                }
+                },
             }
-        }
-    }
-}
-
-#[component]
-fn OutlinePane(
-    session: Signal<EditorSession>,
-    locale: Signal<Locale>,
-    draft: Signal<String>,
-) -> Element {
-    let lang = *locale.read();
-    let items = session.read().outline_items();
-    rsx! {
-        nav { class: "outline-pane",
-            h2 { {t(lang, "outline.title")} }
-            if items.is_empty() {
-                p { class: "outline-empty", {t(lang, "outline.empty")} }
-            }
-            for item in items {
-                button {
-                    class: "outline-item",
-                    key: "{item.id.0}",
-                    onclick: move |_| {
-                        let _ = session.write().focus(item.id);
-                        sync_draft(&session.read(), draft);
-                    },
-                    if item.title.is_empty() {
-                        {t(lang, "breadcrumb.root")}
-                    } else {
-                        "{item.title}"
-                    }
-                    if item.child_count > 0 {
-                        span { class: "count", "({item.child_count})" }
-                    }
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn MainPane(
-    session: Signal<EditorSession>,
-    locale: Signal<Locale>,
-    draft: Signal<String>,
-    status: Signal<String>,
-) -> Element {
-    let lang = *locale.read();
-    let mode = session.read().view_mode();
-    match mode {
-        ViewMode::Outline => rsx! {
-            main { class: "main-pane",
-                p { class: "outline-empty", {t(lang, "outline.empty")} }
-            }
-        },
-        ViewMode::Focus(_) => {
-            let Some(snapshot) = session.read().current_snapshot() else {
-                return rsx! {
-                    main { class: "main-pane" }
-                };
-            };
-            let commit_base = snapshot.clone();
-            let commit = move |_| {
-                let outcome = session
-                    .write()
-                    .commit_focused_body(&commit_base, draft.read().clone());
-                match outcome {
-                    Ok(_) => status.set("status.unsaved".into()),
-                    Err(_) => status.set("error.stale_edit".into()),
-                }
-                sync_draft(&session.read(), draft);
-            };
-            rsx! {
-                main { class: "main-pane",
-                    div { class: "breadcrumb",
-                        for (index, crumb) in snapshot.path.iter().enumerate() {
-                            if index > 0 {
-                                span { class: "sep", "›" }
-                            }
-                            if index + 1 == snapshot.path.len() {
-                                span { class: "here",
-                                    if crumb.title.is_empty() {
-                                        {t(lang, "breadcrumb.root")}
-                                    } else {
-                                        "{crumb.title}"
-                                    }
-                                }
-                            } else {
-                                button {
-                                    onclick: {
-                                        let id = crumb.id;
-                                        move |_| {
-                                            let _ = session.write().focus(id);
-                                            sync_draft(&session.read(), draft);
-                                        }
-                                    },
-                                    if crumb.title.is_empty() {
-                                        {t(lang, "breadcrumb.root")}
-                                    } else {
-                                        "{crumb.title}"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    h1 { class: "focus-title",
-                        if snapshot.title.is_empty() {
-                            {t(lang, "breadcrumb.root")}
-                        } else {
-                            "{snapshot.title}"
-                        }
-                        if let Some(level) = snapshot.level {
-                            span { class: "level", "H{level.as_u8()}" }
-                        }
-                    }
-                    textarea {
-                        class: "body-editor",
-                        placeholder: t(lang, "editor.body.placeholder"),
-                        value: "{draft}",
-                        oninput: move |event| draft.set(event.value()),
-                    }
-                    div { class: "editor-actions",
-                        button { class: "primary", onclick: commit, {t(lang, "toolbar.edit")} }
-                    }
-                    if !snapshot.children.is_empty() {
-                        section { class: "children",
-                            h3 { {t(lang, "focus.children")} }
-                            for child in snapshot.children.clone() {
-                                button {
-                                    class: "child-card",
-                                    key: "{child.id.0}",
-                                    onclick: move |_| {
-                                        let _ = session.write().focus(child.id);
-                                        sync_draft(&session.read(), draft);
-                                    },
-                                    "{child.title}"
-                                    if child.child_count > 0 {
-                                        span { class: "count", "({child.child_count})" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn StatusBar(
-    session: Signal<EditorSession>,
-    locale: Signal<Locale>,
-    status: Signal<String>,
-) -> Element {
-    let lang = *locale.read();
-    let dirty = session.read().is_dirty();
-    let file = session.read().file_name().unwrap_or_default().to_string();
-    let status_key = status.read().clone();
-    rsx! {
-        footer { class: "statusbar",
-            span { {t(lang, status_key.as_str()).to_string()} }
-            if dirty {
-                span { class: "dirty", {t(lang, "status.unsaved")} }
-            }
-            span { class: "file", "{file}" }
         }
     }
 }
