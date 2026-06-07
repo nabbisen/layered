@@ -25,5 +25,5 @@ sections from the outline.
 ## Unsaved changes
 
 The status bar shows when the text differs from what is on disk. Undoing back
-to the exact saved bytes clears the indicator — layerd compares content, not
+to the exact saved bytes clears the indicator — layered compares content, not
 edit counts.

@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-026: Structural Edit Validation and Conflict Rules
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M5 — Structural Editing  
 **Status.** Implemented (v0.9.0)  
 **Document type:** Detailed RFC design  

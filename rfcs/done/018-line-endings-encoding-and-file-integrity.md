@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-018: Line Endings, Encoding, and File Integrity
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M3 — File Lifecycle and Recovery  
 **Status.** Implemented (v0.3.0)  
 **Document type:** Detailed RFC design  

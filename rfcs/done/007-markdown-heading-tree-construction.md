@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-007: Markdown Heading Tree Construction
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M1 — Core Document Engine  
 **Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
@@ -16,7 +16,7 @@ Language: English
 
 ## 1. Summary
 
-Promote the M0 heading-indexing spike into production behavior for constructing the layerd outline tree.
+Promote the M0 heading-indexing spike into production behavior for constructing the layered outline tree.
 
 ## 2. Goals
 
@@ -54,11 +54,11 @@ full_range: whole document
 
 ### Skipped Heading Levels
 
-Skipped levels are allowed because Markdown allows them. layerd should not insert invisible missing headings.
+Skipped levels are allowed because Markdown allows them. layered should not insert invisible missing headings.
 
 ### Front Matter Policy
 
-If the document starts with YAML/TOML front matter, it is treated as root-level source content and excluded from heading detection unless the parser already ignores it. layerd must preserve it exactly.
+If the document starts with YAML/TOML front matter, it is treated as root-level source content and excluded from heading detection unless the parser already ignores it. layered must preserve it exactly.
 
 ### Malformed Documents
 

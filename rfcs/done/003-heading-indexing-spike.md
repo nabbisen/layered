@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-003: Heading Indexing Spike
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M0 — Technical Spike  
 **Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  

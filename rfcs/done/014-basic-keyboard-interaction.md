@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-014: Basic Keyboard Interaction
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M2 — Basic Desktop UX  
 **Status.** Implemented (v0.2.0)  
 **Document type:** Detailed RFC design  

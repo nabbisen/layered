@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-015: File Open and Save Lifecycle
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M3 — File Lifecycle and Recovery  
 **Status.** Implemented (v0.3.0)  
 **Document type:** Detailed RFC design  
@@ -77,7 +77,7 @@ External change detected -> prompt: overwrite / save as / cancel
 
 ### Desktop Boundary
 
-Filesystem operations live in `layerd-desktop` or an app service layer, not `layerd-core`. Core only imports/exports text.
+Filesystem operations live in `layered-desktop` or an app service layer, not `layered-core`. Core only imports/exports text.
 
 ## 6. Validation and Test Plan
 

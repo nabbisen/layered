@@ -1,6 +1,6 @@
-# layerd RFCs
+# layered RFCs
 
-Design documents for **layerd — Layer EDitor**, governed by the lifecycle
+Design documents for **layered — Layer EDitor**, governed by the lifecycle
 policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 > The canonical document is the raw Markdown source text. The outline tree

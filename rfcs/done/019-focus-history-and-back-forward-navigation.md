@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-019: Focus History and Back/Forward Navigation
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M4 — Navigation and Search  
 **Status.** Implemented (v0.8.0)  
 **Document type:** Detailed RFC design  

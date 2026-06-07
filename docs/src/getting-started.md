@@ -14,10 +14,10 @@ packages first:
 
 ```sh
 sudo apt-get install libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
-cargo run -p layerd-desktop
+cargo run -p layered-desktop
 ```
 
-On Windows and macOS, `cargo run -p layerd-desktop` is enough.
+On Windows and macOS, `cargo run -p layered-desktop` is enough.
 
 ## Your first session
 

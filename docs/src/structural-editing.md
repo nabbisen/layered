@@ -1,6 +1,6 @@
 # Structural Editing
 
-layerd lets you reorganise your document's heading hierarchy without touching
+layered lets you reorganise your document's heading hierarchy without touching
 the body text. All structural operations appear in the toolbar below the
 commit button when you are zoomed into a section.
 

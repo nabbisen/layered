@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-028: Keyboard Focus and Navigation Accessibility
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M6 — Accessibility and Usability Hardening  
 **Status.** Implemented (v0.10.0)  
 **Document type:** Detailed RFC design  

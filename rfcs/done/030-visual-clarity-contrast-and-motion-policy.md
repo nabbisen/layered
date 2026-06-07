@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-030: Visual Clarity, Contrast, and Motion Policy
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M6 — Accessibility and Usability Hardening  
 **Status.** Implemented (v0.10.0)  
 **Document type:** Detailed RFC design  

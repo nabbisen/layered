@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-039: Error Handling and User-Facing Failure Modes
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M9 — Production Readiness  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  

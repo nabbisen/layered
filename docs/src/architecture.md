@@ -1,6 +1,6 @@
 # Architecture
 
-This page documents the layerd system architecture: how state flows between
+This page documents the layered system architecture: how state flows between
 crates, where renders are triggered, and which components own which data.
 
 ---
@@ -8,25 +8,25 @@ crates, where renders are triggered, and which components own which data.
 ## Crate Boundaries (RFC-001)
 
 ```
-layerd-core      pure Rust, no UI dependency
+layered-core      pure Rust, no UI dependency
     ↓
-layerd-ui        pure Rust, no Dioxus dependency
+layered-ui        pure Rust, no Dioxus dependency
     ↓
-layerd-desktop   Dioxus 0.7 desktop shell
+layered-desktop   Dioxus 0.7 desktop shell
 ```
 
-**layerd-core** owns the canonical document model: the source text buffer,
+**layered-core** owns the canonical document model: the source text buffer,
 the derived outline index, all edit operations including undo/redo, the
 Markdown-to-HTML preview renderer, and structural editing operations. It
 has no knowledge of windows, signals, or the file system.
 
-**layerd-ui** owns editor session state: the current view mode (overview vs
+**layered-ui** owns editor session state: the current view mode (overview vs
 focus), focus history, search, the command registry, document statistics,
 sibling navigation helpers, and the file text profile. It depends on
-`layerd-core` but not on Dioxus. Its types are testable with `cargo test`
+`layered-core` but not on Dioxus. Its types are testable with `cargo test`
 on any host.
 
-**layerd-desktop** owns the Dioxus component tree, file I/O, keyboard
+**layered-desktop** owns the Dioxus component tree, file I/O, keyboard
 handling, app settings (recent files, preferences), and the signal graph.
 It has no business logic; it maps user gestures to `EditorSession` method
 calls.

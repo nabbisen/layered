@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.1] - 2026-06-07
+
+### Changed
+
+- **Renamed: `layerd` → `layered` throughout the entire codebase.** The
+  previous name was a typo/abbreviation that caused confusion. All crate
+  names (`layered-core`, `layered-ui`, `layered-desktop`), Rust module
+  paths, the app title in both i18n catalogs, the OS config directory
+  (`~/.config/layered/`), and all documentation files have been updated.
+  110 files changed; no functional behaviour modified.
+
 ## [0.12.0] - 2026-06-07
 
 Post-MVP expansion — two Future RFC items promoted to implemented:
@@ -24,7 +35,7 @@ Post-MVP expansion — two Future RFC items promoted to implemented:
   `section_html` and `document_html` are pure functions over the outline.
 - `PreviewPane` component with `role="region"` and accessible back-to-edit
   button. Scoped `.preview-body` CSS styles the rendered Markdown.
-- 7 new tests in `crates/layerd-core/src/preview.rs` covering bold, headings,
+- 7 new tests in `crates/layered-core/src/preview.rs` covering bold, headings,
   empty body, unknown node, Japanese text, code fences, and HTML escaping.
 
 **RFC-046: Document Statistics**
@@ -32,7 +43,7 @@ Post-MVP expansion — two Future RFC items promoted to implemented:
 - The status bar now shows word count and section count for the open document.
   When a section is focused, the focused-section word count is shown first:
   `42 words / 1 234 words · 17 sections`.
-- `layerd_ui::stats` module with `DocumentStats`, `word_count`, and
+- `layered_ui::stats` module with `DocumentStats`, `word_count`, and
   `compute_stats`. Statistics recompute only on committed edits (not per
   keystroke), following the render-boundary policy from RFC-033.
 - 6 new tests covering zero, normal, leading/trailing whitespace, focused
@@ -139,12 +150,12 @@ M7 — Performance and Large Document Readiness, RFC-031..034).
   document with code fences and tables in body ranges). All fixtures are
   version-controlled and covered by golden tests.
 - **Fixture catalog** (RFC-034): 11 new tests in
-  `crates/layerd-core/tests/fixture_catalog.rs` verify outline shape, heading
+  `crates/layered-core/tests/fixture_catalog.rs` verify outline shape, heading
   count, round-trip byte-preservation, and source integrity across every
   fixture.
-- **Criterion benchmarks** (RFC-031): `crates/layerd-core/benches/indexing.rs`
+- **Criterion benchmarks** (RFC-031): `crates/layered-core/benches/indexing.rs`
   measures parse+index, section body replacement, promote, move, and split on
-  small, medium, and large fixtures. Run with `cargo bench -p layerd-core`.
+  small, medium, and large fixtures. Run with `cargo bench -p layered-core`.
 - **Architecture documentation** (RFC-033): `docs/src/architecture.md` records
   the render boundary contract, state ownership table, re-index lifecycle, and
   anti-patterns. Added to `SUMMARY.md` alongside a new structural-editing
@@ -189,8 +200,8 @@ Fifth milestone release (M5 — Structural Editing, per RFCs 023–026).
   `NoAdjacentSibling`, `UnsupportedHeadingStyle`, `InvalidSplitOffset`.
   Every structural op rolls back automatically on re-index failure, preserving
   the pre-edit source.
-- `layerd_core::structural` module exposed as `pub`; `MoveTarget` and
-  `StructuralEditError` re-exported from `layerd_ui`.
+- `layered_core::structural` module exposed as `pub`; `MoveTarget` and
+  `StructuralEditError` re-exported from `layered_ui`.
 - 23 new golden tests in `tests/structural_ops.rs` covering every operation,
   each error variant, undo round-trips, and byte-preservation invariants.
 - 20 new i18n keys for structural ops, dialogs, and error messages (en + ja).
@@ -211,11 +222,11 @@ Fourth milestone release (M4 — Navigation and Search, per RFCs 019–022).
 - **Whole-document and section-scoped search** (RFC-021): `Ctrl+F` opens a
   slide-in search panel. Query is case-insensitive and UTF-8-safe; results are
   grouped by section path with a preview snippet. Selecting a result focuses
-  the containing section and closes the panel. `layerd_ui::search` module
+  the containing section and closes the panel. `layered_ui::search` module
   provides `search_document` / `search_section` as pure functions over
   `Document`.
 - **Command palette** (RFC-022): `Ctrl+P` opens a filterable command list
-  drawn from the static `layerd_ui::commands::COMMANDS` registry. Each entry
+  drawn from the static `layered_ui::commands::COMMANDS` registry. Each entry
   shows the command title and default shortcut. Selecting a command executes
   the corresponding app action. `filter_commands` is testable with a mock
   localizer.
@@ -226,10 +237,10 @@ Fourth milestone release (M4 — Navigation and Search, per RFCs 019–022).
   pruning occurred so the UI can surface the message.
 - `Esc` now also dismisses the search panel and command palette before
   triggering zoom-out.
-- `layerd_ui::navigation` module with `SiblingInfo` and `sibling_info()`.
-- `layerd_ui::search` module with `SearchMatch`, `search_document`,
+- `layered_ui::navigation` module with `SiblingInfo` and `sibling_info()`.
+- `layered_ui::search` module with `SearchMatch`, `search_document`,
   `search_section` and 5 tests including a UTF-8 range-validity check.
-- `layerd_ui::commands` module with `CommandSpec`, `COMMANDS` and
+- `layered_ui::commands` module with `CommandSpec`, `COMMANDS` and
   `filter_commands`; 3 unit tests.
 - 15 new i18n keys in both English and Japanese catalogs (search, palette,
   navigation labels, stale-node message).
@@ -285,7 +296,7 @@ foundations, per the roadmap and RFCs 001–009, 043, 044).
 
 ### Added
 
-- `layerd-core`: canonical-text document model with derived outline index
+- `layered-core`: canonical-text document model with derived outline index
   over `pulldown-cmark` (ATX + Setext headings, code fences and YAML/TOML
   front matter excluded), ordinal-path `NodeId`s stable across body edits,
   byte-exact section-body replacement with optimistic revision checking,
@@ -294,11 +305,11 @@ foundations, per the roadmap and RFCs 001–009, 043, 044).
   duplicate titles, skipped heading levels, HTML blocks, front matter,
   missing trailing newline, …) verified for source preservation and
   undo/redo round-trips on every section.
-- `layerd-ui`: `EditorSession` facade (content-based dirty tracking,
+- `layered-ui`: `EditorSession` facade (content-based dirty tracking,
   focused-body commits, dead-focus pruning after structural edits),
   browser-style focus navigation history, and i18n catalogs (English,
   Japanese) with graceful fallback.
-- `layerd-desktop`: Dioxus desktop shell — outline pane, focus editor with
+- `layered-desktop`: Dioxus desktop shell — outline pane, focus editor with
   breadcrumbs and subsection cards, undo/redo/back/forward toolbar, open/save
   dialogs, runtime language switching.
 - Project documentation: README, mdBook user guide skeleton, 44 RFCs under
@@ -318,7 +329,7 @@ Third milestone release (M3 — File Lifecycle and Recovery, per RFCs 015–018)
   Cancel). Save commits pending draft, saves to disk, then proceeds only on
   success.
 - **External modification detection** (RFC-015): when saving, if the file on
-  disk has a newer mtime than when it was last written by layerd, a dialog
+  disk has a newer mtime than when it was last written by layered, a dialog
   offers Overwrite / Save As / Cancel before touching the disk.
 - **Atomic save** (RFC-015, NFR-REL-003): saves write through a temp file
   then rename, so a crash mid-write cannot corrupt the original.
@@ -328,5 +339,5 @@ Third milestone release (M3 — File Lifecycle and Recovery, per RFCs 015–018)
   Mixed at open time; the status bar shows the policy label.
 - **`EditorSession::open_with_profile`**: desktop crate passes pre-detected
   profile on open rather than re-running detection in the session.
-- `layerd_ui::file_profile` module exported as public API.
+- `layered_ui::file_profile` module exported as public API.
 - Keyboard reference page updated with Ctrl+` shortcut.

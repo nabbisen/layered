@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-040: Test Strategy and Regression Policy
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M9 — Production Readiness  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -16,7 +16,7 @@ Language: English
 
 ## 1. Summary
 
-Define the test pyramid and regression process for layerd.
+Define the test pyramid and regression process for layered.
 
 ## 2. Goals
 
@@ -36,7 +36,7 @@ Define the test pyramid and regression process for layerd.
 ### Test Pyramid
 
 ```text
-Many: layerd-core unit tests
+Many: layered-core unit tests
 Many: golden Markdown fixture tests
 Some: UI component/command tests
 Some: desktop smoke tests

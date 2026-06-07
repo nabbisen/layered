@@ -1,6 +1,6 @@
 # RFC-045: Markdown Preview Pane
 
-**Project:** layerd — Layer EDitor
+**Project:** layered — Layer EDitor
 **Milestone:** Post-MVP Expansion
 **Status.** Implemented (v0.12.0)
 **Document type:** Detailed RFC design
@@ -31,7 +31,7 @@ inline without leaving Focus Edit mode.
 
 ### Rendering
 
-`layerd-core` gains a `preview` module exposing:
+`layered-core` gains a `preview` module exposing:
 
 ```rust
 pub fn section_html(doc: &Document, id: NodeId) -> Option<String>

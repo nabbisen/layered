@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Added during architecture/design review to close the i18n requirements gap
 Language: English
 -->
 # RFC-043: GUI Internationalization and Locale Policy
 
-**Project:** layerd — Layer EDitor
+**Project:** layered — Layer EDitor
 **Milestone:** M2 — Basic Desktop UX (catalog infrastructure) / M8 — Cross-Platform Delivery (locale switching UX)
 **Status.** Implemented (v0.1.0) — deferred: explicit locale setting persistence awaits RFC-036; startup detection is environment-based until then
 **Document type:** Detailed RFC design
@@ -16,10 +16,10 @@ Language: English
 
 ## 1. Summary
 
-Define how the layerd GUI supports multiple languages. The project requirements
+Define how the layered GUI supports multiple languages. The project requirements
 mandate a multilingual GUI, but RFC-001 through RFC-042 either ignored
 localization or excluded it as a non-goal. This RFC closes that gap: every
-user-facing string in `layerd-ui` is resolved through a message catalog keyed by
+user-facing string in `layered-ui` is resolved through a message catalog keyed by
 stable identifiers, with English as the authoritative fallback locale.
 
 ## 2. Goals
@@ -27,7 +27,7 @@ stable identifiers, with English as the authoritative fallback locale.
 - Externalize all user-visible GUI strings (labels, dialogs, status messages, errors).
 - Define a stable message-key convention and an English fallback chain.
 - Define locale detection at startup and explicit locale selection in settings.
-- Keep `layerd-core` entirely locale-free: core returns structured errors, never prose.
+- Keep `layered-core` entirely locale-free: core returns structured errors, never prose.
 - Ship English (`en`) and Japanese (`ja`) catalogs as the initial proof of the model.
 
 ## 3. Non-Goals
@@ -43,9 +43,9 @@ stable identifiers, with English as the authoritative fallback locale.
 ### Layer Responsibility
 
 ```text
-layerd-core    structured errors and data only; no user-facing prose
-layerd-ui      owns message catalogs and key lookup; renders localized text
-layerd-desktop detects OS locale at startup; persists explicit user choice in settings
+layered-core    structured errors and data only; no user-facing prose
+layered-ui      owns message catalogs and key lookup; renders localized text
+layered-desktop detects OS locale at startup; persists explicit user choice in settings
 ```
 
 This mirrors the RFC-009 result boundary: core emits `EditError::RevisionMismatch`,
@@ -71,7 +71,7 @@ same commit (same rule as RFC 000 applies to status fields).
 ### Catalog Format
 
 Catalogs are compiled into the binary as static key→string tables, one module per
-locale inside `layerd-ui/src/i18n/`. No file I/O is required to render the UI, which
+locale inside `layered-ui/src/i18n/`. No file I/O is required to render the UI, which
 preserves the local-first and no-hidden-state principles. A heavier framework
 (e.g. Fluent) may replace the static tables later behind the same lookup API.
 
@@ -112,7 +112,7 @@ runtime: user may switch locale in Settings; takes effect without restart
 
 - All M2 shell strings resolve through `t()`.
 - English and Japanese catalogs ship and pass exhaustiveness tests.
-- `layerd-core` contains no user-facing prose.
+- `layered-core` contains no user-facing prose.
 - Locale can be selected explicitly and persists via RFC-036 settings.
 
 ## 8. Dependencies

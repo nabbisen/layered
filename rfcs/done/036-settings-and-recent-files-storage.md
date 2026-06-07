@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-036: Settings and Recent Files Storage
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M8 — Cross-Platform Delivery  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -69,7 +69,7 @@ Recent files store local paths only. Provide clear action to remove a file from 
 
 ## 6. Acceptance Criteria
 
-- layerd can run with no settings file.
+- layered can run with no settings file.
 - Settings migration policy exists before schema changes.
 - Privacy implications of recent file paths are documented.
 

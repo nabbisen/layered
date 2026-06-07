@@ -1,12 +1,12 @@
 <!--
-Project: layerd — Layer EDitor
+Project: layered — Layer EDitor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-038: Platform Smoke Test Matrix
 
-**Project:** layerd — Layer EDitor  
+**Project:** layered — Layer EDitor  
 **Milestone:** M8 — Cross-Platform Delivery  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  

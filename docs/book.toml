@@ -1,8 +1,8 @@
 [book]
-title = "layerd User Guide"
+title = "layered User Guide"
 authors = ["nabbisen"]
 language = "en"
 src = "src"
 
 [output.html]
-git-repository-url = "https://github.com/nabbisen/layerd"
+git-repository-url = "https://github.com/nabbisen/layered"

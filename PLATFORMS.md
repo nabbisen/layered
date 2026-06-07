@@ -1,6 +1,6 @@
 # Platform Support
 
-layerd targets three desktop platforms. This document defines the support
+layered targets three desktop platforms. This document defines the support
 matrix, known constraints, and the policy for adding new platform-specific
 behavior.
 
@@ -38,7 +38,7 @@ sudo dnf install webkit2gtk4.1-devel gtk3-devel
 ### Keyboard Modifiers
 
 On macOS the Cmd key is used where Linux/Windows use Ctrl. The keyboard
-handler in `layerd-desktop/src/keyboard.rs` normalises this automatically
+handler in `layered-desktop/src/keyboard.rs` normalises this automatically
 using the `keyboard-types` crate's modifier detection.
 
 ### File Dialogs
@@ -58,16 +58,16 @@ Settings are stored in platform-appropriate locations (RFC-036):
 
 | Platform | Path |
 |----------|------|
-| Linux | `~/.config/layerd/settings.toml` |
-| macOS | `~/Library/Application Support/layerd/settings.toml` |
-| Windows | `%APPDATA%\layerd\settings.toml` |
+| Linux | `~/.config/layered/settings.toml` |
+| macOS | `~/Library/Application Support/layered/settings.toml` |
+| Windows | `%APPDATA%\layered\settings.toml` |
 
 ---
 
 ## Policy for Platform-Specific Code
 
-All platform-specific behavior must be isolated in `layerd-desktop`.
-`layerd-core` and `layerd-ui` must compile and test on any host without
+All platform-specific behavior must be isolated in `layered-desktop`.
+`layered-core` and `layered-ui` must compile and test on any host without
 GUI libraries (RFC-001, RFC-010 boundary rule).
 
 Platform-specific workarounds should be documented inline with a reference

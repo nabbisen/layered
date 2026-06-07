@@ -1,6 +1,6 @@
 # Testing Strategy and Regression Policy
 
-This document describes the layerd test pyramid, the non-negotiable invariant
+This document describes the layered test pyramid, the non-negotiable invariant
 that all tests must protect, and the process for handling regressions.
 
 ---
@@ -21,13 +21,13 @@ invariant for the new operation. No release may ship with a known violation.
 ──────────────────────────────────────────────────────────
  Few     Manual smoke tests per platform (RELEASE_CHECKLIST)
 ──────────────────────────────────────────────────────────
- Some    layerd-ui integration tests (session + view state)
-         layerd-desktop component tests (keyboard, signal flow)
+ Some    layered-ui integration tests (session + view state)
+         layered-desktop component tests (keyboard, signal flow)
 ──────────────────────────────────────────────────────────
- Many    layerd-core golden fixture tests
-         layerd-core structural operation tests
+ Many    layered-core golden fixture tests
+         layered-core structural operation tests
 ──────────────────────────────────────────────────────────
- Many    layerd-core unit tests (range, revision, history)
+ Many    layered-core unit tests (range, revision, history)
 ──────────────────────────────────────────────────────────
 ```
 
@@ -37,18 +37,18 @@ invariant for the new operation. No release may ship with a known violation.
 
 | Suite | Path | What it tests |
 |-------|------|---------------|
-| Core unit | `crates/layerd-core/src/` (inline) | data structures, range arithmetic, UTF-8 boundaries |
-| Source preservation | `crates/layerd-core/tests/source_preservation.rs` | golden byte-exact edit tests |
-| Structural ops | `crates/layerd-core/tests/structural_ops.rs` | promote/demote/move/split/delete/merge + undo |
-| Fixture catalog | `crates/layerd-core/tests/fixture_catalog.rs` | all fixtures load, outline is correct, round-trip edit preserves source |
-| UI unit | `crates/layerd-ui/src/tests/` | i18n parity, session behavior, search, commands |
-| Benchmarks | `crates/layerd-core/benches/indexing.rs` | performance regression detection (run manually) |
+| Core unit | `crates/layered-core/src/` (inline) | data structures, range arithmetic, UTF-8 boundaries |
+| Source preservation | `crates/layered-core/tests/source_preservation.rs` | golden byte-exact edit tests |
+| Structural ops | `crates/layered-core/tests/structural_ops.rs` | promote/demote/move/split/delete/merge + undo |
+| Fixture catalog | `crates/layered-core/tests/fixture_catalog.rs` | all fixtures load, outline is correct, round-trip edit preserves source |
+| UI unit | `crates/layered-ui/src/tests/` | i18n parity, session behavior, search, commands |
+| Benchmarks | `crates/layered-core/benches/indexing.rs` | performance regression detection (run manually) |
 
 ---
 
 ## Fixture Catalog
 
-Fixtures live in `crates/layerd-core/tests/fixtures/`. Each fixture must have
+Fixtures live in `crates/layered-core/tests/fixtures/`. Each fixture must have
 a brief comment explaining its purpose. New fixtures are added when:
 
 - a reported bug involves a Markdown structure not covered by existing fixtures;
@@ -100,20 +100,20 @@ When a bug is reported or discovered:
 ## Running Tests
 
 ```sh
-# All crates (excludes layerd-desktop which requires GUI libraries)
+# All crates (excludes layered-desktop which requires GUI libraries)
 cargo test --workspace
 
 # Core only (fast, no GUI)
-cargo test -p layerd-core
+cargo test -p layered-core
 
 # UI only
-cargo test -p layerd-ui
+cargo test -p layered-ui
 
 # Benchmarks (optional, slow)
-cargo bench -p layerd-core
+cargo bench -p layered-core
 ```
 
-The `layerd-desktop` crate is excluded from `--workspace` default members
+The `layered-desktop` crate is excluded from `--workspace` default members
 because it requires platform WebView libraries. It is tested manually via
 the platform smoke test workflow in `RELEASE_CHECKLIST.md`.
 
@@ -123,7 +123,7 @@ the platform smoke test workflow in `RELEASE_CHECKLIST.md`.
 
 A minimum CI configuration must:
 
-1. Run `cargo test -p layerd-core -p layerd-ui` on every pull request.
+1. Run `cargo test -p layered-core -p layered-ui` on every pull request.
 2. Run `cargo clippy --workspace -- -D warnings` to enforce lint hygiene.
 3. Run `cargo fmt --check` to enforce formatting.
 4. Fail if any test fails or any warning is present.
