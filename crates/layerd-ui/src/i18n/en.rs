@@ -1,13 +1,19 @@
 //! English catalog — the fallback locale (RFC-043).
 //!
 //! Entries MUST stay sorted by key and unique; `i18n_tests` enforces both.
-
 pub(super) static CATALOG: &[(&str, &str)] = &[
     ("app.title", "layerd"),
     ("aria.breadcrumb", "Section path"),
     ("aria.editor", "Edit section body"),
     ("aria.outline", "Document outline"),
     ("breadcrumb.root", "Document"),
+    (
+        "dialog.confirm_delete.body",
+        "Delete this section and all its child sections? This cannot be undone without Undo.",
+    ),
+    ("dialog.confirm_delete.cancel", "Cancel"),
+    ("dialog.confirm_delete.confirm", "Delete"),
+    ("dialog.confirm_delete.title", "Delete Section?"),
     ("dialog.discard.body", "Discard unsaved changes?"),
     ("dialog.discard.cancel", "Cancel"),
     ("dialog.discard.confirm", "Discard"),
@@ -20,6 +26,10 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("dialog.ext_modified.overwrite", "Overwrite"),
     ("dialog.ext_modified.save_as", "Save As…"),
     ("dialog.ext_modified.title", "File Changed on Disk"),
+    ("dialog.split.cancel", "Cancel"),
+    ("dialog.split.confirm", "Add"),
+    ("dialog.split.placeholder", "New section title…"),
+    ("dialog.split.title", "Add Child Section"),
     ("dialog.unsaved.body", "You have unsaved changes."),
     ("dialog.unsaved.cancel", "Cancel"),
     ("dialog.unsaved.discard", "Discard"),
@@ -33,6 +43,23 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     (
         "error.stale_edit",
         "The document changed; your edit was not applied.",
+    ),
+    (
+        "error.struct.cannot_move_into_descendant",
+        "Cannot move a section into its own descendant.",
+    ),
+    ("error.struct.invalid_level", "Heading level limit reached."),
+    (
+        "error.struct.no_sibling",
+        "No adjacent sibling to merge with.",
+    ),
+    (
+        "error.struct.stale_node",
+        "Section no longer exists. The view will refresh.",
+    ),
+    (
+        "error.struct.unsupported_style",
+        "Promote/demote requires ATX headings (#…). Convert via raw view.",
     ),
     ("focus.children", "Subsections"),
     ("focus.empty_body", "This section has no body yet."),
@@ -90,6 +117,13 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("status.ready", "Ready"),
     ("status.saved", "Saved"),
     ("status.unsaved", "Unsaved changes"),
+    ("struct.delete", "Delete"),
+    ("struct.demote", "Demote"),
+    ("struct.merge_up", "Merge Up"),
+    ("struct.move_down", "Move ↓"),
+    ("struct.move_up", "Move ↑"),
+    ("struct.promote", "Promote"),
+    ("struct.split", "Add Child"),
     ("toolbar.edit", "Edit"),
     ("toolbar.redo", "Redo"),
     ("toolbar.undo", "Undo"),

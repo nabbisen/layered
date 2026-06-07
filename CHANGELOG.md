@@ -4,7 +4,44 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.8.0] - 2026-06-07
+## [0.9.0] - 2026-06-07
+
+Fifth milestone release (M5 — Structural Editing, per RFCs 023–026).
+
+### Added
+
+- **Promote / Demote heading** (RFC-023): raise or lower a section's ATX
+  heading level by one step (`#`→`##` or vice-versa). Guards reject H1
+  promote, H6 demote, and Setext headings (with a clear message directing
+  the user to convert via raw view). Only the heading marker bytes change;
+  all body text, child sections, siblings, and unrelated bytes are preserved
+  exactly.
+- **Move section up / down** (RFC-024): swap a section with its previous or
+  next sibling. The full subtree (`full_range` — heading + body +
+  descendants) is extracted and reinserted as a single source-text operation.
+  Cyclic moves (into own descendants) and self-moves are rejected with typed
+  errors before any mutation.
+- **Delete section** (RFC-025): removes a section's `full_range`. A
+  confirmation dialog (RFC-026 guard) displays the title and child count
+  before the user can proceed. Fully undoable via Ctrl+Z.
+- **Add child section (split)** (RFC-025): a dialog collects the new
+  section title; the heading is inserted at the end of the focused body,
+  splitting off a new child. Undo restores the original body.
+- **Merge up** (RFC-025): removes a section's heading line, making its body
+  a continuation of the previous sibling's body. Undo is byte-exact.
+- **Structural edit validation framework** (RFC-026): `StructuralEditError`
+  enum centralises preflight rejections: `RevisionMismatch`, `StaleNode`,
+  `InvalidLevel`, `CannotMoveIntoDescendant`, `CannotDeleteRoot`,
+  `NoAdjacentSibling`, `UnsupportedHeadingStyle`, `InvalidSplitOffset`.
+  Every structural op rolls back automatically on re-index failure, preserving
+  the pre-edit source.
+- `layerd_core::structural` module exposed as `pub`; `MoveTarget` and
+  `StructuralEditError` re-exported from `layerd_ui`.
+- 23 new golden tests in `tests/structural_ops.rs` covering every operation,
+  each error variant, undo round-trips, and byte-preservation invariants.
+- 20 new i18n keys for structural ops, dialogs, and error messages (en + ja).
+
+
 
 Fourth milestone release (M4 — Navigation and Search, per RFCs 019–022).
 

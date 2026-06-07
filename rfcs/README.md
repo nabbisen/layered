@@ -34,6 +34,10 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 020 | [Sibling and Depth Navigation](./done/020-sibling-and-depth-navigation.md) | v0.8.0 |
 | 021 | [Search and Result Navigation](./done/021-search-and-result-navigation.md) | v0.8.0 |
 | 022 | [Command Palette and Command Registry](./done/022-command-palette-and-command-registry.md) | v0.8.0 |
+| 023 | [Promote and Demote Heading Operations](./done/023-promote-and-demote-heading-operations.md) | v0.9.0 |
+| 024 | [Move Section Operations](./done/024-move-section-operations.md) | v0.9.0 |
+| 025 | [Split, Merge, and Delete Section Operations](./done/025-split-merge-and-delete-section-operations.md) | v0.9.0 |
+| 026 | [Structural Edit Validation and Conflict Rules](./done/026-structural-edit-validation-and-conflict-rules.md) | v0.9.0 |
 | 043 | [GUI Internationalization and Locale Policy](./done/043-gui-internationalization-and-locale-policy.md) | v0.1.0 |
 | 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.1.0 |
 
@@ -41,10 +45,6 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 | ID | Title | Milestone |
 |----|-------|-----------|
-| 023 | [Promote and Demote Heading Operations](./proposed/023-promote-and-demote-heading-operations.md) | M5 — Structural Editing |
-| 024 | [Move Section Operations](./proposed/024-move-section-operations.md) | M5 — Structural Editing |
-| 025 | [Split, Merge, and Delete Section Operations](./proposed/025-split-merge-and-delete-section-operations.md) | M5 — Structural Editing |
-| 026 | [Structural Edit Validation and Conflict Rules](./proposed/026-structural-edit-validation-and-conflict-rules.md) | M5 — Structural Editing |
 | 027 | [Semantic HTML and ARIA Model](./proposed/027-semantic-html-and-aria-model.md) | M6 — Accessibility and Usability Hardening |
 | 028 | [Keyboard Focus and Navigation Accessibility](./proposed/028-keyboard-focus-and-navigation-accessibility.md) | M6 — Accessibility and Usability Hardening |
 | 029 | [Accessible Editor Status and Error Feedback](./proposed/029-accessible-editor-status-and-error-feedback.md) | M6 — Accessibility and Usability Hardening |

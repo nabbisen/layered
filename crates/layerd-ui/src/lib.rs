@@ -31,6 +31,8 @@ pub use navigation::SiblingInfo;
 pub use search::SearchMatch;
 pub use session::EditorSession;
 pub use view_state::{ViewMode, ViewState};
+// Structural editing types re-exported for the desktop crate.
+pub use layerd_core::{MoveTarget, StructuralEditError};
 
 #[cfg(test)]
 mod tests;

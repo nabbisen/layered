@@ -2,13 +2,19 @@
 //!
 //! Entries MUST stay sorted by key and unique, and every key MUST also exist
 //! in the English catalog; `i18n_tests` enforces all three.
-
 pub(super) static CATALOG: &[(&str, &str)] = &[
     ("app.title", "layerd"),
     ("aria.breadcrumb", "セクションパス"),
     ("aria.editor", "セクション本文を編集"),
     ("aria.outline", "ドキュメントのアウトライン"),
     ("breadcrumb.root", "ドキュメント"),
+    (
+        "dialog.confirm_delete.body",
+        "このセクションとすべての子セクションを削除しますか？元に戻す操作で取り消せます。",
+    ),
+    ("dialog.confirm_delete.cancel", "キャンセル"),
+    ("dialog.confirm_delete.confirm", "削除"),
+    ("dialog.confirm_delete.title", "セクションを削除？"),
     (
         "dialog.discard.body",
         "保存されていない変更を破棄しますか？",
@@ -24,6 +30,10 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("dialog.ext_modified.overwrite", "上書き"),
     ("dialog.ext_modified.save_as", "名前を付けて保存…"),
     ("dialog.ext_modified.title", "ディスク上のファイル変更"),
+    ("dialog.split.cancel", "キャンセル"),
+    ("dialog.split.confirm", "追加"),
+    ("dialog.split.placeholder", "新しいセクションのタイトル…"),
+    ("dialog.split.title", "子セクションを追加"),
     ("dialog.unsaved.body", "未保存の変更があります。"),
     ("dialog.unsaved.cancel", "キャンセル"),
     ("dialog.unsaved.discard", "破棄"),
@@ -37,6 +47,26 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     (
         "error.stale_edit",
         "ドキュメントが変更されたため、編集は適用されませんでした。",
+    ),
+    (
+        "error.struct.cannot_move_into_descendant",
+        "セクションを自身の子セクションに移動することはできません。",
+    ),
+    (
+        "error.struct.invalid_level",
+        "見出しレベルの上限に達しました。",
+    ),
+    (
+        "error.struct.no_sibling",
+        "マージできる隣接する兄弟セクションがありません。",
+    ),
+    (
+        "error.struct.stale_node",
+        "セクションが存在しなくなりました。ビューを更新します。",
+    ),
+    (
+        "error.struct.unsupported_style",
+        "プロモート/デモートはATX見出し（#…）が必要です。ローソースで変換してください。",
     ),
     ("focus.children", "サブセクション"),
     (
@@ -97,6 +127,13 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("status.ready", "準備完了"),
     ("status.saved", "保存しました"),
     ("status.unsaved", "未保存の変更"),
+    ("struct.delete", "削除"),
+    ("struct.demote", "デモート"),
+    ("struct.merge_up", "上にマージ"),
+    ("struct.move_down", "下へ移動"),
+    ("struct.move_up", "上へ移動"),
+    ("struct.promote", "プロモート"),
+    ("struct.split", "子セクションを追加"),
     ("toolbar.edit", "編集"),
     ("toolbar.redo", "やり直し"),
     ("toolbar.undo", "元に戻す"),

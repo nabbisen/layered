@@ -12,8 +12,9 @@ use layerd_ui::i18n::Locale;
 use layerd_ui::{EditorSession, ViewMode};
 
 use crate::components::{
-    CommandPalette, ExtModifiedChoice, ExtModifiedDialog, FocusEditor, OutlinePane, OverviewPane,
-    RawSourceView, SearchPanel, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
+    CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, ExtModifiedChoice, ExtModifiedDialog,
+    FocusEditor, OutlinePane, OverviewPane, RawSourceView, SearchPanel, SplitChoice, SplitDialog,
+    StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
 };
 use crate::file_dialog::{self, OpenOutcome, SaveOutcome};
 use crate::keyboard::{self, AppCommand};
@@ -33,7 +34,7 @@ fn sync_draft(session: &EditorSession, draft: &mut Signal<String>) {
 // ── modal state ──────────────────────────────────────────────────────────────
 
 /// Which modal dialog (if any) is currently visible.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 enum Modal {
     #[default]
     None,
@@ -42,6 +43,13 @@ enum Modal {
     UnsavedBeforeNew,
     /// External modification detected before overwriting the disk file.
     ExternalModified,
+    /// Confirm deletion of a section subtree (RFC-025).
+    ConfirmDelete {
+        title: String,
+        child_count: usize,
+    },
+    /// Collect the title for a new child section (RFC-025 split).
+    SplitSection,
 }
 
 #[component]
@@ -166,7 +174,7 @@ pub fn App() -> Element {
 
     let on_unsaved_choice = use_callback(move |choice: UnsavedChoice| {
         let mut modal = modal;
-        let pending = *modal.read();
+        let pending = modal.read().clone();
         match choice {
             UnsavedChoice::Save => {
                 do_save.call(());
@@ -244,6 +252,60 @@ pub fn App() -> Element {
             }
             ExtModifiedChoice::SaveAs => do_save_as.call(()),
             ExtModifiedChoice::Cancel => {}
+        }
+    });
+
+    // ── structural dialog handlers (RFC-023..025) ────────────────────────────
+
+    let on_confirm_delete_choice = use_callback(move |choice: ConfirmDeleteChoice| {
+        let mut modal = modal;
+        modal.set(Modal::None);
+        if choice == ConfirmDeleteChoice::Delete {
+            let mut session = session;
+            let mut draft = draft;
+            let mut status = status;
+            let del_result = session.write().delete_focused();
+            match del_result {
+                Ok(_) => {
+                    sync_draft(&session.read(), &mut draft);
+                    status.set("status.unsaved".into());
+                }
+                Err(_) => status.set("error.struct.stale_node".into()),
+            }
+        }
+    });
+
+    let on_split_choice = use_callback(move |choice: SplitChoice| {
+        let mut modal = modal;
+        modal.set(Modal::None);
+        if let SplitChoice::Confirm(title) = choice {
+            let mut session = session;
+            let mut status = status;
+            // Split at end of body (append new child section).
+            let body_len = session
+                .read()
+                .current_snapshot()
+                .map(|s| s.body.len())
+                .unwrap_or(0);
+            let level = session
+                .read()
+                .current_snapshot()
+                .and_then(|s| s.level)
+                .map(|l| {
+                    use layerd_core::HeadingLevel::*;
+                    match l {
+                        H1 => H2,
+                        H2 => H3,
+                        H3 => H4,
+                        H4 => H5,
+                        _ => H6,
+                    }
+                })
+                .unwrap_or(layerd_core::HeadingLevel::H2);
+            match session.write().split_focused(body_len, &title, level) {
+                Ok(_) => status.set("status.unsaved".into()),
+                Err(_) => status.set("error.struct.stale_node".into()),
+            }
         }
     });
 
@@ -400,6 +462,28 @@ pub fn App() -> Element {
 
     // ── layout ────────────────────────────────────────────────────────────────
 
+    // Intercept sentinel status values written by FocusEditor structural buttons
+    // and open the corresponding modal (RFC-025). Clear the sentinel immediately.
+    {
+        let st = status.read().clone();
+        if st == "struct.delete.pending" {
+            let mut modal = modal;
+            let mut status = status;
+            let snap = session.read().current_snapshot();
+            if let Some(s) = snap {
+                let title = s.title.clone();
+                let child_count = s.children.len();
+                modal.set(Modal::ConfirmDelete { title, child_count });
+            }
+            status.set("status.ready".into());
+        } else if st == "struct.split.pending" {
+            let mut modal = modal;
+            let mut status = status;
+            modal.set(Modal::SplitSection);
+            status.set("status.ready".into());
+        }
+    }
+
     let is_welcome = session.read().source().is_empty() && !session.read().is_dirty();
     let is_raw = session.read().is_raw();
     let mode = session.read().view_mode();
@@ -485,6 +569,20 @@ pub fn App() -> Element {
                     ExtModifiedDialog {
                         locale,
                         on_choice: move |choice| on_ext_modified_choice.call(choice),
+                    }
+                },
+                Modal::ConfirmDelete { ref title, child_count } => rsx! {
+                    ConfirmDeleteDialog {
+                        locale,
+                        section_title: title.clone(),
+                        child_count,
+                        on_choice: move |c| on_confirm_delete_choice.call(c),
+                    }
+                },
+                Modal::SplitSection => rsx! {
+                    SplitDialog {
+                        locale,
+                        on_choice: move |c| on_split_choice.call(c),
                     }
                 },
             }

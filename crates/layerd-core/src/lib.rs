@@ -38,6 +38,7 @@ mod index;
 mod outline;
 mod range;
 mod revision;
+pub mod structural;
 
 #[cfg(test)]
 mod tests;
@@ -49,3 +50,4 @@ pub use history::{DEFAULT_HISTORY_CAPACITY, EditHistory, EditRecord};
 pub use outline::{HeadingLevel, NodeId, Outline, SectionNode};
 pub use range::{ByteRange, RangeError};
 pub use revision::DocumentRevision;
+pub use structural::{MoveTarget, StructuralEditError};

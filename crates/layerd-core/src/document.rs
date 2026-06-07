@@ -238,7 +238,7 @@ impl Document {
     /// The RFC-008 transactional mutation path shared by edits, undo, and
     /// redo: validate → replace → re-index → increment revision; roll the
     /// text back unchanged if re-indexing fails.
-    fn apply_replacement(
+    pub(crate) fn apply_replacement(
         &mut self,
         range: ByteRange,
         replacement: &str,
@@ -267,5 +267,85 @@ impl Document {
                 Err(EditError::IndexAfterEdit(error))
             }
         }
+    }
+
+    /// Records a structural edit in the history for undo/redo support.
+    /// Called by `structural.rs` after `apply_replacement` succeeds.
+    pub(crate) fn record_history(&mut self, record: crate::history::EditRecord) {
+        self.history.record(record);
+    }
+
+    // ── Structural editing (RFC-023..026) ──────────────────────────────────────
+
+    /// Promotes the section heading one level (e.g. H3→H2). Only ATX headings
+    /// are supported; H1 cannot be promoted. Affects the heading line only.
+    pub fn promote_section(
+        &mut self,
+        id: NodeId,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::promote_section(self, id, base_revision)
+    }
+
+    /// Demotes the section heading one level (e.g. H2→H3). Only ATX headings
+    /// are supported; H6 cannot be demoted.
+    pub fn demote_section(
+        &mut self,
+        id: NodeId,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::demote_section(self, id, base_revision)
+    }
+
+    /// Moves the entire section subtree (heading + body + descendants) to
+    /// the given target position. Preserves every byte in the moved range.
+    pub fn move_section(
+        &mut self,
+        id: NodeId,
+        target: crate::structural::MoveTarget,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::move_section(self, id, target, base_revision)
+    }
+
+    /// Inserts a new heading at `offset_in_body` bytes into the section body,
+    /// splitting the body at that point. Empty offset appends at the top.
+    pub fn split_section(
+        &mut self,
+        id: NodeId,
+        offset_in_body: usize,
+        new_title: &str,
+        new_level: HeadingLevel,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::split_section(
+            self,
+            id,
+            offset_in_body,
+            new_title,
+            new_level,
+            base_revision,
+        )
+    }
+
+    /// Removes `id`'s full range from the source. Requires explicit
+    /// confirmation in the UI before calling (the subtree is permanently gone
+    /// until undo).
+    pub fn delete_section(
+        &mut self,
+        id: NodeId,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::delete_section(self, id, base_revision)
+    }
+
+    /// Merges `id` into its previous sibling by removing `id`'s heading line,
+    /// making its body a continuation of the previous sibling's body.
+    pub fn merge_with_prev_sibling(
+        &mut self,
+        id: NodeId,
+        base_revision: DocumentRevision,
+    ) -> Result<EditResult, crate::structural::StructuralEditError> {
+        crate::structural::merge_with_prev_sibling(self, id, base_revision)
     }
 }

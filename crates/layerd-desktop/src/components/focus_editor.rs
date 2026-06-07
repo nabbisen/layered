@@ -181,6 +181,100 @@ pub fn FocusEditor(
                     span { class: "hint-text", {t(lang, "focus.empty_body")} }
                 }
             }
+
+            // ── structural toolbar (RFC-023..025) ──────────────────────────
+            div { class: "struct-toolbar",
+                button {
+                    class: "struct-btn",
+                    title: t(lang, "struct.promote"),
+                    disabled: !session.read().can_promote(),
+                    onclick: move |_| {
+                        if session.write().promote_focused().is_ok() {
+                            let body = session.read().current_snapshot()
+                                .map(|s| s.body).unwrap_or_default();
+                            draft.set(body);
+                        } else {
+                            status.set("error.struct.invalid_level".into());
+                        }
+                    },
+                    {t(lang, "struct.promote")}
+                }
+                button {
+                    class: "struct-btn",
+                    title: t(lang, "struct.demote"),
+                    disabled: !session.read().can_demote(),
+                    onclick: move |_| {
+                        if session.write().demote_focused().is_ok() {
+                            let body = session.read().current_snapshot()
+                                .map(|s| s.body).unwrap_or_default();
+                            draft.set(body);
+                        } else {
+                            status.set("error.struct.invalid_level".into());
+                        }
+                    },
+                    {t(lang, "struct.demote")}
+                }
+                button {
+                    class: "struct-btn",
+                    title: t(lang, "struct.move_up"),
+                    disabled: !session.read().can_move_up(),
+                    onclick: move |_| {
+                        if session.write().move_focused_up().is_ok() {
+                            let body = session.read().current_snapshot()
+                                .map(|s| s.body).unwrap_or_default();
+                            draft.set(body);
+                        }
+                    },
+                    {t(lang, "struct.move_up")}
+                }
+                button {
+                    class: "struct-btn",
+                    title: t(lang, "struct.move_down"),
+                    disabled: !session.read().can_move_down(),
+                    onclick: move |_| {
+                        if session.write().move_focused_down().is_ok() {
+                            let body = session.read().current_snapshot()
+                                .map(|s| s.body).unwrap_or_default();
+                            draft.set(body);
+                        }
+                    },
+                    {t(lang, "struct.move_down")}
+                }
+                button {
+                    class: "struct-btn",
+                    title: t(lang, "struct.merge_up"),
+                    disabled: !session.read().can_merge_up(),
+                    onclick: move |_| {
+                        if session.write().merge_focused_up().is_ok() {
+                            let body = session.read().current_snapshot()
+                                .map(|s| s.body).unwrap_or_default();
+                            draft.set(body);
+                        } else {
+                            status.set("error.struct.no_sibling".into());
+                        }
+                    },
+                    {t(lang, "struct.merge_up")}
+                }
+                button {
+                    class: "struct-btn struct-btn--add",
+                    title: t(lang, "struct.split"),
+                    onclick: move |_| {
+                        // Signal app to open the split dialog.
+                        status.set("struct.split.pending".into());
+                    },
+                    {t(lang, "struct.split")}
+                }
+                button {
+                    class: "struct-btn struct-btn--danger",
+                    title: t(lang, "struct.delete"),
+                    disabled: !session.read().can_delete(),
+                    onclick: move |_| {
+                        // Signal app to open the delete confirmation dialog.
+                        status.set("struct.delete.pending".into());
+                    },
+                    {t(lang, "struct.delete")}
+                }
+            }
             if !snapshot.children.is_empty() {
                 section { class: "children",
                     h3 { {t(lang, "focus.children")} }

@@ -369,3 +369,28 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
 .palette-title { flex: 1; font-size: 14px; }
 .palette-shortcut { font-size: 11px; font-family: ui-monospace, monospace; }
 .palette-empty { padding: 12px; font-style: italic; }
+
+/* ── M5 additions (RFC-023..026) ────────────────────────────────────────── */
+
+.struct-toolbar {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin: 12px 0 6px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 8px;
+}
+.struct-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.struct-btn--add { color: var(--accent); border-color: var(--accent); }
+.struct-btn--danger { color: var(--danger); border-color: var(--danger); }
+.struct-btn--add:hover:not(:disabled) { background: var(--accent-soft); }
+.struct-btn--danger:hover:not(:disabled) { background: rgba(255,122,122,.12); }
+.btn-danger {
+  background: var(--danger); color: #fff; border-color: var(--danger);
+  border-radius: 6px; padding: 5px 14px; cursor: pointer;
+}
+.btn-danger:hover:not(:disabled) { filter: brightness(1.1); }
