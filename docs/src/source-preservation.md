@@ -14,6 +14,6 @@ file. Everything else is preserved bit-for-bit:
 - YAML/TOML front matter;
 - headings that share the same title (each keeps its own identity).
 
-This is verified continuously by a golden test suite that edits **every
-section of every fixture document** and asserts the surrounding bytes are
-untouched and that undo restores the original file exactly.
+This is verified continuously by a golden test suite that edits **a section
+in each fixture document** and asserts the surrounding bytes are untouched
+and that undo restores the original file exactly.

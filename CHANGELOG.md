@@ -4,6 +4,48 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.0] - 2026-06-07
+
+Post-MVP expansion — two Future RFC items promoted to implemented:
+
+### Added
+
+**RFC-045: Markdown Preview Pane**
+
+- A **Preview** button appears in the editor-actions bar when a section is
+  focused. Clicking it (or pressing **Ctrl+Shift+P**) commits the pending
+  draft and switches to a rendered HTML view of the section body.
+- The rendered preview uses a manual pulldown-cmark event walker — no
+  additional C build-script features required. Supported: headings H1–H6,
+  paragraphs, bold, italic, strikethrough, inline code, fenced code blocks,
+  unordered and ordered lists, block quotes, links, images, tables,
+  task-list checkboxes, horizontal rules, hard/soft breaks, raw HTML pass-through.
+- Preview is read-only. The source-preservation invariant is unaffected:
+  `section_html` and `document_html` are pure functions over the outline.
+- `PreviewPane` component with `role="region"` and accessible back-to-edit
+  button. Scoped `.preview-body` CSS styles the rendered Markdown.
+- 7 new tests in `crates/layerd-core/src/preview.rs` covering bold, headings,
+  empty body, unknown node, Japanese text, code fences, and HTML escaping.
+
+**RFC-046: Document Statistics**
+
+- The status bar now shows word count and section count for the open document.
+  When a section is focused, the focused-section word count is shown first:
+  `42 words / 1 234 words · 17 sections`.
+- `layerd_ui::stats` module with `DocumentStats`, `word_count`, and
+  `compute_stats`. Statistics recompute only on committed edits (not per
+  keystroke), following the render-boundary policy from RFC-033.
+- 6 new tests covering zero, normal, leading/trailing whitespace, focused
+  scope, section count, and post-edit update.
+
+### Changed
+
+- `AppSettings::remove_recent` and `clear_recent` marked `#[allow(dead_code)]`
+  (reserved for future clear-recents UI).
+- Workspace version bumped to 0.12.0.
+
+
+
 ## [0.11.0] - 2026-06-07
 
 Phase G release (M8 — Cross-Platform Delivery, RFC-035..038; M9 — Production
@@ -58,6 +100,8 @@ Readiness, RFC-039..042). All 45 design RFCs are now implemented.
 - `SUMMARY.md` updated with Known Limitations and Architecture pages.
 
 
+
+## [0.10.0] - 2026-06-07
 
 Sixth + seventh milestone release (M6 — Accessibility Hardening, RFC-027..030;
 M7 — Performance and Large Document Readiness, RFC-031..034).
@@ -114,6 +158,8 @@ M7 — Performance and Large Document Readiness, RFC-031..034).
 
 
 
+## [0.9.0] - 2026-06-07
+
 Fifth milestone release (M5 — Structural Editing, per RFCs 023–026).
 
 ### Added
@@ -150,6 +196,8 @@ Fifth milestone release (M5 — Structural Editing, per RFCs 023–026).
 - 20 new i18n keys for structural ops, dialogs, and error messages (en + ja).
 
 
+
+## [0.8.0] - 2026-06-07
 
 Fourth milestone release (M4 — Navigation and Search, per RFCs 019–022).
 

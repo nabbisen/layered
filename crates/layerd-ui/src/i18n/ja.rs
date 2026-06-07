@@ -121,6 +121,8 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("search.scope.document", "文書全体"),
     ("search.scope.section", "現在のセクション"),
     ("search.title", "検索"),
+    ("stats.sections", "セクション"),
+    ("stats.words", "語"),
     ("status.crlf", "CRLF"),
     ("status.lf", "LF"),
     ("status.mixed_endings", "混在"),

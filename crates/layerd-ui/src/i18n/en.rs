@@ -111,6 +111,8 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("search.scope.document", "Whole Document"),
     ("search.scope.section", "Current Section"),
     ("search.title", "Search"),
+    ("stats.sections", "sections"),
+    ("stats.words", "words"),
     ("status.crlf", "CRLF"),
     ("status.lf", "LF"),
     ("status.mixed_endings", "Mixed"),

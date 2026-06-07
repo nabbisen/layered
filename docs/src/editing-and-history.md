@@ -7,6 +7,14 @@ commit carries the document revision your draft was based on. If the document
 changed underneath (for example, an undo elsewhere), the stale commit is
 rejected before anything mutates, and your text stays in the editor.
 
+## Structural operations
+
+When a section is focused, the **structural toolbar** below the editor offers
+promote, demote, move up, move down, merge up, add child section, and delete.
+These reorganise the heading hierarchy without touching body text. Every
+structural operation is recorded in the same undo history as body edits — see
+[Structural Editing](structural-editing.md) for details.
+
 ## Undo and redo
 
 Undo restores the previous text **byte-exactly**, and redo re-applies the

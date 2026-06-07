@@ -3,7 +3,7 @@
 //! RFC-017 raw-source overlay, RFC-019..022 navigation and search).
 //!
 //! Signal mutation: `use_callback(move |()| { let mut sig = sig; … })` shadows
-//! signals with `let mut` so closures are `Fn` (Dioxus 0.6 Writable &mut self).
+//! signals with `let mut` so closures are `Fn` (Dioxus 0.7 Writable &mut self).
 
 use std::time::SystemTime;
 
@@ -336,6 +336,7 @@ pub fn App() -> Element {
 
     let search_open = use_signal(|| false);
     let palette_open = use_signal(|| false);
+    let preview_open = use_signal(|| false);
 
     let on_keydown = use_callback(move |event: Event<KeyboardData>| {
         let Some(cmd) = keyboard::interpret(&event.data()) else {
@@ -347,6 +348,7 @@ pub fn App() -> Element {
         let mut search_open = search_open;
         let mut palette_open = palette_open;
         let mut status = status;
+        let mut preview_open = preview_open;
         let mode = session.read().view_mode();
 
         match cmd {
@@ -367,6 +369,18 @@ pub fn App() -> Element {
             AppCommand::OpenPalette => {
                 let v = !*palette_open.read();
                 palette_open.set(v);
+            }
+            AppCommand::TogglePreview => {
+                // Commit draft before switching to preview (RFC-045).
+                let snap = session.read().current_snapshot();
+                if let Some(s) = snap {
+                    let d = draft.read().clone();
+                    if d != s.body {
+                        let _ = session.write().commit_focused_body(&s, d);
+                    }
+                }
+                let v = !*preview_open.read();
+                preview_open.set(v);
             }
             AppCommand::Undo => {
                 let in_focus = matches!(mode, ViewMode::Focus(_));
@@ -553,7 +567,7 @@ pub fn App() -> Element {
                                 OverviewPane { session, locale, draft, selected_card }
                             },
                             ViewMode::Focus(_) => rsx! {
-                                FocusEditor { session, locale, draft, status }
+                                FocusEditor { session, locale, draft, status, preview_open }
                             },
                         }
                     }

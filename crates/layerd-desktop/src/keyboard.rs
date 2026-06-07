@@ -5,8 +5,7 @@
 //! zoom-in in outline mode but newline in the focus editor) is the caller's
 //! responsibility.
 
-use dioxus::events::ModifiersInteraction;
-use dioxus::prelude::KeyboardData;
+use dioxus::prelude::{KeyboardData, ModifiersInteraction};
 use keyboard_types::{Code, Modifiers};
 
 /// An application-level action derived from a keyboard event.
@@ -40,6 +39,8 @@ pub enum AppCommand {
     OpenSearch,
     /// Open the command palette (Ctrl/Cmd+P).
     OpenPalette,
+    /// Toggle the Markdown preview pane (Ctrl/Cmd+Shift+P) — RFC-045.
+    TogglePreview,
 }
 
 /// Translates a keyboard event into an [`AppCommand`], or `None` if the
@@ -69,6 +70,7 @@ pub fn interpret(data: &KeyboardData) -> Option<AppCommand> {
         Code::Backquote if ctrl && !shift && !alt => Some(AppCommand::ToggleRaw),
         Code::KeyF if ctrl && !shift && !alt => Some(AppCommand::OpenSearch),
         Code::KeyP if ctrl && !shift && !alt => Some(AppCommand::OpenPalette),
+        Code::KeyP if ctrl && shift && !alt => Some(AppCommand::TogglePreview),
         _ => None,
     }
 }

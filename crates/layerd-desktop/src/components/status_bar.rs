@@ -1,17 +1,13 @@
-//! Status bar at the bottom of the application shell (RFC-010, RFC-018, RFC-029).
+//! Status bar (RFC-010, RFC-018, RFC-029, RFC-046).
 //!
-//! RFC-029 live-region policy:
-//! - Informational messages (saved, ready, unsaved): `aria-live="polite"`.
-//! - Error messages (save failed, stale node, …): `aria-live="assertive"` so
-//!   screen readers interrupt to announce the failure immediately.
-//! - Save-failure status includes an inline "Save As" recovery affordance.
-//! - Dirty state is shown as text (not colour-only) per RFC-030.
+//! Shows: status message (polite/assertive live region) · dirty marker ·
+//! document statistics (RFC-046: word count, section count) ·
+//! line-ending style · file path.
 
 use dioxus::prelude::*;
 use layerd_ui::EditorSession;
 use layerd_ui::i18n::{Locale, t};
 
-/// Keys whose values are errors that warrant assertive announcement.
 fn is_error_key(key: &str) -> bool {
     key.starts_with("error.")
 }
@@ -21,7 +17,6 @@ pub fn StatusBar(
     session: Signal<EditorSession>,
     locale: Signal<Locale>,
     status: Signal<String>,
-    /// Callback so the status bar can trigger Save As for error recovery.
     on_save_as: EventHandler<()>,
 ) -> Element {
     let lang = *locale.read();
@@ -29,6 +24,11 @@ pub fn StatusBar(
     let file = session.read().file_name().unwrap_or_default().to_string();
     let raw = session.read().is_raw();
     let newline_label = session.read().profile().newline.label().to_string();
+    let has_doc = !session.read().source().is_empty() || dirty;
+
+    // RFC-046: document statistics.
+    let stats = session.read().stats();
+
     let key = status.read().clone();
     let status_msg = t(lang, key.as_str()).to_string();
     let is_error = is_error_key(&key);
@@ -36,14 +36,12 @@ pub fn StatusBar(
 
     rsx! {
         footer { class: "statusbar",
-            // Polite region for informational updates; assertive for errors.
             if is_error {
                 span {
                     "aria-live": "assertive",
                     "aria-atomic": "true",
                     class: "status-error",
                     {status_msg}
-                    // RFC-029: save failure includes a recovery affordance.
                     if is_save_error {
                         " "
                         button {
@@ -61,6 +59,16 @@ pub fn StatusBar(
             }
             if raw {
                 span { class: "raw-badge", {t(lang, "raw.title")} }
+            }
+            // RFC-046: word/section stats (only when a document is open).
+            if has_doc && (stats.total_words > 0 || stats.section_count > 0) {
+                span { class: "stats",
+                    if stats.focused_words > 0 {
+                        "{stats.focused_words}\u{00a0}{t(lang, \"stats.words\")} / "
+                    }
+                    "{stats.total_words}\u{00a0}{t(lang, \"stats.words\")} · "
+                    "{stats.section_count}\u{00a0}{t(lang, \"stats.sections\")}"
+                }
             }
             span { class: "newline-label", "{newline_label}" }
             if !file.is_empty() {

@@ -95,12 +95,14 @@ impl AppSettings {
     }
 
     /// Removes a specific path from the recent-files list.
-    pub fn remove_recent(&mut self, path: &str) {
+    #[allow(dead_code)]
+    pub(crate) fn remove_recent(&mut self, path: &str) {
         self.recent_files.retain(|p| p != path);
     }
 
     /// Clears the entire recent-files list.
-    pub fn clear_recent(&mut self) {
+    #[allow(dead_code)]
+    pub(crate) fn clear_recent(&mut self) {
         self.recent_files.clear();
     }
 

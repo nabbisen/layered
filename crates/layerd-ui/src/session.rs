@@ -385,6 +385,20 @@ impl EditorSession {
         }
     }
 
+    /// Returns document statistics (RFC-046): word counts and section count.
+    pub fn stats(&self) -> crate::stats::DocumentStats {
+        crate::stats::compute_stats(&self.document, self.view.focused())
+    }
+
+    /// Renders the focused section body as HTML for the preview pane (RFC-045).
+    /// Returns an empty string when no section is focused or body is empty.
+    pub fn preview_html(&self) -> String {
+        self.view
+            .focused()
+            .and_then(|id| layerd_core::section_html(&self.document, id))
+            .unwrap_or_default()
+    }
+
     // ── Structural editing façade (RFC-023..026) ─────────────────────────────
 
     /// Whether the focused section can be promoted (not H1, not setext).

@@ -9,7 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use layerd_ui::file_profile::{FileTextProfile, NewlinePolicy};
+use layerd_ui::file_profile::FileTextProfile;
 
 const MD_EXTENSIONS: &[&str] = &["md", "markdown", "mdown", "txt"];
 
@@ -153,9 +153,4 @@ pub fn was_modified_externally(path: &str, saved_mtime: SystemTime) -> bool {
         .and_then(|m| m.modified().ok())
         .map(|disk_mtime| disk_mtime > saved_mtime)
         .unwrap_or(false)
-}
-
-/// Line-ending policy label for the status bar (RFC-018).
-pub fn newline_label(policy: NewlinePolicy) -> &'static str {
-    policy.label()
 }

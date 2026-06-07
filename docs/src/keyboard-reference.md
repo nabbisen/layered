@@ -35,6 +35,19 @@ The navigation bar beneath the section title offers four buttons:
 
 Disabled buttons are shown but not interactive; they indicate the edge of the structure.
 
+## Focus Editor: Preview and Structural Actions
+
+Below the body textarea, the editor-actions bar contains:
+
+| Control | Action |
+|---------|--------|
+| **Edit** button | Commit the current draft |
+| **Preview** button | Toggle rendered Markdown preview (same as Ctrl+Shift+P) |
+
+The structural toolbar (below the editor actions) offers: Promote, Demote,
+Move ↑, Move ↓, Merge Up, Add Child, Delete. See
+[Structural Editing](structural-editing.md) for details.
+
 ## Editing
 
 | Keys | Action |
@@ -55,6 +68,7 @@ Disabled buttons are shown but not interactive; they indicate the edge of the st
 | Ctrl+F | Open / close the search panel |
 | Ctrl+P | Open / close the command palette |
 | Ctrl+\` | Toggle the read-only raw Markdown source view |
+| Ctrl+Shift+P | Toggle the Markdown preview pane (RFC-045) |
 
 **Search panel** — slide-in panel on the right; type to search case-insensitively
 across the whole document or only the current section. Click a result to focus

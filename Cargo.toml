@@ -14,7 +14,7 @@ default-members = [
 ]
 
 [workspace.package]
-version = "0.11.0"
+version = "0.12.0"
 edition = "2024"
 license = "Apache-2.0"
 authors = ["nabbisen"]
@@ -22,8 +22,8 @@ repository = "https://github.com/nabbisen/layerd"
 rust-version = "1.85"
 
 [workspace.dependencies]
-layerd-core = { path = "crates/layerd-core", version = "0.11.0" }
-layerd-ui = { path = "crates/layerd-ui", version = "0.11.0" }
+layerd-core = { path = "crates/layerd-core", version = "0.12.0" }
+layerd-ui = { path = "crates/layerd-ui", version = "0.12.0" }
 pulldown-cmark = { version = "0.13", default-features = false }
 dirs = "5"
 serde = { version = "1", features = ["derive"] }

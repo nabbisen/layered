@@ -12,21 +12,24 @@ layerd-core      pure Rust, no UI dependency
     ↓
 layerd-ui        pure Rust, no Dioxus dependency
     ↓
-layerd-desktop   Dioxus 0.6 desktop shell
+layerd-desktop   Dioxus 0.7 desktop shell
 ```
 
 **layerd-core** owns the canonical document model: the source text buffer,
-the derived outline index, and all edit operations including undo/redo. It
+the derived outline index, all edit operations including undo/redo, the
+Markdown-to-HTML preview renderer, and structural editing operations. It
 has no knowledge of windows, signals, or the file system.
 
 **layerd-ui** owns editor session state: the current view mode (overview vs
-focus), focus history, search, the command registry, and the file text
-profile. It depends on `layerd-core` but not on Dioxus. Its types are
-testable with `cargo test` on any host.
+focus), focus history, search, the command registry, document statistics,
+sibling navigation helpers, and the file text profile. It depends on
+`layerd-core` but not on Dioxus. Its types are testable with `cargo test`
+on any host.
 
 **layerd-desktop** owns the Dioxus component tree, file I/O, keyboard
-handling, and the signal graph. It has no business logic; it maps user
-gestures to `EditorSession` method calls.
+handling, app settings (recent files, preferences), and the signal graph.
+It has no business logic; it maps user gestures to `EditorSession` method
+calls.
 
 ---
 
@@ -45,9 +48,13 @@ This is enforced by signal ownership:
 | Current draft body | `draft: Signal<String>` | every keystroke |
 | Status message | `status: Signal<String>` | operation result |
 | Selected outline card | `selected_card: Signal<usize>` | keyboard nav |
+| Active locale | `locale: Signal<Locale>` | language switcher |
 | Search open | `search_open: Signal<bool>` | Ctrl+F |
 | Palette open | `palette_open: Signal<bool>` | Ctrl+P |
+| Preview open | `preview_open: Signal<bool>` | Ctrl+Shift+P / button |
 | Modal state | `modal: Signal<Modal>` | operation guard |
+| Recent files | `recent_files: Signal<Vec<String>>` | file open success |
+| Last saved mtime | `saved_mtime: Signal<Option<SystemTime>>` | save success |
 
 The `draft` signal is **local** — it never enters `session` until the user
 commits (blur, save, navigation). Components that only read `session` (the
@@ -89,11 +96,13 @@ parser — see RFC-032 §4 for the criteria.
 | `Toolbar` | session (dirty/file), locale | via callbacks (open/save) |
 | `OutlinePane` | session (children), locale, selected_card | selected_card (via parent) |
 | `OverviewPane` | session (children), locale | session (via focus), draft |
-| `FocusEditor` | session (snapshot), locale, draft | draft (every key), session (commit, structural) |
+| `FocusEditor` | session (snapshot), locale, draft, preview_open | draft (every key), session (commit, structural), preview_open (toggle) |
+| `PreviewPane` | session (preview HTML), locale | on_close callback |
 | `Breadcrumb` | session (path), locale, draft | session (jump) |
 | `SearchPanel` | session (search), locale | session (navigate result) |
 | `CommandPalette` | locale | via on_execute callback |
-| `StatusBar` | session (dirty/profile/file), locale, status | via on_save_as callback |
+| `StatusBar` | session (dirty/profile/file/stats), locale, status | via on_save_as callback |
+| `WelcomeScreen` | locale, recent_files | via on_open/on_new/on_open_recent callbacks |
 
 **Anti-patterns to avoid** (RFC-033 §4):
 - Passing `session.read().source()` as a prop to a component that renders per keystroke.

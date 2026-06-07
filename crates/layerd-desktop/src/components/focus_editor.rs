@@ -1,15 +1,12 @@
 //! Focus editor: edit the body of one section while seeing immediate children
 //! (RFC-012). Keeps a local draft buffer; commits on blur, explicit save, and
-//! Esc (zoom-out).
-//!
-//! The editor receives an accessible label (RFC-027) and signals the App when
-//! a commit succeeds so the status bar can update.
+//! Esc (zoom-out). Also hosts the Markdown preview pane toggle (RFC-045).
 
 use dioxus::prelude::*;
 use layerd_ui::EditorSession;
 use layerd_ui::i18n::{Locale, t};
 
-use super::Breadcrumb;
+use super::{Breadcrumb, PreviewPane};
 
 #[component]
 pub fn FocusEditor(
@@ -17,6 +14,8 @@ pub fn FocusEditor(
     locale: Signal<Locale>,
     draft: Signal<String>,
     status: Signal<String>,
+    /// When true, the preview pane is shown instead of the textarea (RFC-045).
+    preview_open: Signal<bool>,
 ) -> Element {
     let lang = *locale.read();
     let Some(snapshot) = session.read().current_snapshot() else {
@@ -77,6 +76,18 @@ pub fn FocusEditor(
     rsx! {
         main { class: "main-pane",
             Breadcrumb { session, locale, draft }
+
+            // RFC-045: show preview pane instead of editor when toggled.
+            if *preview_open.read() {
+                PreviewPane {
+                    session,
+                    locale,
+                    on_close: move |()| {
+                        let mut po = preview_open;
+                        po.set(false);
+                    },
+                }
+            } else {
             h1 { class: "focus-title",
                 if snapshot.title.is_empty() {
                     {t(lang, "breadcrumb.root")}
@@ -178,6 +189,27 @@ pub fn FocusEditor(
                     class: "primary",
                     onclick: do_commit,
                     {t(lang, "toolbar.edit")}
+                }
+                // RFC-045: toggle between edit and preview.
+                button {
+                    class: if *preview_open.read() { "btn-preview active" } else { "btn-preview" },
+                    title: t(lang, "editor.preview"),
+                    onclick: move |_| {
+                        let currently_open = *preview_open.read();
+                        if !currently_open {
+                            // Commit draft before entering preview so HTML reflects latest text.
+                            let snap = session.read().current_snapshot();
+                            if let Some(s) = snap {
+                                let d = draft.read().clone();
+                                if d != s.body {
+                                    let _ = session.write().commit_focused_body(&s, d);
+                                }
+                            }
+                        }
+                        let mut po = preview_open;
+                        po.set(!currently_open);
+                    },
+                    {t(lang, "editor.preview")}
                 }
                 if snapshot.body.is_empty() {
                     span { class: "hint-text", {t(lang, "focus.empty_body")} }
@@ -305,6 +337,7 @@ pub fn FocusEditor(
                         }
                     }
                 }
+            }
             }
         }
     }

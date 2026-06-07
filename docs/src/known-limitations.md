@@ -62,13 +62,14 @@ These features are intentionally absent in this release:
 
 | Feature | Status |
 |---------|--------|
-| Markdown preview pane | Not planned for current releases |
 | Plugin / extension system | Deferred — see Future RFC-C |
 | AI writing assistance | Deferred — see Future RFC-D |
 | Real-time collaboration | Deferred — see Future RFC (not started) |
 | Cloud synchronization | Out of scope by design |
 | Mobile application | Out of scope by design |
 | Web / browser version | Out of scope by design |
+| Multi-document workspace | Deferred — see Future RFC-B |
+| TUI / CLI companion | Deferred — see Future RFC-F |
 
 ---
 
