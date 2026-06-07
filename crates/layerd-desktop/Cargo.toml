@@ -21,3 +21,6 @@ layerd-ui.workspace = true
 dioxus = { version = "0.7", features = ["desktop"] }
 rfd = "0.15"
 keyboard-types = "0.7"
+dirs.workspace = true
+serde.workspace = true
+toml.workspace = true

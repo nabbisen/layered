@@ -8,16 +8,17 @@
 use std::time::SystemTime;
 
 use dioxus::prelude::*;
-use layerd_ui::i18n::Locale;
+use layerd_ui::i18n::{Locale, t};
 use layerd_ui::{EditorSession, ViewMode};
 
 use crate::components::{
-    CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, ExtModifiedChoice, ExtModifiedDialog,
-    FocusEditor, OutlinePane, OverviewPane, RawSourceView, SearchPanel, SplitChoice, SplitDialog,
-    StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
+    CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, ErrorDialog, ExtModifiedChoice,
+    ExtModifiedDialog, FocusEditor, OutlinePane, OverviewPane, RawSourceView, SearchPanel,
+    SplitChoice, SplitDialog, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
 };
 use crate::file_dialog::{self, OpenOutcome, SaveOutcome};
 use crate::keyboard::{self, AppCommand};
+use crate::settings::AppSettings;
 
 const STYLE: &str = include_str!("../assets/style.css");
 
@@ -50,11 +51,17 @@ enum Modal {
     },
     /// Collect the title for a new child section (RFC-025 split).
     SplitSection,
+    /// File open failed — show cause and recovery (RFC-039).
+    OpenError {
+        cause: String,
+    },
 }
 
 #[component]
 pub fn App() -> Element {
     let initial_locale = try_consume_context::<Locale>().unwrap_or_default();
+    // RFC-036: load persisted settings injected by main.rs at startup.
+    let initial_settings = try_consume_context::<AppSettings>().unwrap_or_default();
 
     let session = use_signal(EditorSession::new_empty);
     let locale = use_signal(move || initial_locale);
@@ -64,6 +71,8 @@ pub fn App() -> Element {
     let modal = use_signal(Modal::default);
     // Last-known mtime of the file on disk; used to detect external changes.
     let saved_mtime: Signal<Option<SystemTime>> = use_signal(|| None);
+    // RFC-036: recent files list (valid paths only at startup).
+    let recent_files = use_signal(move || initial_settings.valid_recent_files());
 
     // ── helpers ───────────────────────────────────────────────────────────────
 
@@ -86,24 +95,38 @@ pub fn App() -> Element {
         let mut status = status;
         let mut selected_card = selected_card;
         let mut saved_mtime = saved_mtime;
+        let mut modal = modal;
+        let mut recent_files = recent_files;
         match outcome {
             OpenOutcome::Cancelled => {}
-            OpenOutcome::Failed => status.set("error.open_failed".into()),
+            // RFC-039: surface the specific cause in an error dialog.
+            OpenOutcome::Failed { cause } => {
+                modal.set(Modal::OpenError { cause });
+            }
             OpenOutcome::Loaded {
                 text,
                 name,
                 profile,
                 mtime,
-            } => match EditorSession::open_with_profile(text, Some(name), profile) {
-                Ok(opened) => {
-                    session.set(opened);
-                    selected_card.set(0);
-                    sync_draft(&session.read(), &mut draft);
-                    saved_mtime.set(mtime);
-                    status.set("status.ready".into());
+            } => {
+                match EditorSession::open_with_profile(text, Some(name.clone()), profile) {
+                    Ok(opened) => {
+                        session.set(opened);
+                        selected_card.set(0);
+                        sync_draft(&session.read(), &mut draft);
+                        saved_mtime.set(mtime);
+                        status.set("status.ready".into());
+                        // RFC-036: persist the path to the recent-files list.
+                        let mut settings = AppSettings::load();
+                        settings.push_recent(&name);
+                        settings.save();
+                        recent_files.set(settings.valid_recent_files());
+                    }
+                    Err(_) => modal.set(Modal::OpenError {
+                        cause: "Could not parse the file structure.".into(),
+                    }),
                 }
-                Err(_) => status.set("error.open_failed".into()),
-            },
+            }
         }
     });
 
@@ -505,8 +528,12 @@ pub fn App() -> Element {
             if is_welcome {
                 WelcomeScreen {
                     locale,
+                    recent_files,
                     on_open: move |()| do_open_guarded.call(()),
                     on_new: move |()| do_new_guarded.call(()),
+                    on_open_recent: move |path: String| {
+                        do_load.call(file_dialog::open_markdown_path(&path));
+                    },
                 }
             } else {
                 div { class: "body",
@@ -586,6 +613,17 @@ pub fn App() -> Element {
                     SplitDialog {
                         locale,
                         on_choice: move |c| on_split_choice.call(c),
+                    }
+                },
+                Modal::OpenError { ref cause } => rsx! {
+                    ErrorDialog {
+                        locale,
+                        title: "error.open_failed".to_string(),
+                        cause: cause.clone(),
+                        dismiss_label: t(*locale.read(), "dialog.discard.cancel").to_string(),
+                        secondary_label: None,
+                        on_dismiss: move |()| { let mut m = modal; m.set(Modal::None); },
+                        on_secondary: None,
                     }
                 },
             }

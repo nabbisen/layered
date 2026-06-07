@@ -46,21 +46,20 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 032 | [Re-index Strategy and Debounce Lifecycle](./done/032-re-index-strategy-and-debounce-lifecycle.md) | v0.10.0 |
 | 033 | [Render Boundary and State Update Policy](./done/033-render-boundary-and-state-update-policy.md) | v0.10.0 |
 | 034 | [Large Document Test Fixtures](./done/034-large-document-test-fixtures.md) | v0.10.0 |
+| 035 | [Cross-Platform Desktop Runtime Policy](./done/035-cross-platform-desktop-runtime-policy.md) | v0.11.0 |
+| 036 | [Settings and Recent Files Storage](./done/036-settings-and-recent-files-storage.md) | v0.11.0 |
+| 037 | [Packaging and Release Artifacts](./done/037-packaging-and-release-artifacts.md) | v0.11.0 |
+| 038 | [Platform Smoke Test Matrix](./done/038-platform-smoke-test-matrix.md) | v0.11.0 |
+| 039 | [Error Handling and User-Facing Failure Modes](./done/039-error-handling-and-user-facing-failure-modes.md) | v0.11.0 |
+| 040 | [Test Strategy and Regression Policy](./done/040-test-strategy-and-regression-policy.md) | v0.11.0 |
+| 041 | [User Documentation and Onboarding](./done/041-user-documentation-and-onboarding.md) | v0.11.0 |
+| 042 | [Release Readiness Criteria](./done/042-release-readiness-criteria.md) | v0.11.0 |
 | 043 | [GUI Internationalization and Locale Policy](./done/043-gui-internationalization-and-locale-policy.md) | v0.1.0 |
 | 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.1.0 |
 
 ## Proposed
 
-| ID | Title | Milestone |
-|----|-------|-----------|
-| 035 | [Cross-Platform Desktop Runtime Policy](./proposed/035-cross-platform-desktop-runtime-policy.md) | M8 — Cross-Platform Delivery |
-| 036 | [Settings and Recent Files Storage](./proposed/036-settings-and-recent-files-storage.md) | M8 — Cross-Platform Delivery |
-| 037 | [Packaging and Release Artifacts](./proposed/037-packaging-and-release-artifacts.md) | M8 — Cross-Platform Delivery |
-| 038 | [Platform Smoke Test Matrix](./proposed/038-platform-smoke-test-matrix.md) | M8 — Cross-Platform Delivery |
-| 039 | [Error Handling and User-Facing Failure Modes](./proposed/039-error-handling-and-user-facing-failure-modes.md) | M9 — Production Readiness |
-| 040 | [Test Strategy and Regression Policy](./proposed/040-test-strategy-and-regression-policy.md) | M9 — Production Readiness |
-| 041 | [User Documentation and Onboarding](./proposed/041-user-documentation-and-onboarding.md) | M9 — Production Readiness |
-| 042 | [Release Readiness Criteria](./proposed/042-release-readiness-criteria.md) | M9 — Production Readiness |
+No RFCs currently proposed.
 
 ## Archive
 

@@ -74,12 +74,32 @@ cargo run -p layerd-desktop
 * **Undo / Redo** restore the document text byte-exactly.
 * Switch the GUI language (English / 日本語) from the toolbar at any time.
 
+## Platform Support
+
+layerd runs on Linux, macOS, and Windows. See [PLATFORMS.md](PLATFORMS.md)
+for the support matrix, required system packages, and known platform
+constraints.
+
+> **Unsigned builds:** Early releases are not code-signed. On macOS, use
+> Right-click → Open to bypass Gatekeeper. Verify the SHA-256 checksum
+> published with each release.
+
 ## Documentation
 
 ```sh
 cargo install mdbook
 mdbook serve docs
 ```
+
+Full docs cover working in layers, structural editing, keyboard reference,
+known limitations, and the architecture.
+
+## Release Policy
+
+Public releases require explicit sign-off from the product owner. See
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for the full checklist
+including data-integrity tests, platform smoke tests, and the required
+sign-off form.
 
 ## License
 

@@ -4,7 +4,60 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.10.0] - 2026-06-07
+## [0.11.0] - 2026-06-07
+
+Phase G release (M8 — Cross-Platform Delivery, RFC-035..038; M9 — Production
+Readiness, RFC-039..042). All 45 design RFCs are now implemented.
+
+### Added
+
+**Cross-platform delivery (M8):**
+
+- **App settings with persistent recent files** (RFC-036): `AppSettings`
+  stored as TOML in the OS config directory. Recent files (up to 10) are
+  loaded on startup and shown on the welcome screen. Opening a file adds it
+  to the list automatically; stale paths are filtered on load. Backed by
+  `dirs`, `serde`, and `toml` workspace dependencies.
+- **Recent files welcome screen** (RFC-036 / RFC-041): The welcome screen now
+  shows a five-step onboarding guide and the recent-files list with file name
+  and directory. Clicking an item opens the file immediately.
+- **Platform documentation** (RFC-035): `PLATFORMS.md` documents the support
+  matrix, required Linux system packages, keyboard modifier policy, file dialog
+  backend, config directory paths, and known constraints per platform.
+- **Packaging and release checklist** (RFC-037 / RFC-038 / RFC-042):
+  `RELEASE_CHECKLIST.md` covers pre-release gates, data-integrity tests,
+  per-platform smoke test workflow, artifact matrix with checksum instructions,
+  unsigned build policy, and the required sign-off form.
+
+**Production readiness (M9):**
+
+- **Structured open-error dialog** (RFC-039): `OpenOutcome::Failed` now carries
+  a plain-language `cause` string. File-open failures show an `ErrorDialog`
+  modal with the specific reason (permission denied, not valid UTF-8, file not
+  found) instead of a bare status-bar message. `ErrorDialog` is a reusable
+  component for future error surfaces.
+- **`open_markdown_path`** (RFC-039): opens a file at a known path without
+  displaying a dialog, used by the recent-files list and testable in isolation.
+- **Test strategy documentation** (RFC-040): `TESTING.md` formalises the test
+  pyramid, fixture catalog, regression policy (reproduce → classify →
+  fix → keep test), and CI requirements.
+- **4 new regression tests** (RFC-040): empty document, whitespace-only
+  document, edit-last-preserves-first, and UTF-8 multibyte body edit are now
+  in `tests/source_preservation.rs`.
+- **Known limitations page** (RFC-041): `docs/src/known-limitations.md`
+  documents read-only raw source, setext promote/demote constraint, focus-return
+  WebView limitation, deferred features, and what is explicitly not limited.
+- **Release policy in README** (RFC-042): public releases require explicit
+  product-owner sign-off; unsigned build verification instructions added.
+
+### Changed
+
+- `WelcomeScreen` gains `recent_files: Signal<Vec<String>>` and
+  `on_open_recent: EventHandler<String>` props; all callers updated.
+- Workspace version bumped to 0.11.0.
+- `SUMMARY.md` updated with Known Limitations and Architecture pages.
+
+
 
 Sixth + seventh milestone release (M6 — Accessibility Hardening, RFC-027..030;
 M7 — Performance and Large Document Readiness, RFC-031..034).
@@ -177,7 +230,7 @@ Second milestone release (M2 — Basic Desktop UX, per RFCs 010–014).
 - `file_dialog.rs` handles open/save I/O; `keyboard.rs` is pure and
   dependency-free from editor state.
 
-## [0.1.0] - 2026-06-07
+## [0.7.0] - 2026-06-07
 
 First milestone release (M0 "Core Document Engine" + M1 "Layered Editing MVP"
 foundations, per the roadmap and RFCs 001–009, 043, 044).

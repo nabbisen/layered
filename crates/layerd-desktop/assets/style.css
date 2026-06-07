@@ -449,3 +449,25 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   font-size: 13px; text-decoration: none;
 }
 .skip-link:focus { left: 8px; }
+
+/* ── M8/M9 additions (RFC-036..042) ─────────────────────────────────────── */
+
+/* Recent files list on welcome screen */
+.recent-files { margin-top: 24px; }
+.recent-title { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.recent-item {
+  display: flex; flex-direction: column; gap: 2px;
+  width: 100%; text-align: left; max-width: 480px;
+  padding: 8px 10px; margin-bottom: 4px;
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  border-radius: 6px; cursor: pointer;
+}
+.recent-item:hover { border-color: var(--accent); }
+.recent-name { font-size: 14px; font-weight: 500; }
+.recent-dir  { font-size: 11px; }
+
+/* Error dialog title */
+.error-title { color: var(--danger); }
+.error-cause { font-family: ui-monospace, monospace; font-size: 12px;
+  background: var(--bg); border: 1px solid var(--panel-edge);
+  border-radius: 4px; padding: 6px 8px; white-space: pre-wrap; }

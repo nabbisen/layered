@@ -173,3 +173,59 @@ fn sequential_edits_to_every_section_then_full_unwind_round_trips() {
         assert!(!doc.can_undo(), "{name}: history should be exhausted");
     }
 }
+
+// ── RFC-040 regression tests ─────────────────────────────────────────────
+
+/// Empty document (no content at all) must not panic.
+#[test]
+fn empty_document_round_trip() {
+    let mut d = Document::parse("".to_string()).unwrap();
+    let original = d.source().to_string();
+    // Root has no children — nothing to edit; just verify stability.
+    assert!(d.outline().root().children.is_empty());
+    assert_eq!(d.source(), original);
+}
+
+/// Document with only whitespace and no headings must be navigable.
+#[test]
+fn whitespace_only_document() {
+    let src = "   \n\n   \n";
+    let d = Document::parse(src.to_string()).unwrap();
+    assert!(d.outline().root().children.is_empty());
+    assert_eq!(d.source(), src);
+}
+
+/// Body edit of the LAST section must not touch the first section.
+#[test]
+fn edit_last_section_preserves_first() {
+    let src = "# First\nbody one\n\n# Last\nbody two\n";
+    let mut d = Document::parse(src.to_string()).unwrap();
+    let first_id = d.outline().root().children[0];
+    let last_id = *d.outline().root().children.last().unwrap();
+    let first_range = d.outline().node(first_id).unwrap().full_range;
+    let original_first = src[first_range.as_range()].to_string();
+    d.replace_section_body(ReplaceSectionBody {
+        node_id: last_id,
+        base_revision: d.revision(),
+        new_body: "replaced\n".to_string(),
+    })
+    .unwrap();
+    let new_first = &d.source()[first_range.as_range()];
+    assert_eq!(new_first, original_first.as_str());
+}
+
+/// UTF-8 multibyte body edit must produce valid UTF-8.
+#[test]
+fn utf8_multibyte_body_edit() {
+    let src = "# 日本語\n元の本文\n\n# End\n";
+    let mut d = Document::parse(src.to_string()).unwrap();
+    let id = d.outline().root().children[0];
+    d.replace_section_body(ReplaceSectionBody {
+        node_id: id,
+        base_revision: d.revision(),
+        new_body: "新しい本文\n".to_string(),
+    })
+    .unwrap();
+    assert!(std::str::from_utf8(d.source().as_bytes()).is_ok());
+    assert!(d.source().contains("# End\n"));
+}

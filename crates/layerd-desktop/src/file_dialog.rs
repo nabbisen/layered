@@ -1,9 +1,9 @@
-//! Native file dialogs, disk I/O, and file integrity helpers for the desktop
-//! shell (RFC-001: platform integration; RFC-015: file lifecycle; RFC-018:
-//! encoding and line-ending integrity).
+//! Native file dialogs, disk I/O, and file integrity helpers (RFC-001, RFC-015,
+//! RFC-018, RFC-039).
 //!
-//! Canonical text crosses this boundary verbatim in both directions (RFC-002).
-//! Saves use write-to-temp-then-rename for crash safety (NFR-REL-003).
+//! RFC-039: OpenOutcome::Failed now carries a human-readable `cause` string so
+//! the UI can display *why* a file could not be opened (permission denied, not
+//! valid UTF-8, etc.) in an actionable error message.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -13,14 +13,14 @@ use layerd_ui::file_profile::{FileTextProfile, NewlinePolicy};
 
 const MD_EXTENSIONS: &[&str] = &["md", "markdown", "mdown", "txt"];
 
-// ── outcome types ────────────────────────────────────────────────────────────
+// ── outcome types ─────────────────────────────────────────────────────────────
 
 /// Result of asking the user to open a Markdown file.
 pub enum OpenOutcome {
-    /// The user dismissed the dialog.
+    /// The user dismissed the dialog or no path was provided.
     Cancelled,
-    /// File could not be read or is not valid UTF-8.
-    Failed,
+    /// File could not be read; `cause` is a plain-language reason (RFC-039).
+    Failed { cause: String },
     /// Text (BOM stripped), display name, profile, and disk mtime.
     Loaded {
         text: String,
@@ -43,38 +43,37 @@ pub enum SaveOutcome {
     },
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 fn markdown_dialog() -> rfd::FileDialog {
     rfd::FileDialog::new().add_filter("Markdown", MD_EXTENSIONS)
 }
 
-/// Reads `path`, strips a UTF-8 BOM if present, and returns the text
-/// together with its profile and last-modified time.
-fn read_markdown(path: &Path) -> Result<(String, FileTextProfile, Option<SystemTime>), ()> {
-    let bytes = fs::read(path).map_err(|_| ())?;
+/// Reads `path`, strips a UTF-8 BOM if present, and returns text + profile +
+/// mtime, or a descriptive error string for RFC-039 error messages.
+fn read_markdown(path: &Path) -> Result<(String, FileTextProfile, Option<SystemTime>), String> {
+    let bytes = fs::read(path).map_err(|e| e.to_string())?;
     let mtime = fs::metadata(path).ok().and_then(|m| m.modified().ok());
 
-    // Strip UTF-8 BOM (EF BB BF) if present.
     let (text_bytes, had_bom) = if bytes.starts_with(&[0xEF, 0xBB, 0xBF]) {
         (&bytes[3..], true)
     } else {
         (&bytes[..], false)
     };
 
-    let text = String::from_utf8(text_bytes.to_vec()).map_err(|_| ())?;
+    let text = String::from_utf8(text_bytes.to_vec()).map_err(|_| {
+        "File is not valid UTF-8. layerd requires UTF-8 Markdown files.".to_string()
+    })?;
     let profile = FileTextProfile::detect(&text, had_bom);
     Ok((text, profile, mtime))
 }
 
-/// Writes `source` atomically: writes a temp file in the same directory then
-/// renames over the target (NFR-REL-003 crash-safe save).
+/// Writes `source` atomically: writes a temp file then renames (NFR-REL-003).
 fn write_atomic(
     path: &Path,
     source: &str,
     profile: &FileTextProfile,
 ) -> Result<SystemTime, std::io::Error> {
-    // Re-prepend BOM if the original file had one.
     let temp = path.with_extension("tmp.layerd");
     if profile.had_utf8_bom {
         let mut bytes = vec![0xEF, 0xBB, 0xBF];
@@ -91,26 +90,41 @@ fn write_atomic(
     Ok(mtime)
 }
 
-// ── public API ───────────────────────────────────────────────────────────────
+// ── public API ────────────────────────────────────────────────────────────────
 
 /// Shows the open dialog and reads the chosen Markdown file.
 pub fn open_markdown() -> OpenOutcome {
     let Some(path) = markdown_dialog().pick_file() else {
         return OpenOutcome::Cancelled;
     };
-    match read_markdown(&path) {
+    open_path(&path)
+}
+
+/// Opens a Markdown file at a known path without showing a dialog.
+/// Used by the recent-files list (RFC-036).
+pub fn open_markdown_path(path_str: &str) -> OpenOutcome {
+    let path = PathBuf::from(path_str);
+    if !path.exists() {
+        return OpenOutcome::Failed {
+            cause: format!("File not found: {path_str}"),
+        };
+    }
+    open_path(&path)
+}
+
+fn open_path(path: &Path) -> OpenOutcome {
+    match read_markdown(path) {
         Ok((text, profile, mtime)) => OpenOutcome::Loaded {
             text,
             name: path.display().to_string(),
             profile,
             mtime,
         },
-        Err(()) => OpenOutcome::Failed,
+        Err(cause) => OpenOutcome::Failed { cause },
     }
 }
 
 /// Writes `source` to the session's existing path, or prompts for one.
-/// `profile` is used to restore the BOM if the original file had one.
 pub fn save_markdown(
     existing: Option<&str>,
     source: &str,
@@ -132,8 +146,7 @@ pub fn save_markdown(
     }
 }
 
-/// Returns `true` if the file at `path` was modified after `saved_mtime`,
-/// indicating an external modification that would be overwritten (RFC-015).
+/// Returns `true` if the file was modified externally since `saved_mtime`.
 pub fn was_modified_externally(path: &str, saved_mtime: SystemTime) -> bool {
     fs::metadata(path)
         .ok()
