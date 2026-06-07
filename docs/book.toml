@@ -1,0 +1,8 @@
+[book]
+title = "layerd User Guide"
+authors = ["nabbisen"]
+language = "en"
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/nabbisen/layerd"

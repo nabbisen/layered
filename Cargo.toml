@@ -1,0 +1,31 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/layerd-core",
+    "crates/layerd-ui",
+    "crates/layerd-desktop",
+]
+# `layerd-desktop` links against the platform WebView stack (wry/tao); building it
+# requires native system libraries (e.g. webkit2gtk on Linux). Core and UI logic
+# build and test everywhere, so they are the default members (RFC-001).
+default-members = [
+    "crates/layerd-core",
+    "crates/layerd-ui",
+]
+
+[workspace.package]
+version = "0.7.0"
+edition = "2024"
+license = "Apache-2.0"
+authors = ["nabbisen"]
+repository = "https://github.com/nabbisen/layerd"
+rust-version = "1.85"
+
+[workspace.dependencies]
+layerd-core = { path = "crates/layerd-core", version = "0.7.0" }
+layerd-ui = { path = "crates/layerd-ui", version = "0.7.0" }
+pulldown-cmark = { version = "0.13", default-features = false }
+
+[profile.release]
+strip = true
+lto = "thin"

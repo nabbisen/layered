@@ -1,0 +1,45 @@
+//! English catalog — the fallback locale (RFC-043).
+//!
+//! Entries MUST stay sorted by key and unique; `i18n_tests` enforces both.
+
+pub(super) static CATALOG: &[(&str, &str)] = &[
+    ("app.title", "layerd"),
+    ("breadcrumb.root", "Document"),
+    ("dialog.discard.body", "Discard unsaved changes?"),
+    ("dialog.discard.cancel", "Cancel"),
+    ("dialog.discard.confirm", "Discard"),
+    ("dialog.discard.title", "Unsaved changes"),
+    ("editor.body.placeholder", "Write the body of this section…"),
+    ("editor.preview", "Preview"),
+    ("editor.source", "Source"),
+    ("error.open_failed", "Could not open the file."),
+    ("error.save_failed", "Could not save the file."),
+    (
+        "error.stale_edit",
+        "The document changed; your edit was not applied.",
+    ),
+    ("focus.children", "Subsections"),
+    ("focus.empty_body", "This section has no body yet."),
+    ("menu.file", "File"),
+    ("menu.file.new", "New"),
+    ("menu.file.open", "Open…"),
+    ("menu.file.save", "Save"),
+    ("menu.file.save_as", "Save As…"),
+    ("menu.help", "Help"),
+    ("menu.help.about", "About layerd"),
+    ("menu.language", "Language"),
+    ("nav.back", "Back"),
+    ("nav.forward", "Forward"),
+    ("nav.up", "Up one level"),
+    (
+        "outline.empty",
+        "No sections yet — the whole document is one layer.",
+    ),
+    ("outline.title", "Outline"),
+    ("status.ready", "Ready"),
+    ("status.saved", "Saved"),
+    ("status.unsaved", "Unsaved changes"),
+    ("toolbar.edit", "Edit"),
+    ("toolbar.redo", "Redo"),
+    ("toolbar.undo", "Undo"),
+];
