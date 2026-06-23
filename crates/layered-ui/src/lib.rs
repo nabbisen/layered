@@ -31,7 +31,7 @@ pub use commands::{COMMANDS, CommandSpec, filter_commands};
 pub use file_profile::{FileTextProfile, NewlinePolicy};
 pub use navigation::SiblingInfo;
 pub use search::SearchMatch;
-pub use session::EditorSession;
+pub use session::{EditorSession, OutlineNode};
 pub use stats::DocumentStats;
 pub use view_state::{ViewMode, ViewState};
 // Structural editing types re-exported for the desktop crate.

@@ -1,26 +1,77 @@
-//! Left-panel outline: heading cards with keyboard selection (RFC-011,
-//! RFC-014). Arrow keys move the selection; Enter zooms into the selected
-//! item; clicking any item zooms in immediately.
-//!
-//! The currently selected card index lives as a `Signal<usize>` in `App` so
-//! that the global keyboard handler (root div `onkeydown`) can drive it from
-//! outside this component.
+//! Left-panel outline powered by `dioxus-swdir-tree`'s `ItemTreeView`
+//! (RFC-011, RFC-014). The generic `ItemTree<String>` holds expand/collapse
+//! and selection state; `set_tree` is called on every session change so the
+//! widget's key-based diffing preserves expansion state across body edits.
 
 use dioxus::prelude::*;
+use dioxus_swdir_tree::item_tree::node::ItemNode;
+use dioxus_swdir_tree::item_tree::node::NodeId as SwNodeId;
+use dioxus_swdir_tree::{ItemTree, ItemTreeEvent, ItemTreeView};
 use layered_ui::i18n::{Locale, t};
-use layered_ui::{EditorSession, ViewMode};
+use layered_ui::{EditorSession, OutlineNode, ViewMode};
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+
+/// Convert `OutlineNode` (from `layered-ui`) into `ItemNode<String>` for
+/// `ItemTree`. The root is included so the widget always has a single root
+/// node; its label becomes the i18n "breadcrumb.root" key at render time.
+fn to_item_node(node: &OutlineNode) -> ItemNode<String> {
+    let id = SwNodeId(node.id);
+    let children: Vec<ItemNode<String>> = node.children.iter().map(to_item_node).collect();
+    if children.is_empty() {
+        ItemNode::leaf(id, node.title.clone())
+    } else {
+        ItemNode::branch(id, node.title.clone(), children)
+    }
+}
+
+// ── component ─────────────────────────────────────────────────────────────────
 
 #[component]
 pub fn OutlinePane(
     session: Signal<EditorSession>,
     locale: Signal<Locale>,
     draft: Signal<String>,
-    /// Zero-based index of the keyboard-selected card.
+    /// Zero-based index of the keyboard-selected card (kept for compatibility
+    /// with the global keyboard handler in `app.rs`).
     selected_card: Signal<usize>,
 ) -> Element {
     let lang = *locale.read();
-    let items = session.read().current_children();
-    let sel = *selected_card.read();
+
+    // Local ItemTree signal — lives inside this component.
+    let mut item_tree = use_signal(|| ItemTree::new().with_display(|s: &String| s.clone()));
+
+    // Sync ItemTree whenever the session (and therefore the outline) changes.
+    // `set_tree` diffs by NodeId, so expansion state survives pure body edits.
+    use_effect(move || {
+        let root_node = session.read().outline_nodes();
+        item_tree.write().set_tree(to_item_node(&root_node));
+    });
+
+    // Event handler: route tree events back into ItemTree and the editor session.
+    let on_event = move |ev: ItemTreeEvent| match ev {
+        ItemTreeEvent::Toggled(id) => {
+            item_tree.write().on_toggled(id);
+        }
+        ItemTreeEvent::Selected(id, mode) => {
+            item_tree.write().on_selected(id, mode);
+            // Navigate the editor to the selected section.
+            let layered_id = layered_core::NodeId(id.0);
+            let _ = session.write().focus(layered_id);
+            let body = session
+                .read()
+                .current_snapshot()
+                .map(|s| s.body)
+                .unwrap_or_default();
+            draft.set(body);
+            // Keep selected_card in sync for the global keyboard handler.
+            let rows = item_tree.read().visible_rows();
+            if let Some(idx) = rows.iter().position(|r| r.id == id) {
+                selected_card.set(idx);
+            }
+        }
+        ItemTreeEvent::Drag(_) => {} // drag-and-drop not enabled
+    };
 
     rsx! {
         aside {
@@ -28,62 +79,7 @@ pub fn OutlinePane(
             "aria-label": t(lang, "aria.outline"),
             h2 { {t(lang, "outline.title")} }
 
-            if items.is_empty() {
-                p { class: "outline-empty", {t(lang, "outline.empty")} }
-                p { class: "outline-hint", {t(lang, "outline.no-headings.hint")} }
-            } else {
-                // RFC-011/027: listbox with roving tabindex (RFC-028).
-                div { role: "listbox", "aria-label": t(lang, "aria.outline"),
-                    for (idx, item) in items.iter().enumerate() {
-                        div {
-                            key: "{item.id.0}",
-                            role: "option",
-                            "aria-selected": if idx == sel { "true" } else { "false" },
-                            tabindex: if idx == sel { "0" } else { "-1" },
-                            class: if idx == sel { "outline-item outline-item--selected" } else { "outline-item" },
-                            onclick: {
-                                let id = item.id;
-                                move |_| {
-                                    selected_card.set(idx);
-                                    let _ = session.write().focus(id);
-                                    let body = session.read().current_snapshot()
-                                        .map(|s| s.body).unwrap_or_default();
-                                    draft.set(body);
-                                }
-                            },
-                            onkeydown: {
-                                let id = item.id;
-                                move |event: KeyboardEvent| {
-                                    use keyboard_types::Code;
-                                    match event.data().code() {
-                                        Code::Enter | Code::Space => {
-                                            selected_card.set(idx);
-                                            let _ = session.write().focus(id);
-                                            let body = session.read().current_snapshot()
-                                                .map(|s| s.body).unwrap_or_default();
-                                            draft.set(body);
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            },
-                            if item.title.is_empty() {
-                                em { {t(lang, "breadcrumb.root")} }
-                            } else {
-                                "{item.title}"
-                            }
-                            if item.child_count > 0 {
-                                span { class: "count", " ({item.child_count})" }
-                            }
-                        }
-                    }
-                }
-                // Keyboard hint for sighted users (hidden from screen readers
-                // because it is supplementary to the ARIA roles above).
-                p { class: "outline-hint", "aria-hidden": "true",
-                    {t(lang, "keyboard.overview.hint")}
-                }
-            }
+            ItemTreeView { tree: item_tree, on_event }
 
             if let ViewMode::Focus(_) = session.read().view_mode() {
                 button {
@@ -94,13 +90,17 @@ pub fn OutlinePane(
                         if let Some(snapshot) = snap {
                             let current_draft = draft.read().clone();
                             if current_draft != snapshot.body {
-                                let _ = session.write()
+                                let _ = session
+                                    .write()
                                     .commit_focused_body(&snapshot, current_draft);
                             }
                         }
                         session.write().zoom_out();
-                        let body = session.read().current_snapshot()
-                            .map(|s| s.body).unwrap_or_default();
+                        let body = session
+                            .read()
+                            .current_snapshot()
+                            .map(|s| s.body)
+                            .unwrap_or_default();
                         draft.set(body);
                     },
                     {t(lang, "nav.up")}

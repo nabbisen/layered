@@ -4,6 +4,30 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.5] - 2026-06-09
+
+### Changed
+
+- **Outline pane now uses `dioxus-swdir-tree` v0.9's `ItemTreeView`.**
+  `dioxus-swdir-tree` v0.9.0 shipped RFC-012 (generic item tree) and
+  RFC-013 (item tree drag-and-drop), which implement exactly what the
+  feature request described. The hand-rolled `OutlinePane` for loop is
+  replaced by `ItemTreeView<String>`:
+  - Expand/collapse, keyboard navigation (Up/Down/Left/Right/Enter/Home/End),
+    and incremental search are handled by the widget.
+  - `ItemTree::set_tree` is called on every session change; key-based
+    diffing preserves expansion state across pure body edits and resets it
+    when the heading structure changes (expected behaviour).
+  - Drag-and-drop is disabled (not enabled via `with_drag_and_drop`);
+    structural editing remains through the existing toolbar buttons.
+- `EditorSession::outline_nodes() -> OutlineNode` added to `layered-ui`:
+  converts the full document `Outline` into a `OutlineNode` tree (plain
+  `u64` keys + `String` titles) without exposing `layered-core` types to
+  the desktop crate.
+- `dioxus-swdir-tree = { version = "0.9", default-features = false }` added
+  to `layered-desktop` dependencies (`default-style` disabled; the existing
+  `assets/style.css` themes the outline pane instead).
+
 ## [0.12.4] - 2026-06-07
 
 ### Fixed

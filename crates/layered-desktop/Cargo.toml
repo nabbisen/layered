@@ -20,6 +20,7 @@ repository.workspace = true
 layered-core.workspace = true
 layered-ui.workspace = true
 dioxus = { version = "0.7", features = ["desktop"] }
+dioxus-swdir-tree = { version = "0.9", default-features = false }
 rfd = "0.15"
 keyboard-types = "0.7"
 dirs.workspace = true
