@@ -119,7 +119,6 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("status.ready", "Ready"),
     ("status.saved", "Saved"),
     ("status.unsaved", "Unsaved changes"),
-    ("struct.toolbar.toggle", "Toggle structure tools"),
     ("struct.delete", "Delete"),
     ("struct.demote", "Demote"),
     ("struct.merge_up", "Merge Up"),
@@ -127,11 +126,14 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("struct.move_up", "Move ↑"),
     ("struct.promote", "Promote"),
     ("struct.split", "Add Child"),
+    ("struct.toolbar.toggle", "Toggle structure tools"),
     ("toolbar.edit", "Edit"),
     ("toolbar.redo", "Redo"),
     ("toolbar.undo", "Undo"),
+    ("view.stats", "Show Statistics"),
     (
         "welcome.hint",
         "Open or create a Markdown file to get started.",
     ),
+    ("welcome.tagline", "Think in layers. Write in Markdown."),
 ];

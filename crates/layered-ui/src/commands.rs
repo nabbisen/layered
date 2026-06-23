@@ -80,6 +80,11 @@ pub static COMMANDS: &[CommandSpec] = &[
         title_key: "palette.title",
         shortcut: Some("Ctrl+P"),
     },
+    CommandSpec {
+        id: "view.stats",
+        title_key: "view.stats",
+        shortcut: None,
+    },
 ];
 
 /// Returns all commands whose title (looked up through `t_fn`) contains

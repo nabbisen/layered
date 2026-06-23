@@ -134,9 +134,10 @@ fn render_html(markdown: &str) -> String {
                 ..
             }) => {
                 let href = html_escape(&dest_url);
-                if link_type == LinkType::Autolink || link_type == LinkType::Email {
-                    out.push_str(&format!("<a href=\"{href}\">"));
-                } else if title.is_empty() {
+                let is_plain = link_type == LinkType::Autolink
+                    || link_type == LinkType::Email
+                    || title.is_empty();
+                if is_plain {
                     out.push_str(&format!("<a href=\"{href}\">"));
                 } else {
                     let t = html_escape(&title);

@@ -179,7 +179,7 @@ fn sequential_edits_to_every_section_then_full_unwind_round_trips() {
 /// Empty document (no content at all) must not panic.
 #[test]
 fn empty_document_round_trip() {
-    let mut d = Document::parse("".to_string()).unwrap();
+    let d = Document::parse("".to_string()).unwrap();
     let original = d.source().to_string();
     // Root has no children — nothing to edit; just verify stability.
     assert!(d.outline().root().children.is_empty());

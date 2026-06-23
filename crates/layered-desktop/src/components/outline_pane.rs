@@ -32,9 +32,6 @@ pub fn OutlinePane(
     session: Signal<EditorSession>,
     locale: Signal<Locale>,
     draft: Signal<String>,
-    /// Zero-based index of the keyboard-selected card (kept for compatibility
-    /// with the global keyboard handler in `app.rs`).
-    selected_card: Signal<usize>,
 ) -> Element {
     let lang = *locale.read();
 
@@ -64,11 +61,6 @@ pub fn OutlinePane(
                 .map(|s| s.body)
                 .unwrap_or_default();
             draft.set(body);
-            // Keep selected_card in sync for the global keyboard handler.
-            let rows = item_tree.read().visible_rows();
-            if let Some(idx) = rows.iter().position(|r| r.id == id) {
-                selected_card.set(idx);
-            }
         }
         ItemTreeEvent::Drag(_) => {} // drag-and-drop not enabled
     };

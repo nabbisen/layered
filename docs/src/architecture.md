@@ -29,7 +29,8 @@ on any host.
 **layered-desktop** owns the Dioxus component tree, file I/O, keyboard
 handling, app settings (recent files, preferences), and the signal graph.
 It has no business logic; it maps user gestures to `EditorSession` method
-calls.
+calls. The outline sidebar is rendered by `ItemTreeView` from the
+`dioxus-swdir-tree` crate, fed by `EditorSession::outline_nodes()`.
 
 ---
 
@@ -94,14 +95,14 @@ parser — see RFC-032 §4 for the criteria.
 | Component | Reads | Writes |
 |-----------|-------|--------|
 | `Toolbar` | session (dirty/file), locale | via callbacks (open/save) |
-| `OutlinePane` | session (children), locale, selected_card | selected_card (via parent) |
+| `OutlinePane` | session (outline_nodes), locale | session (focus via ItemTreeView events) |
 | `OverviewPane` | session (children), locale | session (via focus), draft |
 | `FocusEditor` | session (snapshot), locale, draft, preview_open | draft (every key), session (commit, structural), preview_open (toggle) |
 | `PreviewPane` | session (preview HTML), locale | on_close callback |
 | `Breadcrumb` | session (path), locale, draft | session (jump) |
 | `SearchPanel` | session (search), locale | session (navigate result) |
 | `CommandPalette` | locale | via on_execute callback |
-| `StatusBar` | session (dirty/profile/file/stats), locale, status | via on_save_as callback |
+| `StatusBar` | session (dirty/file), locale, status | via on_save_as callback |
 | `WelcomeScreen` | locale, recent_files | via on_open/on_new/on_open_recent callbacks |
 
 **Anti-patterns to avoid** (RFC-033 §4):

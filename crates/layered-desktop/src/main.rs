@@ -4,8 +4,11 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod actions;
 mod app;
+mod app_ctx;
 mod components;
+mod dispatch;
 mod file_dialog;
 mod keyboard;
 mod settings;

@@ -34,9 +34,3 @@ result navigates directly to the matching section.
 Press **Ctrl+Shift+P** (or the **Preview** button in the editor) to see
 the focused section body rendered as HTML. The view is read-only — switching
 back to edit mode restores the textarea with the draft unchanged.
-
-## Word count
-
-The status bar shows the word count for the focused section and for the
-whole document, along with the total section count. The count updates after
-each committed edit, not on every keystroke.

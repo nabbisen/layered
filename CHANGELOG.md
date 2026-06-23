@@ -4,6 +4,61 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.7] - 2026-06-09
+
+### Changed
+
+All three "findings to track" from the v0.12.6 audit report resolved.
+
+**A — ELOC guideline: over-500 and over-300 files split**
+
+- `app.rs` (573 → 199 ELOC) split into four files. `Signal<T>: Copy` lets
+  every action handler take an `AppCtx` struct (one bundled argument) instead
+  of eight separate signals:
+  - `app_ctx.rs` — `AppCtx` bundle, `Modal` enum, `sync_draft`,
+    `commit_pending`
+  - `actions.rs` — all file/session action handlers (`handle_load`,
+    `handle_save`, `handle_open_guarded`, `handle_new_guarded`,
+    `handle_unsaved_choice`, `handle_ext_modified_choice`,
+    `handle_confirm_delete`, `handle_split_choice`)
+  - `dispatch.rs` — keyboard command dispatch (`dispatch_command`) and
+    palette dispatch (`dispatch_palette`)
+  - `app.rs` — signal declarations, `use_callback` wrappers (one line
+    each), sentinel intercept, and the `rsx!` render tree
+
+- `session.rs` (474 → 307 ELOC) split into a submodule:
+  - `session/mod.rs` — struct, constructors, accessors, navigation, edit ops
+  - `session/structural.rs` — structural editing façade (RFC-023..026):
+    `can_promote` / `promote_focused` / `demote_focused` / `move_focused` /
+    `merge_focused_up` / `split_focused` / `delete_focused` and the six
+    `can_*` guards
+  - `session/outline_bridge.rs` — `OutlineNode`, `outline_nodes()`,
+    `build_outline_node`
+
+**B — Dual selection models unified**
+
+- `selected_card: Signal<usize>` removed from `OutlinePane` props and its
+  sync code removed. `ItemTreeView` (dioxus-swdir-tree) manages its own
+  selection and keyboard navigation internally; `selected_card` now lives
+  only in `OverviewPane` where it drives the main-canvas card highlight.
+
+**C — Stats module wired to UI**
+
+- "Show Statistics" command (`view.stats`) added to the command palette.
+  Selecting it writes word count and section count to the status bar as a
+  one-time message, making `EditorSession::stats()` reachable from the UI.
+  `view.stats` i18n key added to both `en` and `ja` catalogs in correct
+  sorted position.
+
+### Fixed
+
+- `i18n/en.rs` and `i18n/ja.rs`: `struct.toolbar.toggle` was out of sort
+  order (before `struct.delete` instead of after `struct.split`), breaking
+  the binary-search catalog invariant. `welcome.tagline` was never inserted
+  (multi-line match failed silently). Both corrected; 47 i18n tests pass.
+- `preview.rs`: collapsed two identical link-rendering branches (clippy
+  `clippy::if_same_then_else`).
+
 ## [0.12.6] - 2026-06-09
 
 ### Changed

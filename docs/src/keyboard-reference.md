@@ -44,8 +44,9 @@ Below the body textarea, the editor-actions bar contains:
 | **Edit** button | Commit the current draft |
 | **Preview** button | Toggle rendered Markdown preview (same as Ctrl+Shift+P) |
 
-The structural toolbar (below the editor actions) offers: Promote, Demote,
-Move ↑, Move ↓, Merge Up, Add Child, Delete. See
+The structural tools are hidden by default behind a `⋯` toggle below the
+editor actions. Clicking it reveals: Promote, Demote, Move ↑, Move ↓,
+Merge Up, Add Child, Delete. See
 [Structural Editing](structural-editing.md) for details.
 
 ## Editing
