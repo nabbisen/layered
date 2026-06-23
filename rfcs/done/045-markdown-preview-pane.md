@@ -1,6 +1,6 @@
 # RFC-045: Markdown Preview Pane
 
-**Project:** layered — Layer EDitor
+**Project:** omriss — Omriss Editor
 **Milestone:** Post-MVP Expansion
 **Status.** Implemented (v0.12.0)
 **Document type:** Detailed RFC design
@@ -31,7 +31,7 @@ inline without leaving Focus Edit mode.
 
 ### Rendering
 
-`layered-core` gains a `preview` module exposing:
+`omriss` gains a `preview` module exposing:
 
 ```rust
 pub fn section_html(doc: &Document, id: NodeId) -> Option<String>

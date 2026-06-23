@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-036: Settings and Recent Files Storage
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M8 — Cross-Platform Delivery  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -69,7 +69,7 @@ Recent files store local paths only. Provide clear action to remove a file from 
 
 ## 6. Acceptance Criteria
 
-- layered can run with no settings file.
+- omriss can run with no settings file.
 - Settings migration policy exists before schema changes.
 - Privacy implications of recent file paths are documented.
 

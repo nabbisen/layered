@@ -1,6 +1,6 @@
 # Platform Support
 
-layered targets three desktop platforms. This document defines the support
+omriss targets three desktop platforms. This document defines the support
 matrix, known constraints, and the policy for adding new platform-specific
 behavior.
 
@@ -55,7 +55,7 @@ find /usr -name 'webkit2gtk-4.1.pc' 2>/dev/null
 
 # Export its directory and retry
 export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig   # adjust path as found
-cargo run -p layered-desktop
+cargo run -p omriss-app
 ```
 
 On Debian/Ubuntu the `.pc` files are usually at
@@ -69,7 +69,7 @@ On Debian/Ubuntu the `.pc` files are usually at
 ### Keyboard Modifiers
 
 On macOS the Cmd key is used where Linux/Windows use Ctrl. The keyboard
-handler in `layered-desktop/src/keyboard.rs` normalises this automatically
+handler in `omriss-app/src/keyboard.rs` normalises this automatically
 using the `keyboard-types` crate's modifier detection.
 
 ### File Dialogs
@@ -89,16 +89,16 @@ Settings are stored in platform-appropriate locations (RFC-036):
 
 | Platform | Path |
 |----------|------|
-| Linux | `~/.config/layered/settings.toml` |
-| macOS | `~/Library/Application Support/layered/settings.toml` |
-| Windows | `%APPDATA%\layered\settings.toml` |
+| Linux | `~/.config/omriss/settings.toml` |
+| macOS | `~/Library/Application Support/omriss/settings.toml` |
+| Windows | `%APPDATA%\omriss\settings.toml` |
 
 ---
 
 ## Policy for Platform-Specific Code
 
-All platform-specific behavior must be isolated in `layered-desktop`.
-`layered-core` and `layered-ui` must compile and test on any host without
+All platform-specific behavior must be isolated in `omriss-app`.
+`omriss` and `omriss-ui` must compile and test on any host without
 GUI libraries (RFC-001, RFC-010 boundary rule).
 
 Platform-specific workarounds should be documented inline with a reference

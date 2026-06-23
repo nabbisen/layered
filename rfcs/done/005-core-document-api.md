@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-005: Core Document API
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M1 — Core Document Engine  
 **Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
@@ -16,7 +16,7 @@ Language: English
 
 ## 1. Summary
 
-Stabilize the minimum public API of `layered-core` so UI and desktop crates can rely on a predictable document engine.
+Stabilize the minimum public API of `omriss` so UI and desktop crates can rely on a predictable document engine.
 
 ## 2. Goals
 
@@ -95,7 +95,7 @@ pub struct ReplaceSectionBody {
 
 ## 7. Acceptance Criteria
 
-- `layered-ui` can implement M2 screens using only public core API.
+- `omriss-ui` can implement M2 screens using only public core API.
 - No UI code accesses core internals through public fields.
 - Every mutation reports an `EditResult`.
 

@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-037: Packaging and Release Artifacts
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M8 — Cross-Platform Delivery  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  

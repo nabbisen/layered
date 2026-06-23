@@ -4,6 +4,36 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] - 2026-06-23
+
+### Changed
+
+- **App renamed to Omriss** (*omriss* = outlines in Norwegian).
+
+- **Crate and directory restructure:**
+
+  | Old | New |
+  |-----|-----|
+  | `crates/omriss-core/` · `omriss-core` | `crates/core/` · `omriss` |
+  | `crates/omriss-ui/` · `omriss-ui` | `crates/ui/` · `omriss-ui` |
+  | `crates/omriss-desktop/` · `omriss-desktop` | `crates/app/` · `omriss-app` |
+
+  The `-desktop` suffix is dropped because there is no `-mobile` counterpart;
+  `-app` is the neutral choice. Short directory names (`core/`, `ui/`, `app/`)
+  are used inside `crates/`; the full crate names carry the `omriss` prefix.
+
+- The produced binary is named **`omriss`** (via an explicit `[[bin]]` entry
+  in `crates/app/Cargo.toml`), not `omriss-app`.
+
+- All user-visible strings, config paths (`~/.config/omriss/`), Rust import
+  paths (`use omriss::`, `use omriss_ui::`), and documentation updated.
+
+- Upstream project edits applied: Cargo workspace reformatted with aligned
+  keys and workspace-shorthand notation; `LICENSE` copyright filled in
+  (`2026 nabbisen`); `.gitignore` expanded; `.vscode/` settings added;
+  `crates/ui/src/session/mod.rs` renamed to `crates/ui/src/session.rs`
+  (Rust 2024 module style).
+
 ## [0.13.3] - 2026-06-14
 
 ### Audit — five-dimension codebase review

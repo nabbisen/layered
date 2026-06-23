@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-035: Cross-Platform Desktop Runtime Policy
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M8 — Cross-Platform Delivery  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -43,7 +43,7 @@ Windows: current supported desktop versions chosen by release policy
 
 ### Runtime Principle
 
-The WebView is a rendering layer. Document logic remains native Rust. Platform-specific behavior must be isolated in `layered-desktop`.
+The WebView is a rendering layer. Document logic remains native Rust. Platform-specific behavior must be isolated in `omriss-app`.
 
 ### Known Caveat Policy
 

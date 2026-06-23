@@ -1,10 +1,10 @@
-# How layered Treats Your Text
+# How omriss Treats Your Text
 
 The raw Markdown text **is** the document. The outline you navigate is a
 derived index, rebuilt after each committed edit — it is never saved, and
 the document is never regenerated from it.
 
-When you commit a body edit, layered splices exactly that byte range of the
+When you commit a body edit, omriss splices exactly that byte range of the
 file. Everything else is preserved bit-for-bit:
 
 - spacing quirks, blank-line conventions, missing trailing newlines;

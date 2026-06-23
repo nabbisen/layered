@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-023: Promote and Demote Heading Operations
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M5 — Structural Editing  
 **Status.** Implemented (v0.9.0)  
 **Document type:** Detailed RFC design  

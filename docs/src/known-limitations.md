@@ -1,7 +1,7 @@
 # Known Limitations
 
 This page documents the intentional limitations and deferred features in the
-current version of layered. Limitations that affect data safety are listed
+current version of omriss. Limitations that affect data safety are listed
 first.
 
 ---
@@ -20,7 +20,7 @@ a raw edit requires additional focus-remapping logic. This is deferred to a
 future release.
 
 **Workaround:** Open the file in a standard text editor (Vim, VS Code, etc.),
-make your changes, then re-open the file in layered.
+make your changes, then re-open the file in omriss.
 
 ---
 
@@ -94,9 +94,9 @@ See `PLATFORMS.md` for the full platform support matrix. Key notes:
 
 ## What Is Not Limited
 
-- Markdown source is **never silently modified** by layered. If you open a
+- Markdown source is **never silently modified** by omriss. If you open a
   file, navigate around, and close without saving, the file is unchanged.
 - All structural operations (promote, demote, move, split, delete, merge)
   are **undoable** via Ctrl+Z.
 - Saved files are **standard UTF-8 Markdown**. They open correctly in any
-  text editor, with no layered-specific metadata.
+  text editor, with no omriss-specific metadata.

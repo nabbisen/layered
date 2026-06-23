@@ -1,6 +1,6 @@
 # Testing Strategy and Regression Policy
 
-This document describes the layered test pyramid, the non-negotiable invariant
+This document describes the omriss test pyramid, the non-negotiable invariant
 that all tests must protect, and the process for handling regressions.
 
 ---
@@ -21,13 +21,13 @@ invariant for the new operation. No release may ship with a known violation.
 ──────────────────────────────────────────────────────────
  Few     Manual smoke tests per platform (RELEASE_CHECKLIST)
 ──────────────────────────────────────────────────────────
- Some    layered-ui integration tests (session + view state)
-         layered-desktop pure-logic tests (keyboard mapping, recent files)
+ Some    omriss-ui integration tests (session + view state)
+         omriss-app pure-logic tests (keyboard mapping, recent files)
 ──────────────────────────────────────────────────────────
- Many    layered-core golden fixture tests
-         layered-core structural operation tests
+ Many    omriss golden fixture tests
+         omriss structural operation tests
 ──────────────────────────────────────────────────────────
- Many    layered-core unit tests (range, revision, history)
+ Many    omriss unit tests (range, revision, history)
 ──────────────────────────────────────────────────────────
 ```
 
@@ -37,20 +37,20 @@ invariant for the new operation. No release may ship with a known violation.
 
 | Suite | Path | What it tests |
 |-------|------|---------------|
-| Core unit | `crates/layered-core/src/` (inline) | data structures, range arithmetic, UTF-8 boundaries |
-| Source preservation | `crates/layered-core/tests/source_preservation.rs` | golden byte-exact edit tests |
-| Structural ops | `crates/layered-core/tests/structural_ops.rs` | promote/demote/move/split/delete/merge + undo |
-| Fixture catalog | `crates/layered-core/tests/fixture_catalog.rs` | all fixtures load, outline is correct, round-trip edit preserves source |
-| UI unit | `crates/layered-ui/src/tests/` | i18n parity, session behavior, search, commands |
-| Desktop pure-logic | `crates/layered-desktop/src/keyboard.rs`, `settings.rs` (inline) | keyboard shortcut mapping, recent-files dedup/cap |
-| Benchmarks | `crates/layered-core/benches/indexing.rs` | performance regression detection (run manually) |
+| Core unit | `crates/omriss/src/` (inline) | data structures, range arithmetic, UTF-8 boundaries |
+| Source preservation | `crates/omriss/tests/source_preservation.rs` | golden byte-exact edit tests |
+| Structural ops | `crates/omriss/tests/structural_ops.rs` | promote/demote/move/split/delete/merge + undo |
+| Fixture catalog | `crates/omriss/tests/fixture_catalog.rs` | all fixtures load, outline is correct, round-trip edit preserves source |
+| UI unit | `crates/omriss-ui/src/tests/` | i18n parity, session behavior, search, commands |
+| Desktop pure-logic | `crates/omriss-app/src/keyboard.rs`, `settings.rs` (inline) | keyboard shortcut mapping, recent-files dedup/cap |
+| Benchmarks | `crates/omriss/benches/indexing.rs` | performance regression detection (run manually) |
 
 ## On Dioxus testing styles
 
 The Dioxus guide describes component testing (dioxus-ssr snapshots), hook
 testing (a hand-driven `VirtualDom`), and end-to-end testing (Playwright).
 This project uses none of them, by design. All business logic lives in the
-Dioxus-free `layered-core` and `layered-ui` crates and is covered by plain
+Dioxus-free `omriss` and `omriss-ui` crates and is covered by plain
 Rust tests, so the shell needs no component-level harness. There are no
 custom hooks to test, HTML snapshots would be brittle against ordinary
 markup edits, and Playwright targets web builds rather than this desktop
@@ -61,7 +61,7 @@ testing should be reconsidered then.
 
 ## Fixture Catalog
 
-Fixtures live in `crates/layered-core/tests/fixtures/`. Each fixture must have
+Fixtures live in `crates/omriss/tests/fixtures/`. Each fixture must have
 a brief comment explaining its purpose. New fixtures are added when:
 
 - a reported bug involves a Markdown structure not covered by existing fixtures;
@@ -113,20 +113,20 @@ When a bug is reported or discovered:
 ## Running Tests
 
 ```sh
-# All crates (excludes layered-desktop which requires GUI libraries)
+# All crates (excludes omriss-app which requires GUI libraries)
 cargo test --workspace
 
 # Core only (fast, no GUI)
-cargo test -p layered-core
+cargo test -p omriss
 
 # UI only
-cargo test -p layered-ui
+cargo test -p omriss-ui
 
 # Benchmarks (optional, slow)
-cargo bench -p layered-core
+cargo bench -p omriss
 ```
 
-The `layered-desktop` crate is excluded from `--workspace` default members
+The `omriss-app` crate is excluded from `--workspace` default members
 because it requires platform WebView libraries. It is tested manually via
 the platform smoke test workflow in `RELEASE_CHECKLIST.md`.
 
@@ -136,7 +136,7 @@ the platform smoke test workflow in `RELEASE_CHECKLIST.md`.
 
 A minimum CI configuration must:
 
-1. Run `cargo test -p layered-core -p layered-ui` on every pull request.
+1. Run `cargo test -p omriss -p omriss-ui` on every pull request.
 2. Run `cargo clippy --workspace -- -D warnings` to enforce lint hygiene.
 3. Run `cargo fmt --check` to enforce formatting.
 4. Fail if any test fails or any warning is present.

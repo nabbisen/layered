@@ -1,6 +1,6 @@
 # Release Checklist
 
-This checklist must be completed before any public release of layered.
+This checklist must be completed before any public release of omriss.
 Per RFC-042 §5, public release requires explicit confirmation from the
 product owner. No automated process may bypass this gate.
 
@@ -29,7 +29,7 @@ product owner. No automated process may bypass this gate.
 
 | OS | Artifact | Status |
 |----|----------|--------|
-| Any | `layered-X.Y.Z.tar.gz` (Cargo source) | ✓ produced by release process |
+| Any | `omriss-X.Y.Z.tar.gz` (Cargo source) | ✓ produced by release process |
 | Linux | Binary tarball (future) | planned |
 | macOS | App bundle zip/dmg (future) | planned |
 | Windows | Zip/MSI (future) | planned |
@@ -37,7 +37,7 @@ product owner. No automated process may bypass this gate.
 For source releases, include checksums:
 
 ```sh
-sha256sum layered-X.Y.Z.tar.gz > layered-X.Y.Z.tar.gz.sha256
+sha256sum omriss-X.Y.Z.tar.gz > omriss-X.Y.Z.tar.gz.sha256
 ```
 
 ---
@@ -78,7 +78,7 @@ Any of the following block release:
 ```
 OS: 
 Version: 
-Artifact: layered-X.Y.Z.tar.gz
+Artifact: omriss-X.Y.Z.tar.gz
 Fixture: academic-paper.md
 Date: 
 Tester: 
@@ -102,7 +102,7 @@ Early releases are not code-signed. Documentation must explain:
 ## Release Notes Template (RFC-037)
 
 ```markdown
-## layered vX.Y.Z — YYYY-MM-DD
+## omriss vX.Y.Z — YYYY-MM-DD
 
 ### Highlights
 ...
@@ -121,7 +121,7 @@ All source-preservation tests pass. No known data-corruption issues.
 - Not tested on: [OS list]
 
 ### Checksums
-sha256: [hash]  layered-X.Y.Z.tar.gz
+sha256: [hash]  omriss-X.Y.Z.tar.gz
 ```
 
 ---

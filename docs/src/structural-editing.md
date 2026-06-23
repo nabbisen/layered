@@ -1,6 +1,6 @@
 # Structural Editing
 
-layered lets you reorganise your document's heading hierarchy without touching
+omriss lets you reorganise your document's heading hierarchy without touching
 the body text. The **Arrange** button below the editor actions reveals
 Promote, Demote, Move ↑, Move ↓, Merge Up, and Delete for the focused
 section. **Add section** is always visible at the bottom of the child-sections

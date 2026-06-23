@@ -1,6 +1,6 @@
 # Architecture
 
-This page documents the layered system architecture: how state flows between
+This page documents the omriss system architecture: how state flows between
 crates, where renders are triggered, and which components own which data.
 
 ---
@@ -8,25 +8,25 @@ crates, where renders are triggered, and which components own which data.
 ## Crate Boundaries (RFC-001)
 
 ```
-layered-core      pure Rust, no UI dependency
+omriss       pure Rust, no UI dependency
     ↓
-layered-ui        pure Rust, no Dioxus dependency
+omriss-ui    pure Rust, no Dioxus dependency
     ↓
-layered-desktop   Dioxus 0.7 desktop shell
+omriss-app   Dioxus 0.7 desktop shell
 ```
 
-**layered-core** owns the canonical document model: the source text buffer,
+**omriss** owns the canonical document model: the source text buffer,
 the derived outline index, all edit operations including undo/redo, the
 Markdown-to-HTML preview renderer, and structural editing operations. It
 has no knowledge of windows, signals, or the file system.
 
-**layered-ui** owns editor session state: the current view mode (overview vs
+**omriss-ui** owns editor session state: the current view mode (overview vs
 focus), focus history, search, the command registry, document statistics,
 sibling navigation helpers, and the file text profile. It depends on
-`layered-core` but not on Dioxus. Its types are testable with `cargo test`
+`omriss` but not on Dioxus. Its types are testable with `cargo test`
 on any host.
 
-**layered-desktop** owns the Dioxus component tree, file I/O, keyboard
+**omriss-app** owns the Dioxus component tree, file I/O, keyboard
 handling, app settings (recent files, preferences), and the signal graph.
 It has no business logic; it maps user gestures to `EditorSession` method
 calls. The outline sidebar is rendered by `ItemTreeView` from the
@@ -34,14 +34,14 @@ calls. The outline sidebar is rendered by `ItemTreeView` from the
 
 ## Testing approach
 
-Because the RFC-001 boundary keeps all business logic in `layered-core`
-and `layered-ui` (neither depends on Dioxus), the test suite is plain Rust
+Because the RFC-001 boundary keeps all business logic in `omriss`
+and `omriss-ui` (neither depends on Dioxus), the test suite is plain Rust
 `#[test]` functions exercising those two crates directly — no Dioxus test
 harness is required. The Dioxus guide's component/hook/end-to-end testing
 styles are deliberately *not* used: there are no custom hooks to test,
 HTML-snapshot component tests would be brittle against routine markup
 changes, and Playwright end-to-end testing targets web builds rather than
-this desktop WebView shell. The only `layered-desktop` logic that warrants
+this desktop WebView shell. The only `omriss-app` logic that warrants
 its own tests is the pure, framework-independent code that happens to live
 there — the keyboard shortcut mapping (`interpret_code`) and the
 recent-files list management (`AppSettings::push_recent`).

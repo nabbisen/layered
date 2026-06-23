@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-029: Accessible Editor Status and Error Feedback
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M6 — Accessibility and Usability Hardening  
 **Status.** Implemented (v0.10.0)  
 **Document type:** Detailed RFC design  

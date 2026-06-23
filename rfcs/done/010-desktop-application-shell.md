@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-010: Desktop Application Shell
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M2 — Basic Desktop UX  
 **Status.** Implemented (v0.2.0)  
 **Document type:** Detailed RFC design  
@@ -37,7 +37,7 @@ Define the main application shell and state-dependent layout for the desktop app
 
 ```text
 +--------------------------------------------------------------------------------+
-| layered        [Open] [Save] [Save As]           document.md *        [Search]   |
+| omriss        [Open] [Save] [Save As]           document.md *        [Search]   |
 +--------------------------------------------------------------------------------+
 | Breadcrumb / Focus Path:  Root > Chapter 1 > Section 1.2                        |
 +------------------------------+-------------------------------------------------+
@@ -68,7 +68,7 @@ Define the main application shell and state-dependent layout for the desktop app
 ### No-Document Workflow
 
 ```text
-Open layered
+Open omriss
   -> Welcome screen
   -> Open Markdown
   -> Parse and index

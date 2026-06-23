@@ -1,6 +1,6 @@
 # Keyboard Reference
 
-layered is fully usable with a keyboard. This page lists every shortcut.
+Omriss is fully usable with a keyboard. This page lists every shortcut.
 
 *On macOS, **Cmd** is used where the table shows **Ctrl**.*
 

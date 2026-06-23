@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-017: Raw Markdown Escape Hatch
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M3 — File Lifecycle and Recovery  
 **Status.** Implemented (v0.3.0)  
 **Document type:** Detailed RFC design  
@@ -43,7 +43,7 @@ Raw source view should be **read-only in the first stable implementation** unles
 +--------------------------------------------------------------------------------+
 | Raw Markdown Source                                      [Back to Structure]    |
 +--------------------------------------------------------------------------------+
-| This is the exact Markdown text currently held by layered.                       |
+| This is the exact Markdown text currently held by omriss.                       |
 |                                                                                |
 | +----------------------------------------------------------------------------+ |
 | | ---                                                                        | |
@@ -60,7 +60,7 @@ Raw source view should be **read-only in the first stable implementation** unles
 
 ### Recovery Use
 
-If indexing fails but text is valid UTF-8, layered should still allow raw source viewing and saving if safe.
+If indexing fails but text is valid UTF-8, omriss should still allow raw source viewing and saving if safe.
 
 ## 5. Internal Design Notes
 

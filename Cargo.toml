@@ -1,29 +1,29 @@
 [workspace]
 resolver = "3"
 members = [
-    "crates/layered-core",
-    "crates/layered-ui",
-    "crates/layered-desktop",
+    "crates/core",
+    "crates/ui",
+    "crates/app",
 ]
-# `layered-desktop` links against the platform WebView stack (wry/tao); building it
+# `omriss-app` links against the platform WebView stack (wry/tao); building it
 # requires native system libraries (e.g. webkit2gtk on Linux). Core and UI logic
 # build and test everywhere, so they are the default members (RFC-001).
 default-members = [
-    "crates/layered-core",
-    "crates/layered-ui",
+    "crates/core",
+    "crates/ui",
 ]
 
 [workspace.package]
-version = "0.13.3"
+version = "0.14.0"
 edition                 = "2024"
 rust-version            = "1.87"
 license                 = "Apache-2.0"
 authors                 = ["nabbisen"]
-repository              = "https://github.com/nabbisen/layered"
+repository              = "https://github.com/nabbisen/omriss"
 
 [workspace.dependencies]
-layered-core        = { version = "0.13.3", path = "crates/layered-core" }
-layered-ui          = { version = "0.13.3", path = "crates/layered-ui" }
+omriss              = { version = "0.14.0", path = "crates/core" }
+omriss-ui           = { version = "0.14.0", path = "crates/ui" }
 
 # UI
 dioxus              = { version = "0.7", features = ["desktop"] }

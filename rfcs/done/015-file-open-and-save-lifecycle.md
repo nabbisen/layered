@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-015: File Open and Save Lifecycle
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M3 — File Lifecycle and Recovery  
 **Status.** Implemented (v0.3.0)  
 **Document type:** Detailed RFC design  
@@ -77,7 +77,7 @@ External change detected -> prompt: overwrite / save as / cancel
 
 ### Desktop Boundary
 
-Filesystem operations live in `layered-desktop` or an app service layer, not `layered-core`. Core only imports/exports text.
+Filesystem operations live in `omriss-app` or an app service layer, not `omriss`. Core only imports/exports text.
 
 ## 6. Validation and Test Plan
 

@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-042: Release Readiness Criteria
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M9 — Production Readiness  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -16,7 +16,7 @@ Language: English
 
 ## 1. Summary
 
-Define what must be true before layered is released publicly.
+Define what must be true before omriss is released publicly.
 
 ## 2. Goals
 

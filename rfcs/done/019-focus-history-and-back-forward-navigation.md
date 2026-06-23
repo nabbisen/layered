@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-019: Focus History and Back/Forward Navigation
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M4 — Navigation and Search  
 **Status.** Implemented (v0.8.0)  
 **Document type:** Detailed RFC design  

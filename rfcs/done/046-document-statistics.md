@@ -1,6 +1,6 @@
 # RFC-046: Document Statistics
 
-**Project:** layered — Layer EDitor
+**Project:** omriss — Omriss Editor
 **Milestone:** Post-MVP Expansion
 **Status.** Implemented (v0.12.0)
 **Document type:** Detailed RFC design
@@ -45,7 +45,7 @@ pub struct DocumentStats {
 }
 ```
 
-Computed via `EditorSession::stats()` in `layered-ui`.
+Computed via `EditorSession::stats()` in `omriss-ui`.
 
 ### Display
 

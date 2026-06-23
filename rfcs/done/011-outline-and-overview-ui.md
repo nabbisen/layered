@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-011: Outline and Overview UI
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M2 — Basic Desktop UX  
 **Status.** Implemented (v0.2.0)  
 **Document type:** Detailed RFC design  
@@ -75,7 +75,7 @@ warnings, if section cannot be indexed cleanly
 
 ### UI Data Source
 
-Use `OutlineItem` from `layered-core`; do not inspect source text in the component. Word counts are optional derived UI data and must not affect core correctness.
+Use `OutlineItem` from `omriss`; do not inspect source text in the component. Word counts are optional derived UI data and must not affect core correctness.
 
 ## 6. Validation and Test Plan
 

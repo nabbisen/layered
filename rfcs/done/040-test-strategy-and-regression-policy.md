@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-040: Test Strategy and Regression Policy
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M9 — Production Readiness  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -16,7 +16,7 @@ Language: English
 
 ## 1. Summary
 
-Define the test pyramid and regression process for layered.
+Define the test pyramid and regression process for omriss.
 
 ## 2. Goals
 
@@ -36,7 +36,7 @@ Define the test pyramid and regression process for layered.
 ### Test Pyramid
 
 ```text
-Many: layered-core unit tests
+Many: omriss unit tests
 Many: golden Markdown fixture tests
 Some: UI component/command tests
 Some: desktop smoke tests

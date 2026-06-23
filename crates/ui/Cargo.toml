@@ -1,0 +1,13 @@
+[package]
+name = "omriss-ui"
+description = "View-state logic, i18n catalogs, and GUI components for Omriss"
+readme = "../../README.md"
+version.workspace       = true
+edition.workspace       = true
+rust-version.workspace  = true
+license.workspace       = true
+authors.workspace       = true
+repository.workspace    = true
+
+[dependencies]
+omriss              = { workspace = true }

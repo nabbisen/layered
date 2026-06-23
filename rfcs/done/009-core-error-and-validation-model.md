@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-009: Core Error and Validation Model
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M1 — Core Document Engine  
 **Status.** Implemented (v0.1.0)  
 **Document type:** Detailed RFC design  
@@ -71,7 +71,7 @@ pub enum EditError {
 
 ### Result Boundary
 
-`layered-core` returns structured errors. `layered-ui` decides wording, status display, and modal behavior. `layered-desktop` handles filesystem errors separately but can map them into a common UI error channel.
+`omriss` returns structured errors. `omriss-ui` decides wording, status display, and modal behavior. `omriss-app` handles filesystem errors separately but can map them into a common UI error channel.
 
 ## 6. Validation and Test Plan
 

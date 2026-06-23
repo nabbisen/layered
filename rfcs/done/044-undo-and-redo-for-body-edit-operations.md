@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Added during architecture/design review to close the undo/redo requirements gap
 Language: English
 -->
 # RFC-044: Undo and Redo for Body Edit Operations
 
-**Project:** layered — Layer EDitor
+**Project:** omriss — Omriss Editor
 **Milestone:** M1 — Core Document Engine (engine) / M2 — Basic Desktop UX (shortcuts)
 **Status.** Implemented (v0.1.0) — deferred: Ctrl/Cmd+Z/Y keyboard bindings land with RFC-014; toolbar undo/redo shipped
 **Document type:** Detailed RFC design
@@ -23,7 +23,7 @@ undo/redo for committed body edits, built directly on the RFC-008 command model.
 
 ## 2. Goals
 
-- Undo/redo committed `ReplaceSectionBody` / `ReplaceRange` operations in `layered-core`.
+- Undo/redo committed `ReplaceSectionBody` / `ReplaceRange` operations in `omriss`.
 - Base history on document edit operations, not UI widget state.
 - Keep history consistent with the revision model: undo/redo are themselves revision-incrementing mutations.
 - Define interaction with the local focus edit buffer.

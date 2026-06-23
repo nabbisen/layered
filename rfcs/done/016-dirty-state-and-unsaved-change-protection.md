@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-016: Dirty State and Unsaved Change Protection
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M3 — File Lifecycle and Recovery  
 **Status.** Implemented (v0.3.0)  
 **Document type:** Detailed RFC design  

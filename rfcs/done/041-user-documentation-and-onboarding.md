@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-041: User Documentation and Onboarding
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M9 — Production Readiness  
 **Status.** Implemented (v0.11.0)  
 **Document type:** Detailed RFC design  
@@ -20,7 +20,7 @@ Help users understand the zoom paradigm, source trust model, and limitations.
 
 ## 2. Goals
 
-- Explain layered in one minute.
+- Explain omriss in one minute.
 - Teach zoom/focus workflows.
 - Document source preservation.
 - Document limitations honestly.
@@ -36,7 +36,7 @@ Help users understand the zoom paradigm, source trust model, and limitations.
 ### First-Run Onboarding
 
 ```text
-Welcome to layered
+Welcome to omriss
 1. Open a Markdown file
 2. Zoom into headings
 3. Edit one layer at a time
@@ -47,7 +47,7 @@ Welcome to layered
 ### User Guide Outline
 
 ```text
-What layered is
+What omriss is
 Why zoom editing helps
 Opening and saving files
 Overview mode

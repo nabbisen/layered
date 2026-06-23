@@ -1,12 +1,12 @@
 <!--
-Project: layered — Layer EDitor
+Project: omriss — Omriss Editor
 Document Set: RFC detailed design bundle
 Generated for architecture/design review
 Language: English
 -->
 # RFC-031: Performance Targets and Measurement Plan
 
-**Project:** layered — Layer EDitor  
+**Project:** omriss — Omriss Editor  
 **Milestone:** M7 — Performance and Large Document Readiness  
 **Status.** Implemented (v0.10.0)  
 **Document type:** Detailed RFC design  

@@ -1,8 +1,8 @@
 [book]
-title = "layered User Guide"
+title = "Omriss User Guide"
 authors = ["nabbisen"]
 language = "en"
 src = "src"
 
 [output.html]
-git-repository-url = "https://github.com/nabbisen/layered"
+git-repository-url = "https://github.com/nabbisen/omriss"

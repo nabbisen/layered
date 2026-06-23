@@ -1,0 +1,22 @@
+[package]
+name = "omriss"
+description = "Source-preserving Markdown document engine for Omriss (canonical text, outline index, edit operations)"
+readme = "../../README.md"
+version.workspace       = true
+edition.workspace       = true
+rust-version.workspace  = true
+license.workspace       = true
+authors.workspace       = true
+repository.workspace    = true
+
+# RFC-001 boundary rule: this crate must never depend on Dioxus, WebView,
+# file-dialog, or desktop runtime crates.
+[dependencies]
+pulldown-cmark      = { workspace = true }
+
+[dev-dependencies]
+criterion           = { workspace = true }
+
+[[bench]]
+name = "indexing"
+harness = false
