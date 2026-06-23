@@ -420,11 +420,11 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
   background: transparent;
   border: none;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 13px;
   cursor: pointer;
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
-  line-height: 1;
+  line-height: 1.2;
 }
 .struct-toggle:hover { color: var(--text); background: var(--accent-soft); }
 .struct-toggle--open { color: var(--accent); }

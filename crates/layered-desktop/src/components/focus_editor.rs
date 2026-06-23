@@ -227,7 +227,8 @@ pub fn FocusEditor(
                     class: if *show_struct.read() { "struct-toggle struct-toggle--open" } else { "struct-toggle" },
                     title: t(lang, "struct.toolbar.toggle"),
                     onclick: move |_| { let v = !*show_struct.read(); show_struct.set(v); },
-                    "⋯"
+                    "⋯ "
+                    {t(lang, "struct.toolbar.toggle")}
                 }
                 if *show_struct.read() {
                     div { class: "struct-toolbar",
@@ -349,6 +350,7 @@ pub fn FocusEditor(
                         button {
                             class: "child-delete",
                             title: t(lang, "struct.delete_child"),
+                            "aria-label": t(lang, "struct.delete_child"),
                             onclick: move |_| {
                                 // Navigate into the child, then open the
                                 // delete confirmation (same flow as ⋯ Delete).

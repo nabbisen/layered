@@ -4,6 +4,38 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.2] - 2026-06-09
+
+### Changed
+
+Plain-language and clarity improvements adopted from an external UX review,
+selected to fit layered's audience (Markdown-literate writers) rather than
+the review's broader "non-technical user" framing. Wholesale changes that
+conflicted with the product identity — hiding the word "Markdown", a
+touch-first 16px/44px redesign, loading-spinner buttons for instant local
+operations — were intentionally not adopted.
+
+- **Button and control labels clarified:**
+  - "Edit" (the body-commit button) → **"Done"**. The button committed the
+    current draft; labelling it "Edit" while already editing was confusing.
+  - "Add Child" → **"Add section"**. "Child" is tree-structure jargon.
+  - The `⋯` structural toggle now shows a visible **"Arrange"** label
+    beside the glyph instead of being icon-only, closing a discoverability
+    gap.
+  - Unsaved-changes dialog: "Discard" → **"Leave without saving"**.
+
+- **Error messages rewritten to be calmer and recovery-oriented:**
+  - Open failure now suggests trying another file.
+  - Save failure now reassures that the writing is safe and points to
+    Save As, rather than just stating the failure.
+  - "Heading level limit reached" → "This section can't move any deeper."
+  - "No adjacent sibling to merge with" → "There's no nearby section to
+    merge into."
+
+- **Accessibility:** the per-child `×` delete button gained an `aria-label`
+  ("Delete section") so screen readers announce its purpose instead of just
+  reading the glyph.
+
 ## [0.13.1] - 2026-06-09
 
 ### Changed
