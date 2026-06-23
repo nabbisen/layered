@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.4] - 2026-06-07
+
+### Fixed
+
+- **Outline pane showed nothing.** The `for` loop in `OutlinePane` used a
+  `{ let …; rsx! { … } }` block as its body. In Dioxus 0.7 this pattern
+  silently produces no output — the inner `rsx!` call inside a Rust block
+  is not forwarded to the parent element. Fixed by removing the wrapper
+  block and capturing per-iteration values directly in the event-handler
+  closures (`let id = item.id; move |_| { … }`), which is the correct
+  Dioxus 0.7 pattern.
+
 ## [0.12.3] - 2026-06-07
 
 ### Fixed

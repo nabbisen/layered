@@ -34,48 +34,46 @@ pub fn OutlinePane(
             } else {
                 // RFC-011/027: listbox with roving tabindex (RFC-028).
                 div { role: "listbox", "aria-label": t(lang, "aria.outline"),
-                    for (idx , item) in items.iter().enumerate() {
-                        {
-                            let id = item.id;
-                            let count = item.child_count;
-                            let title = item.title.clone();
-                            let is_selected = idx == sel;
-                            rsx! {
-                                div {
-                                    key: "{id.0}",
-                                    role: "option",
-                                    "aria-selected": if is_selected { "true" } else { "false" },
-                                    tabindex: if is_selected { "0" } else { "-1" },
-                                    class: if is_selected { "outline-item outline-item--selected" } else { "outline-item" },
-                                    onclick: move |_| {
-                                        selected_card.set(idx);
-                                        let _ = session.write().focus(id);
-                                        let body = session.read().current_snapshot()
-                                            .map(|s| s.body).unwrap_or_default();
-                                        draft.set(body);
-                                    },
-                                    onkeydown: move |event| {
-                                        use keyboard_types::Code;
-                                        match event.data().code() {
-                                            Code::Enter | Code::Space => {
-                                                selected_card.set(idx);
-                                                let _ = session.write().focus(id);
-                                                let body = session.read().current_snapshot()
-                                                    .map(|s| s.body).unwrap_or_default();
-                                                draft.set(body);
-                                            }
-                                            _ => {}
+                    for (idx, item) in items.iter().enumerate() {
+                        div {
+                            key: "{item.id.0}",
+                            role: "option",
+                            "aria-selected": if idx == sel { "true" } else { "false" },
+                            tabindex: if idx == sel { "0" } else { "-1" },
+                            class: if idx == sel { "outline-item outline-item--selected" } else { "outline-item" },
+                            onclick: {
+                                let id = item.id;
+                                move |_| {
+                                    selected_card.set(idx);
+                                    let _ = session.write().focus(id);
+                                    let body = session.read().current_snapshot()
+                                        .map(|s| s.body).unwrap_or_default();
+                                    draft.set(body);
+                                }
+                            },
+                            onkeydown: {
+                                let id = item.id;
+                                move |event: KeyboardEvent| {
+                                    use keyboard_types::Code;
+                                    match event.data().code() {
+                                        Code::Enter | Code::Space => {
+                                            selected_card.set(idx);
+                                            let _ = session.write().focus(id);
+                                            let body = session.read().current_snapshot()
+                                                .map(|s| s.body).unwrap_or_default();
+                                            draft.set(body);
                                         }
-                                    },
-                                    if title.is_empty() {
-                                        em { {t(lang, "breadcrumb.root")} }
-                                    } else {
-                                        "{title}"
-                                    }
-                                    if count > 0 {
-                                        span { class: "count", " ({count})" }
+                                        _ => {}
                                     }
                                 }
+                            },
+                            if item.title.is_empty() {
+                                em { {t(lang, "breadcrumb.root")} }
+                            } else {
+                                "{item.title}"
+                            }
+                            if item.child_count > 0 {
+                                span { class: "count", " ({item.child_count})" }
                             }
                         }
                     }
