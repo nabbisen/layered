@@ -4,6 +4,32 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.6] - 2026-06-09
+
+### Changed
+
+Three UI simplifications applying the "less is more" design principle —
+users start as immature; advanced features should be discoverable, not
+front-and-centre.
+
+- **Structural toolbar collapsed by default.** The seven structural-editing
+  buttons (Promote, Demote, Move ↑, Move ↓, Merge ↑, Split, Delete) are now
+  hidden behind a single `⋯` toggle button in the focus editor. One click
+  reveals the toolbar; another hides it. The toolbar state is local to the
+  current focus session (resets when zooming out). Expert users still have
+  full access; new users are no longer confronted with seven unfamiliar
+  buttons on first use.
+
+- **Status bar trimmed.** Word count, section count, and the newline-style
+  label (LF/CRLF) have been removed from the always-visible status bar.
+  Remaining: live status/error messages, unsaved-changes indicator, file
+  name. The RFC-046 statistics module is retained in `layered-ui` for future
+  use (e.g. a command-palette "Show Statistics" action).
+
+- **Welcome screen tutorial removed.** The five-step onboarding list was
+  shown on every launch, becoming noise for returning users. Removed.
+  The title, tagline, Open/New buttons, and recent-files list remain.
+
 ## [0.12.5] - 2026-06-09
 
 ### Changed

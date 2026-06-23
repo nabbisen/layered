@@ -25,6 +25,9 @@ pub fn FocusEditor(
     // Local dirty: draft differs from the committed body.
     let local_dirty = *draft.read() != snapshot.body;
 
+    // Structural toolbar is hidden by default; toggled by the ⋯ button.
+    let mut show_struct = use_signal(|| false);
+
     let commit_base = snapshot.clone();
     let do_commit = move |_: Event<MouseData>| {
         let body = draft.read().clone();
@@ -216,8 +219,17 @@ pub fn FocusEditor(
                 }
             }
 
-            // ── structural toolbar (RFC-023..025) ──────────────────────────
-            div { class: "struct-toolbar",
+            // ── structural toolbar (RFC-023..025) — hidden by default ──────
+            // Show only when the user explicitly requests structural editing.
+            div { class: "struct-disclosure",
+                button {
+                    class: if *show_struct.read() { "struct-toggle struct-toggle--open" } else { "struct-toggle" },
+                    title: t(lang, "struct.toolbar.toggle"),
+                    onclick: move |_| { let v = !*show_struct.read(); show_struct.set(v); },
+                    "⋯"
+                }
+                if *show_struct.read() {
+                    div { class: "struct-toolbar",
                 button {
                     class: "struct-btn",
                     title: t(lang, "struct.promote"),
@@ -308,7 +320,9 @@ pub fn FocusEditor(
                     },
                     {t(lang, "struct.delete")}
                 }
-            }
+            }  // end struct-toolbar
+            }  // end if *show_struct
+            }  // end struct-disclosure
             if !snapshot.children.is_empty() {
                 section { class: "children",
                     h3 { {t(lang, "focus.children")} }

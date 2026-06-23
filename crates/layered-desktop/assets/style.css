@@ -372,6 +372,20 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
 
 /* ── M5 additions (RFC-023..026) ────────────────────────────────────────── */
 
+.struct-disclosure { margin-top: 8px; }
+.struct-toggle {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.struct-toggle:hover { color: var(--text); background: var(--accent-soft); }
+.struct-toggle--open { color: var(--accent); }
+
 .struct-toolbar {
   display: flex; gap: 4px; flex-wrap: wrap;
   margin: 12px 0 6px;

@@ -24,16 +24,7 @@ pub fn WelcomeScreen(
         main { class: "welcome",
             div { class: "welcome-inner",
                 h1 { class: "welcome-title", "layered" }
-                p { class: "welcome-tagline", "Think in layers. Write in Markdown." }
-
-                // RFC-041 onboarding: five-step workflow hint.
-                ol { class: "welcome-steps",
-                    li { "Open or create a Markdown file" }
-                    li { "See your document as a hierarchy of headings" }
-                    li { "Zoom into a heading to focus on one layer" }
-                    li { "Edit the body — save clean Markdown" }
-                    li { "Use Raw Source view to verify the result" }
-                }
+                p { class: "welcome-tagline", {t(lang, "welcome.tagline")} }
 
                 div { class: "welcome-actions",
                     button {
