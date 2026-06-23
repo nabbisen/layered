@@ -14,7 +14,7 @@ default-members = [
 ]
 
 [workspace.package]
-version = "0.13.0"
+version = "0.13.1"
 edition = "2024"
 rust-version = "1.87"
 license = "Apache-2.0"
@@ -22,8 +22,8 @@ authors = ["nabbisen"]
 repository = "https://github.com/nabbisen/layered"
 
 [workspace.dependencies]
-layered-core = { path = "crates/layered-core", version = "0.13.0" }
-layered-ui = { path = "crates/layered-ui", version = "0.13.0" }
+layered-core = { path = "crates/layered-core", version = "0.13.1" }
+layered-ui = { path = "crates/layered-ui", version = "0.13.1" }
 pulldown-cmark = { version = "0.13", default-features = false }
 dirs = "5"
 serde = { version = "1", features = ["derive"] }

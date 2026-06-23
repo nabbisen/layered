@@ -4,6 +4,29 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.1] - 2026-06-09
+
+### Changed
+
+- **"Add section" button is now always visible.** Previously it was hidden
+  inside the `⋯` structural toolbar, requiring two clicks before a child
+  section could be created. It is now a persistent `+ Add section` button at
+  the bottom of the child-sections area in focus mode — visible on every
+  focused section, whether it already has children or not. The structural
+  toolbar (`⋯`) retains the rearrangement and merge operations but no longer
+  contains Add section.
+
+- **Per-child delete button.** Each child section card now has a `×` button
+  that navigates into the child and immediately opens the existing delete-
+  confirmation dialog. This removes the two-step "zoom in, then open ⋯ and
+  Delete" flow. Delete still requires confirmation; the `×` is styled as a
+  subtle secondary action and uses the danger colour on hover.
+
+- **Outline tree auto-expands on Add section.** After a child section is
+  created, `OutlinePane` detects the node-count increase in `use_effect` and
+  expands the parent node in the `ItemTreeView` if it was collapsed, making
+  the new section immediately visible in the outline.
+
 ## [0.13.0] - 2026-06-09
 
 Minor release consolidating the 0.12.1–0.12.7 patch series into a single

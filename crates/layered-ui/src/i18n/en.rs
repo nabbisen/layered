@@ -120,6 +120,7 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("status.saved", "Saved"),
     ("status.unsaved", "Unsaved changes"),
     ("struct.delete", "Delete"),
+    ("struct.delete_child", "Delete section"),
     ("struct.demote", "Demote"),
     ("struct.merge_up", "Merge Up"),
     ("struct.move_down", "Move ↓"),

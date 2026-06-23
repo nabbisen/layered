@@ -130,6 +130,7 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("status.saved", "保存しました"),
     ("status.unsaved", "未保存の変更"),
     ("struct.delete", "削除"),
+    ("struct.delete_child", "セクションを削除"),
     ("struct.demote", "デモート"),
     ("struct.merge_up", "上にマージ"),
     ("struct.move_down", "下へ移動"),

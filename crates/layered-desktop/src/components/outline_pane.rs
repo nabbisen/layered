@@ -40,9 +40,24 @@ pub fn OutlinePane(
 
     // Sync ItemTree whenever the session (and therefore the outline) changes.
     // `set_tree` diffs by NodeId, so expansion state survives pure body edits.
+    // When a section is added, the parent is auto-expanded so the new child
+    // is immediately visible in the tree.
     use_effect(move || {
         let root_node = session.read().outline_nodes();
+        let count_before = item_tree.read().node_count();
         item_tree.write().set_tree(to_item_node(&root_node));
+        let count_after = item_tree.read().node_count();
+
+        // A node was added — expand the currently focused section so its
+        // new child is visible without the user having to open the tree.
+        if count_after > count_before {
+            if let ViewMode::Focus(focused_id) = session.read().view_mode() {
+                let sw_id = SwNodeId(focused_id.0);
+                if item_tree.read().is_expanded(sw_id) == Some(false) {
+                    item_tree.write().on_toggled(sw_id);
+                }
+            }
+        }
     });
 
     // Event handler: route tree events back into ItemTree and the editor session.

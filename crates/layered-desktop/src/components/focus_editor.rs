@@ -220,7 +220,8 @@ pub fn FocusEditor(
             }
 
             // ── structural toolbar (RFC-023..025) — hidden by default ──────
-            // Show only when the user explicitly requests structural editing.
+            // Rearrangement and merge ops; Add section lives in the children
+            // area below where it's always accessible.
             div { class: "struct-disclosure",
                 button {
                     class: if *show_struct.read() { "struct-toggle struct-toggle--open" } else { "struct-toggle" },
@@ -302,20 +303,10 @@ pub fn FocusEditor(
                     {t(lang, "struct.merge_up")}
                 }
                 button {
-                    class: "struct-btn struct-btn--add",
-                    title: t(lang, "struct.split"),
-                    onclick: move |_| {
-                        // Signal app to open the split dialog.
-                        status.set("struct.split.pending".into());
-                    },
-                    {t(lang, "struct.split")}
-                }
-                button {
                     class: "struct-btn struct-btn--danger",
                     title: t(lang, "struct.delete"),
                     disabled: !session.read().can_delete(),
                     onclick: move |_| {
-                        // Signal app to open the delete confirmation dialog.
                         status.set("struct.delete.pending".into());
                     },
                     {t(lang, "struct.delete")}
@@ -323,13 +314,19 @@ pub fn FocusEditor(
             }  // end struct-toolbar
             }  // end if *show_struct
             }  // end struct-disclosure
-            if !snapshot.children.is_empty() {
-                section { class: "children",
-                    h3 { {t(lang, "focus.children")} }
-                    for child in snapshot.children.clone() {
+
+            // ── child sections + add button (always visible) ──────────────
+            // "Add section" is here, not inside ⋯, because it is a routine
+            // creative act rather than a rare structural operation.
+            section {
+                class: "children",
+                "aria-label": t(lang, "focus.children"),
+                for child in snapshot.children.clone() {
+                    div {
+                        class: "child-row",
+                        key: "{child.id.0}",
                         button {
                             class: "child-card",
-                            key: "{child.id.0}",
                             onclick: move |_| {
                                 // Commit before zooming into child.
                                 let snap = session.read().current_snapshot();
@@ -349,7 +346,30 @@ pub fn FocusEditor(
                                 span { class: "count", " ({child.child_count})" }
                             }
                         }
+                        button {
+                            class: "child-delete",
+                            title: t(lang, "struct.delete_child"),
+                            onclick: move |_| {
+                                // Navigate into the child, then open the
+                                // delete confirmation (same flow as ⋯ Delete).
+                                let _ = session.write().focus(child.id);
+                                let body = session.read().current_snapshot()
+                                    .map(|s| s.body).unwrap_or_default();
+                                draft.set(body);
+                                status.set("struct.delete.pending".into());
+                            },
+                            "×"
+                        }
                     }
+                }
+                button {
+                    class: "add-child-btn",
+                    title: t(lang, "struct.split"),
+                    onclick: move |_| {
+                        status.set("struct.split.pending".into());
+                    },
+                    "+ "
+                    {t(lang, "struct.split")}
                 }
             }
             }
