@@ -56,6 +56,10 @@ pub struct EditorSession {
     file_name: Option<String>,
     /// File-level text characteristics detected at open time (RFC-018).
     profile: FileTextProfile,
+    /// True once the user has explicitly opened or created a document.
+    /// False only for the initial startup state — used to decide whether
+    /// to show the welcome screen.
+    document_open: bool,
 }
 
 impl EditorSession {
@@ -70,6 +74,7 @@ impl EditorSession {
             saved,
             file_name,
             profile,
+            document_open: true,
         })
     }
 
@@ -89,12 +94,33 @@ impl EditorSession {
             saved,
             file_name,
             profile,
+            document_open: true,
         })
     }
 
     /// Starts an empty, unsaved document.
+    ///
+    /// `document_open` is `false` — this is the initial startup placeholder.
+    /// Use [`new_document`][Self::new_document] when the user explicitly
+    /// chooses *New* so the welcome screen is dismissed.
     pub fn new_empty() -> Self {
+        let mut s = Self::open(String::new(), None).expect("empty text always parses");
+        s.document_open = false;
+        s
+    }
+
+    /// Creates a blank document as if the user chose *New*.
+    ///
+    /// Identical to `new_empty` except `document_open` is `true`, which
+    /// dismisses the welcome screen and shows the editor.
+    pub fn new_document() -> Self {
         Self::open(String::new(), None).expect("empty text always parses")
+    }
+
+    /// True once the user has explicitly opened or created a document.
+    /// False only at startup (initial empty state).
+    pub fn document_open(&self) -> bool {
+        self.document_open
     }
 
     /// The canonical source text — exactly what `save` must write.

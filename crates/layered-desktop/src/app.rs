@@ -185,7 +185,7 @@ pub fn App() -> Element {
             let mut status = status;
             let mut selected_card = selected_card;
             let mut saved_mtime = saved_mtime;
-            session.set(EditorSession::new_empty());
+            session.set(EditorSession::new_document());
             selected_card.set(0);
             draft.set(String::new());
             saved_mtime.set(None);
@@ -212,7 +212,7 @@ pub fn App() -> Element {
                             let mut status = status;
                             let mut selected_card = selected_card;
                             let mut saved_mtime = saved_mtime;
-                            session.set(EditorSession::new_empty());
+                            session.set(EditorSession::new_document());
                             selected_card.set(0);
                             draft.set(String::new());
                             saved_mtime.set(None);
@@ -232,7 +232,7 @@ pub fn App() -> Element {
                         let mut status = status;
                         let mut selected_card = selected_card;
                         let mut saved_mtime = saved_mtime;
-                        session.set(EditorSession::new_empty());
+                        session.set(EditorSession::new_document());
                         selected_card.set(0);
                         draft.set(String::new());
                         saved_mtime.set(None);
@@ -521,7 +521,7 @@ pub fn App() -> Element {
         }
     }
 
-    let is_welcome = session.read().source().is_empty() && !session.read().is_dirty();
+    let is_welcome = !session.read().document_open();
     let is_raw = session.read().is_raw();
     let mode = session.read().view_mode();
 

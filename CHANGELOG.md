@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.3] - 2026-06-07
+
+### Fixed
+
+- **"New" button on the welcome screen did nothing.** `is_welcome` was
+  computed as `source().is_empty() && !is_dirty()`, which remained true
+  after "New" because a freshly created empty document satisfies both
+  conditions. Fixed by adding a `document_open: bool` field to
+  `EditorSession`:
+  - `new_empty()` sets `document_open = false` — startup placeholder,
+    keeps the welcome screen.
+  - New method `new_document()` sets `document_open = true` — used by all
+    three "New" code paths (direct click, save-then-new, discard-then-new),
+    dismisses the welcome screen and shows the editor.
+  - `is_welcome` is now simply `!session.document_open()`.
+
 ## [0.12.2] - 2026-06-07
 
 ### Fixed
