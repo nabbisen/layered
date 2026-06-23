@@ -41,12 +41,12 @@ Below the body textarea, the editor-actions bar contains:
 
 | Control | Action |
 |---------|--------|
-| **Edit** button | Commit the current draft |
+| **Done** button | Commit the current draft (visible only when the section has unsaved changes) |
 | **Preview** button | Toggle rendered Markdown preview (same as Ctrl+Shift+P) |
 
-The structural tools are hidden by default behind a `⋯` toggle below the
+The structural tools are hidden by default behind an **Arrange** toggle below the
 editor actions. Clicking it reveals: Promote, Demote, Move ↑, Move ↓,
-Merge Up, Add Child, Delete. See
+Merge Up, Delete. See
 [Structural Editing](structural-editing.md) for details.
 
 ## Editing

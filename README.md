@@ -41,7 +41,7 @@ The user guide sources live in [`docs/`](docs/) as an mdBook.
 
 ## Building
 
-Requires Rust 1.85+ (edition 2024). Core and UI logic build everywhere:
+Requires Rust 1.87+ (edition 2024). Core and UI logic build everywhere:
 
 ```sh
 cargo build            # builds layered-core and layered-ui (default members)

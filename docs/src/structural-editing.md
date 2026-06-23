@@ -1,8 +1,10 @@
 # Structural Editing
 
 layered lets you reorganise your document's heading hierarchy without touching
-the body text. All structural operations appear in the toolbar below the
-commit button when you are zoomed into a section.
+the body text. The **Arrange** button below the editor actions reveals
+Promote, Demote, Move ↑, Move ↓, Merge Up, and Delete for the focused
+section. **Add section** is always visible at the bottom of the child-sections
+area.
 
 ---
 
@@ -45,7 +47,7 @@ This operation cannot be undone by clicking Merge Up again — use **Ctrl+Z**
 
 ---
 
-## Add Child Section
+## Add section
 
 Opens a dialog where you enter a title. A new child heading is appended at
 the end of the focused section's body at the next depth level. You can then

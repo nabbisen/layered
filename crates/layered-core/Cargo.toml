@@ -1,20 +1,21 @@
 [package]
 name = "layered-core"
 description = "Source-preserving Markdown document engine for layered (canonical text, outline index, edit operations)"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
-authors.workspace = true
-repository.workspace = true
+readme = "../../README.md"
+version.workspace       = true
+edition.workspace       = true
+rust-version.workspace  = true
+license.workspace       = true
+authors.workspace       = true
+repository.workspace    = true
 
 # RFC-001 boundary rule: this crate must never depend on Dioxus, WebView,
 # file-dialog, or desktop runtime crates.
 [dependencies]
-pulldown-cmark.workspace = true
+pulldown-cmark      = { workspace = true }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion           = { workspace = true }
 
 [[bench]]
 name = "indexing"

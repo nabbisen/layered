@@ -100,12 +100,6 @@ impl AppSettings {
         self.recent_files.retain(|p| p != path);
     }
 
-    /// Clears the entire recent-files list.
-    #[allow(dead_code)]
-    pub(crate) fn clear_recent(&mut self) {
-        self.recent_files.clear();
-    }
-
     /// Returns only the recent paths that still exist on disk.
     pub fn valid_recent_files(&self) -> Vec<String> {
         self.recent_files

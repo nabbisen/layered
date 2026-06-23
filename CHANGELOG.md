@@ -4,6 +4,62 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.3] - 2026-06-14
+
+### Audit — five-dimension codebase review
+
+**1 — RFC compliance:** All 47 done RFCs (000–046) verified against the
+codebase. Every RFC has corresponding production code. No gaps found.
+
+**2 — Dead code removed:**
+
+- `AppSettings::clear_recent()` in `settings.rs` removed. It had no caller,
+  no test, and no mention in any RFC or requirements document. The
+  `#[allow(dead_code)]` suppression on `remove_recent()` is retained — that
+  method is tested, has a clear future-UI use case, and shares the same
+  pattern as `push_recent`.
+- `AppSettings` fields `font_size` and `line_wrap` retained — they are
+  explicitly planned in RFC-036 and requirements §9.8, and survive
+  round-trips through the TOML settings file.
+
+**3 — Tests extended to match requirements:**
+
+The external design (§25) and app requirements (§17.1) mandate semantic
+assertions for each fixture, not only byte-preservation. Nine fixtures had
+only byte-preservation coverage in the source-preservation test suite.
+Nine semantic tests were added to `fixture_catalog.rs`:
+
+| Fixture | Assertion added |
+|---------|----------------|
+| `code_fences.md` | Heading-like text inside a fence is not indexed |
+| `setext.md` | Setext headings are indexed as sections |
+| `crlf.md` | CR+LF line endings survive parsing |
+| `skipped_levels.md` | Skipped heading levels are handled without data loss |
+| `no_headings.md` | A heading-free document has no child sections |
+| `empty_bodies.md` | Sections with no body text still appear in the outline |
+| `html_content.md` | An HTML comment containing `# Heading` is not indexed |
+| `no_trailing_newline.md` | Source is byte-identical after parsing |
+| `toml_front_matter.md` | TOML front matter is not treated as a heading |
+
+**4 — Code–test alignment:** Structural ops and session tests were audited
+against the production code. All assertions reflect actual behaviour. No
+mismatches found.
+
+**5 — Documentation corrected:**
+
+- `README.md`: MSRV corrected from `1.85+` to `1.87+`.
+- `docs/src/keyboard-reference.md`: "Edit" button → "Done"; "Add Child"
+  → "Add section"; bare `⋯` toggle → "Arrange"; note that **Done** is
+  only visible when the section has unsaved changes.
+- `docs/src/structural-editing.md`: opening description updated to reflect
+  the current layout (Arrange toggle for rearrangement ops; Add section
+  always-visible in the child-sections area); "Add Child Section" heading
+  renamed to "Add section".
+
+### Changed
+
+167 tests total (was 158).
+
 ## [0.13.2] - 2026-06-09
 
 ### Changed
