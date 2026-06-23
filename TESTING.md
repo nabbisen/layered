@@ -22,7 +22,7 @@ invariant for the new operation. No release may ship with a known violation.
  Few     Manual smoke tests per platform (RELEASE_CHECKLIST)
 ──────────────────────────────────────────────────────────
  Some    layered-ui integration tests (session + view state)
-         layered-desktop component tests (keyboard, signal flow)
+         layered-desktop pure-logic tests (keyboard mapping, recent files)
 ──────────────────────────────────────────────────────────
  Many    layered-core golden fixture tests
          layered-core structural operation tests
@@ -42,7 +42,20 @@ invariant for the new operation. No release may ship with a known violation.
 | Structural ops | `crates/layered-core/tests/structural_ops.rs` | promote/demote/move/split/delete/merge + undo |
 | Fixture catalog | `crates/layered-core/tests/fixture_catalog.rs` | all fixtures load, outline is correct, round-trip edit preserves source |
 | UI unit | `crates/layered-ui/src/tests/` | i18n parity, session behavior, search, commands |
+| Desktop pure-logic | `crates/layered-desktop/src/keyboard.rs`, `settings.rs` (inline) | keyboard shortcut mapping, recent-files dedup/cap |
 | Benchmarks | `crates/layered-core/benches/indexing.rs` | performance regression detection (run manually) |
+
+## On Dioxus testing styles
+
+The Dioxus guide describes component testing (dioxus-ssr snapshots), hook
+testing (a hand-driven `VirtualDom`), and end-to-end testing (Playwright).
+This project uses none of them, by design. All business logic lives in the
+Dioxus-free `layered-core` and `layered-ui` crates and is covered by plain
+Rust tests, so the shell needs no component-level harness. There are no
+custom hooks to test, HTML snapshots would be brittle against ordinary
+markup edits, and Playwright targets web builds rather than this desktop
+WebView. If a web or TUI target is ever added (see ROADMAP), end-to-end
+testing should be reconsidered then.
 
 ---
 

@@ -4,6 +4,29 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.0] - 2026-06-09
+
+Minor release consolidating the 0.12.1–0.12.7 patch series into a single
+tagged version for downstream testing. The detailed entries for each patch
+remain below. Highlights of the series:
+
+- **Outline rendering** moved to `dioxus-swdir-tree` v0.9's `ItemTreeView`
+  (0.12.5), retiring the hand-rolled list.
+- **"Less is more" UX pass** (0.12.6): structural toolbar collapsed behind a
+  toggle, status bar trimmed, welcome tutorial removed.
+- **Architecture cleanup** (0.12.7): `app.rs` 573→199 ELOC and `session.rs`
+  474→307 ELOC via focused module splits; dual selection models unified;
+  document statistics wired into the command palette.
+- **Correctness fixes**: i18n sort-order and missing-key bugs, a clippy
+  lint, and several stale-documentation corrections.
+
+### Added
+
+- Pure-logic unit tests for the desktop shell: keyboard shortcut mapping
+  (`interpret_code`) and recent-files management (`AppSettings`). 158 tests
+  total. Documented in `TESTING.md` why the Dioxus component/hook/end-to-end
+  testing styles are intentionally not used.
+
 ## [0.12.7] - 2026-06-09
 
 ### Changed

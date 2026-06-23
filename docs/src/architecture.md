@@ -32,6 +32,20 @@ It has no business logic; it maps user gestures to `EditorSession` method
 calls. The outline sidebar is rendered by `ItemTreeView` from the
 `dioxus-swdir-tree` crate, fed by `EditorSession::outline_nodes()`.
 
+## Testing approach
+
+Because the RFC-001 boundary keeps all business logic in `layered-core`
+and `layered-ui` (neither depends on Dioxus), the test suite is plain Rust
+`#[test]` functions exercising those two crates directly — no Dioxus test
+harness is required. The Dioxus guide's component/hook/end-to-end testing
+styles are deliberately *not* used: there are no custom hooks to test,
+HTML-snapshot component tests would be brittle against routine markup
+changes, and Playwright end-to-end testing targets web builds rather than
+this desktop WebView shell. The only `layered-desktop` logic that warrants
+its own tests is the pure, framework-independent code that happens to live
+there — the keyboard shortcut mapping (`interpret_code`) and the
+recent-files list management (`AppSettings::push_recent`).
+
 ---
 
 ## Render Boundary (RFC-033)
