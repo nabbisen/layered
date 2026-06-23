@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.12.2] - 2026-06-07
+
+### Fixed
+
+- **Linux build failure**: added `libjavascriptcoregtk-4.1-dev` and
+  `libssl-dev` to the required system package list in `PLATFORMS.md`,
+  `getting-started.md`, and the `Cargo.toml` comment. Both packages are
+  required by Dioxus 0.7's desktop renderer on Linux but were missing from
+  the documentation.
+
+### Changed
+
+- **MSRV restored and corrected to 1.87**: `rust-version = "1.87"` is now
+  set in the workspace `Cargo.toml`. The previous value of 1.85 was removed
+  in v0.12.1 because it could not be verified; a full scan of the 631-package
+  dependency tree (`cargo metadata`) found that `wit-bindgen 0.51` (a
+  transitive dep of Dioxus 0.7) requires Rust 1.87. All other transitive
+  dependencies state 1.85 or lower.
+
 ## [0.12.1] - 2026-06-07
 
 ### Changed

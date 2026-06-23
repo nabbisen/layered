@@ -13,7 +13,8 @@ The desktop GUI uses the system WebView. On Linux, install the native
 packages first:
 
 ```sh
-sudo apt-get install libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
+sudo apt-get install libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev \
+                     libgtk-3-dev libxdo-dev libssl-dev
 cargo run -p layered-desktop
 ```
 

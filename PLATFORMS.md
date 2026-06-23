@@ -19,17 +19,48 @@ behavior.
 
 ## Linux System Packages
 
-Before building or running on Debian/Ubuntu-based systems:
+**These packages must be installed before running `cargo build` or `cargo run`.**
+If they are missing, the build will fail with a `webkit2gtk-4.1 was not found`
+error from pkg-config.
+
+**Debian / Ubuntu (22.04+):**
 
 ```sh
-sudo apt install libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev
+sudo apt install libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev \
+                 libgtk-3-dev libxdo-dev libssl-dev
 ```
 
-Fedora/RHEL equivalent:
+**Fedora / RHEL:**
 
 ```sh
-sudo dnf install webkit2gtk4.1-devel gtk3-devel
+sudo dnf install webkit2gtk4.1-devel javascriptcoregtk4.1-devel \
+                 gtk3-devel openssl-devel
 ```
+
+**Arch Linux:**
+
+```sh
+sudo pacman -S webkit2gtk-4.1 gtk3 openssl xdotool
+```
+
+### Troubleshooting: "PKG_CONFIG_PATH is not set"
+
+If the packages are installed but the build still fails with
+`Package 'webkit2gtk-4.1' not found`, pkg-config cannot find the `.pc` files.
+Find and expose them manually:
+
+```sh
+# Locate the .pc file
+find /usr -name 'webkit2gtk-4.1.pc' 2>/dev/null
+
+# Export its directory and retry
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig   # adjust path as found
+cargo run -p layered-desktop
+```
+
+On Debian/Ubuntu the `.pc` files are usually at
+`/usr/lib/x86_64-linux-gnu/pkgconfig/`. On Fedora they are under
+`/usr/lib64/pkgconfig/`.
 
 ---
 
