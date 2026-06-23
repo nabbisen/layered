@@ -1,5 +1,10 @@
 # omriss
 
+[![crates.io](https://img.shields.io/crates/v/omriss?label=rust)](https://crates.io/crates/omriss)
+[![Rust Documentation](https://docs.rs/omriss/badge.svg?version=latest)](https://docs.rs/omriss)
+[![Dependency Status](https://deps.rs/crate/omriss/latest/status.svg)](https://deps.rs/crate/omriss)
+[![License](https://img.shields.io/github/license/nabbisen/omriss)](LICENSE)
+
 **Omriss Editor** — a next-generation text editor that helps you clarify ideas
 and refine them, consideration by consideration, **layer by layer**.
 
