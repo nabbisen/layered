@@ -285,7 +285,7 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
 }
 .modal h2 { margin: 0 0 10px; font-size: 18px; }
 .modal p  { margin: 0 0 18px; color: var(--muted); line-height: 1.5; }
-.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 
 /* Raw source view */
 .raw-source { display: flex; flex-direction: column; }
@@ -741,4 +741,46 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* ── dioxus-swdir-tree overrides ─────────────────────────────────────────── */
+
+/* Selected row: high-contrast accent highlight matching the app theme.
+   The widget's default rgba(66,133,244,0.18) is too faint on our dark panel. */
+.dx-swdir-row--selected {
+  background: var(--accent-soft);
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+  color: var(--text);
+}
+.dx-swdir-row--selected:hover {
+  background: var(--accent-soft);
+}
+/* Active (keyboard focus) row */
+.dx-swdir-row--active {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Icons: hide the folder/file emoji (📁📂📄) — they read as a file-tree
+   browser, not a section outline. Replace every icon with a neutral § glyph
+   via CSS so the caret (▸/▾) alone signals branch vs leaf.
+   The span must be display:inline-flex with a fixed pixel width so it
+   occupies its rightful cell in the flex row regardless of font-size:0. */
+.dx-swdir-icon {
+  font-size: 0;           /* suppress the emoji character */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;            /* fixed width — matches ::before font-size */
+  flex-shrink: 0;
+}
+.dx-swdir-icon::before {
+  font-size: 12px;
+  content: "§";
+  color: var(--muted);
+}
+.dx-swdir-row:hover .dx-swdir-icon::before,
+.dx-swdir-row--selected .dx-swdir-icon::before {
+  color: var(--accent);
 }

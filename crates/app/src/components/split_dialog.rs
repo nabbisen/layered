@@ -16,6 +16,13 @@ pub fn SplitDialog(locale: Signal<Locale>, on_choice: EventHandler<SplitChoice>)
     let lang = *locale.read();
     let mut title = use_signal(String::new);
 
+    // autofocus: true is insufficient in Dioxus for dynamically-mounted
+    // elements — the attribute only fires on initial page load. We programm-
+    // atically focus the input via eval() after mount instead.
+    use_effect(move || {
+        let _ = document::eval("document.querySelector('.split-dialog-input')?.focus()");
+    });
+
     rsx! {
         div {
             class: "modal-overlay",
@@ -25,10 +32,9 @@ pub fn SplitDialog(locale: Signal<Locale>, on_choice: EventHandler<SplitChoice>)
             div { class: "modal",
                 h2 { id: "split-title-label", {t(lang, "dialog.split.title")} }
                 input {
-                    class: "search-input",
+                    class: "search-input split-dialog-input",
                     r#type: "text",
                     placeholder: t(lang, "dialog.split.placeholder"),
-                    autofocus: true,
                     value: "{title}",
                     oninput: move |evt| title.set(evt.value()),
                     onkeydown: move |evt| {

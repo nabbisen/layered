@@ -4,6 +4,30 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.4] - 2026-06-24
+
+### Fixed
+
+- **"Add section" dialog input not focused** — `autofocus: true` only fires on
+  initial page load in a WebView; dynamically-mounted elements are ignored by
+  the browser. Replaced with a `use_effect` call to `document::eval` that
+  programmatically focuses the `.split-dialog-input` element after mount.
+
+### Changed
+
+- **Selected outline item is now visually prominent** — the widget's default
+  selection highlight (`rgba(66,133,244,0.18)`) was too faint on the dark
+  panel background. Overridden with `var(--accent-soft)` fill plus a solid
+  `1px var(--accent)` inset outline, matching the app's existing focus-ring
+  language.
+
+- **Outline icons replaced** — `dioxus-swdir-tree` renders 📁/📂/📄 emoji by
+  default (the `UnicodeTheme`), which carry file-system semantics inappropriate
+  for a section outline. The emoji are suppressed via `font-size: 0` on
+  `.dx-swdir-icon` and replaced with a neutral `§` glyph injected via CSS
+  `::before`. The caret (`▸`/`▾`) already communicates branch vs leaf, so a
+  single consistent icon is sufficient. No Rust changes required.
+
 ## [0.15.3] - 2026-06-24
 
 ### Fixed
