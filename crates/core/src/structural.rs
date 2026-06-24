@@ -8,12 +8,12 @@
 //! Operations on Setext headings (level detected from underline style) are
 //! rejected for promote/demote in M5; convert them to ATX first via raw view.
 
-use crate::edit::EditResult;
+use crate::doc::edit::EditResult;
+use crate::doc::history::EditRecord;
+use crate::doc::revision::DocumentRevision;
 use crate::error::{EditError, IndexError};
-use crate::history::EditRecord;
-use crate::outline::{HeadingLevel, NodeId};
+use crate::index::outline::{HeadingLevel, NodeId};
 use crate::range::ByteRange;
-use crate::revision::DocumentRevision;
 use crate::{Document, Outline};
 
 // ── Error ─────────────────────────────────────────────────────────────────────

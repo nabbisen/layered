@@ -5,13 +5,13 @@
 //! saved file is always the canonical text written back verbatim — never an
 //! AST serialization.
 
-use crate::edit::{EditResult, ReplaceSectionBody};
+use crate::doc::edit::{EditResult, ReplaceSectionBody};
+use crate::doc::history::{EditHistory, EditRecord};
+use crate::doc::revision::DocumentRevision;
 use crate::error::{DocumentError, EditError};
-use crate::history::{EditHistory, EditRecord};
-use crate::index::build_outline;
-use crate::outline::{HeadingLevel, NodeId, Outline};
+use crate::index::index::build_outline;
+use crate::index::outline::{HeadingLevel, NodeId, Outline};
 use crate::range::{ByteRange, RangeError};
-use crate::revision::DocumentRevision;
 
 /// Backing storage for the canonical text (RFC-002).
 ///
@@ -271,7 +271,7 @@ impl Document {
 
     /// Records a structural edit in the history for undo/redo support.
     /// Called by `structural.rs` after `apply_replacement` succeeds.
-    pub(crate) fn record_history(&mut self, record: crate::history::EditRecord) {
+    pub(crate) fn record_history(&mut self, record: crate::doc::history::EditRecord) {
         self.history.record(record);
     }
 

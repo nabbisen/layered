@@ -4,9 +4,9 @@
 //! Markdown. The UI layer owns the mapping from these variants to localized,
 //! user-facing prose (RFC-043); core carries no user-facing strings.
 
-use crate::outline::NodeId;
+use crate::doc::revision::DocumentRevision;
+use crate::index::outline::NodeId;
 use crate::range::RangeError;
-use crate::revision::DocumentRevision;
 
 /// Errors produced while building or validating the derived outline index.
 #[derive(Debug, Clone, PartialEq, Eq)]

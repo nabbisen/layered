@@ -4,9 +4,9 @@
 //! carry the base revision they were prepared against, enabling stale-buffer
 //! detection before any byte is touched.
 
-use crate::outline::NodeId;
+use crate::doc::revision::DocumentRevision;
+use crate::index::outline::NodeId;
 use crate::range::ByteRange;
-use crate::revision::DocumentRevision;
 
 /// Replace the body of one section, preserving its heading line, child
 /// sections, siblings, ancestors, and every unrelated source byte (RFC-004).

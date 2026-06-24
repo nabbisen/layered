@@ -4,6 +4,76 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.1] - 2026-06-24
+
+### Fixed
+
+- **`components/mod.rs` doubled on build** — a previous `str_replace` appended
+  a second copy of the original module block, producing 40 duplicate-definition
+  errors when building `omriss-app`. The file is now a single clean block.
+
+- **`FocusEditor` and `OutlinePane` unused-import warnings** — both superseded
+  components were removed from the components module and from the `app.rs`
+  import list. They are no longer compiled into the binary.
+
+- **`DocumentMapNode` missing `PartialEq`** — the Dioxus `#[component]` macro
+  requires all prop types to implement `PartialEq` for change detection.
+  `PartialEq` is now derived on `DocumentMapNode`.
+
+- **`focus_then` closure borrow error** — the closure in `NodeRowMenu` was
+  declared immutably but captured signals requiring mutable access. Declared
+  `mut`.
+
+### Changed
+
+- **`dirs` dependency upgraded from `"5"` to `"6"`** — Dioxus already pulls
+  `dirs v6` transitively; the workspace was pinning a duplicate `v5` copy.
+  Upgrading to `"6"` removes the redundant compiled copy.
+
+- **`Cargo.toml` internal dependency version references** changed from exact
+  patch (`"0.15.0"`) to minor-only (`"0.15"`) so the workspace `version` field
+  does not need to be updated in `[workspace.dependencies]` on every patch
+  release.
+
+- **Rust 2024 module style applied** — `mod.rs` files replaced by same-name
+  sibling files where applicable:
+  - `crates/app/src/components/mod.rs` → `crates/app/src/components.rs`
+  - `crates/ui/src/i18n/mod.rs` → `crates/ui/src/i18n.rs`
+
+- **Inline tests extracted to separate files** — `#[cfg(test)] mod tests { … }`
+  blocks removed from source files; test code now lives in dedicated files:
+  - `crates/app/src/keyboard.rs` → `crates/app/src/keyboard/tests.rs`
+  - `crates/app/src/settings.rs` → `crates/app/src/settings/tests.rs`
+
+- **`crates/core/tests/structural_ops.rs` split** — the 293-line monolithic
+  integration test file is now a thin driver that delegates to four focused
+  files in `tests/`:
+  - `structural_ops_promote_demote.rs`
+  - `structural_ops_delete_split_merge.rs`
+  - `structural_ops_move_ops.rs`
+  - `structural_ops_revision_guard.rs`
+
+- **`crates/core/src/` logical grouping** introduced in preparation for
+  structured-format adapters (RFC-052/053):
+  - `src/doc/` — document model (`document`, `edit`, `history`, `revision`)
+  - `src/index/` — heading tree (`index`, `outline`)
+  - `error.rs`, `range.rs` remain at `src/` as cross-cutting primitives
+
+- **CSS styles added** for `DocumentMapPane` and `FocusedContentPane` — the
+  two components introduced in v0.15.0 shipped without matching stylesheet
+  rules, leaving the left panel invisible. Styles for `.document-map-pane`,
+  `.row-menu`, `.focused-content-pane`, and related classes are now present.
+
+### Fixed (also in 0.15.1)
+
+- **`DocumentMapPane` froze on "New"** — a Dioxus reactive loop: `session` was
+  subscribed both inside `use_effect` and directly in the component render body
+  (`let map_root = session.read()…`). A `session` change triggered the effect,
+  which wrote a local signal, which triggered a re-render, which re-read
+  `session`, which re-triggered the effect — infinite. Fixed by reading
+  `session` only inside `use_effect` and storing the derived tree in a second
+  local signal (`map_root_sig`) that the render body reads instead.
+
 ## [0.15.0] - 2026-06-24
 
 ### Added

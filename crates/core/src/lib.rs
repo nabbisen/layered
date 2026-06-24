@@ -30,26 +30,28 @@
 //! assert_eq!(doc.source(), "# A\nbody\n\n# B\nkeep me\n");
 //! ```
 
-mod document;
-mod edit;
+// ── Internal modules ────────────────────────────────────────────────────────
+// doc/ groups the document model; index/ groups the heading tree.
+// Public-facing modules stay at the top level for a clean surface.
+
+mod doc;
 mod error;
-mod history;
 mod index;
-mod outline;
-pub mod preview;
 mod range;
-mod revision;
+
+pub mod preview;
 pub mod structural;
 
 #[cfg(test)]
 mod tests;
 
-pub use document::{Document, FocusSnapshot, OutlineItem};
-pub use edit::{EditResult, ReplaceSectionBody};
+// ── Public API ──────────────────────────────────────────────────────────────
+pub use doc::document::{Document, FocusSnapshot, OutlineItem};
+pub use doc::edit::{EditResult, ReplaceSectionBody};
+pub use doc::history::{DEFAULT_HISTORY_CAPACITY, EditHistory, EditRecord};
+pub use doc::revision::DocumentRevision;
 pub use error::{DocumentError, EditError, IndexError};
-pub use history::{DEFAULT_HISTORY_CAPACITY, EditHistory, EditRecord};
-pub use outline::{HeadingLevel, NodeId, Outline, SectionNode};
+pub use index::outline::{HeadingLevel, NodeId, Outline, SectionNode};
 pub use preview::{document_html, section_html};
 pub use range::{ByteRange, RangeError};
-pub use revision::DocumentRevision;
 pub use structural::{MoveTarget, StructuralEditError};

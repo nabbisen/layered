@@ -5,8 +5,8 @@
 //! coordinate spaces. Undo and redo are ordinary revision-incrementing
 //! mutations applied by [`crate::Document`]; this module only owns the stacks.
 
+use crate::doc::revision::DocumentRevision;
 use crate::range::ByteRange;
-use crate::revision::DocumentRevision;
 
 /// Default bound on retained history entries; oldest entries drop first.
 pub const DEFAULT_HISTORY_CAPACITY: usize = 100;
