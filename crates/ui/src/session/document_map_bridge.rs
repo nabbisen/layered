@@ -7,8 +7,10 @@
 
 use omriss::{NodeId, Outline};
 
-use crate::document_map::{CapabilityReason, DocumentMapNode, MapCapability, MapNodeCapabilities};
-use crate::navigation::sibling_info;
+use crate::editor::navigation::sibling_info;
+use crate::interface::document_map::{
+    CapabilityReason, DocumentMapNode, MapCapability, MapNodeCapabilities,
+};
 
 impl super::EditorSession {
     /// Build a `DocumentMapNode` tree for the Document Map left panel.

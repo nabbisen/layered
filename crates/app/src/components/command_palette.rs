@@ -2,8 +2,8 @@
 //! command by title. Keyboard help and the palette share one source of truth.
 
 use dioxus::prelude::*;
-use omriss_ui::commands::{COMMANDS, filter_commands};
 use omriss_ui::i18n::{Locale, t};
+use omriss_ui::{COMMANDS, filter_commands};
 
 /// An opaque command id dispatched back to the app shell for execution.
 pub type CommandId = &'static str;

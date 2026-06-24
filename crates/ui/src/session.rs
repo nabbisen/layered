@@ -14,8 +14,8 @@ use omriss::{
     OutlineItem, ReplaceSectionBody,
 };
 
-use crate::file_profile::FileTextProfile;
-use crate::view_state::{ViewMode, ViewState};
+use crate::editor::view_state::{ViewMode, ViewState};
+use crate::file::file_profile::FileTextProfile;
 
 /// Length + hash of the text at the last save. Undo and redo mint fresh
 /// revisions (RFC-044), so "back to the saved bytes" must be detected by
@@ -329,10 +329,10 @@ impl EditorSession {
     }
 
     /// Navigation availability from the currently focused node (RFC-020).
-    pub fn sibling_info(&self) -> crate::navigation::SiblingInfo {
+    pub fn sibling_info(&self) -> crate::editor::navigation::SiblingInfo {
         match self.view.focused() {
-            Some(id) => crate::navigation::sibling_info(self.document.outline(), id),
-            None => crate::navigation::SiblingInfo::default(),
+            Some(id) => crate::editor::navigation::sibling_info(self.document.outline(), id),
+            None => crate::editor::navigation::SiblingInfo::default(),
         }
     }
 
@@ -380,7 +380,7 @@ impl EditorSession {
         let Some(id) = self.view.focused() else {
             return false;
         };
-        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        let info = crate::editor::navigation::sibling_info(self.document.outline(), id);
         if let Some(prev) = info.prev_sibling {
             self.view.focus(prev);
             true
@@ -394,7 +394,7 @@ impl EditorSession {
         let Some(id) = self.view.focused() else {
             return false;
         };
-        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        let info = crate::editor::navigation::sibling_info(self.document.outline(), id);
         if let Some(next) = info.next_sibling {
             self.view.focus(next);
             true
@@ -404,21 +404,21 @@ impl EditorSession {
     }
 
     /// Searches the whole document for `query` (RFC-021).
-    pub fn search_document(&self, query: &str) -> Vec<crate::search::SearchMatch> {
-        crate::search::search_document(&self.document, query)
+    pub fn search_document(&self, query: &str) -> Vec<crate::editor::search::SearchMatch> {
+        crate::editor::search::search_document(&self.document, query)
     }
 
     /// Searches only the focused section's body for `query`.
-    pub fn search_section(&self, query: &str) -> Vec<crate::search::SearchMatch> {
+    pub fn search_section(&self, query: &str) -> Vec<crate::editor::search::SearchMatch> {
         match self.view.focused() {
-            Some(id) => crate::search::search_section(&self.document, id, query),
-            None => crate::search::search_document(&self.document, query),
+            Some(id) => crate::editor::search::search_section(&self.document, id, query),
+            None => crate::editor::search::search_document(&self.document, query),
         }
     }
 
     /// Returns document statistics (RFC-046): word counts and section count.
-    pub fn stats(&self) -> crate::stats::DocumentStats {
-        crate::stats::compute_stats(&self.document, self.view.focused())
+    pub fn stats(&self) -> crate::editor::stats::DocumentStats {
+        crate::editor::stats::compute_stats(&self.document, self.view.focused())
     }
 
     /// Renders the focused section body as HTML for the preview pane (RFC-045).

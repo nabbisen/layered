@@ -4,19 +4,16 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod actions;
-mod app;
-mod app_ctx;
 mod components;
-mod dispatch;
-mod file_dialog;
-mod keyboard;
-mod settings;
+mod file;
+mod input;
+mod shell;
+mod storage;
 
 use dioxus::desktop::{Config, WindowBuilder};
 use omriss_ui::i18n::Locale;
 
-use crate::settings::AppSettings;
+use crate::storage::settings::AppSettings;
 
 /// Detects the OS locale at startup from environment variables.
 /// Explicit user preference from saved settings will take precedence.
@@ -39,5 +36,5 @@ fn main() {
         .with_cfg(Config::new().with_window(window).with_menu(None))
         .with_context(detect_locale())
         .with_context(settings)
-        .launch(app::App);
+        .launch(shell::app::App);
 }

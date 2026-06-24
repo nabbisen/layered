@@ -283,8 +283,8 @@ impl Document {
         &mut self,
         id: NodeId,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::promote_section(self, id, base_revision)
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::promote_section(self, id, base_revision)
     }
 
     /// Demotes the section heading one level (e.g. H2→H3). Only ATX headings
@@ -293,8 +293,8 @@ impl Document {
         &mut self,
         id: NodeId,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::demote_section(self, id, base_revision)
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::demote_section(self, id, base_revision)
     }
 
     /// Moves the entire section subtree (heading + body + descendants) to
@@ -302,10 +302,10 @@ impl Document {
     pub fn move_section(
         &mut self,
         id: NodeId,
-        target: crate::structural::MoveTarget,
+        target: crate::doc::structural::MoveTarget,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::move_section(self, id, target, base_revision)
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::move_section(self, id, target, base_revision)
     }
 
     /// Inserts a new heading at `offset_in_body` bytes into the section body,
@@ -317,8 +317,8 @@ impl Document {
         new_title: &str,
         new_level: HeadingLevel,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::split_section(
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::split_section(
             self,
             id,
             offset_in_body,
@@ -335,8 +335,8 @@ impl Document {
         &mut self,
         id: NodeId,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::delete_section(self, id, base_revision)
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::delete_section(self, id, base_revision)
     }
 
     /// Merges `id` into its previous sibling by removing `id`'s heading line,
@@ -345,7 +345,7 @@ impl Document {
         &mut self,
         id: NodeId,
         base_revision: DocumentRevision,
-    ) -> Result<EditResult, crate::structural::StructuralEditError> {
-        crate::structural::merge_with_prev_sibling(self, id, base_revision)
+    ) -> Result<EditResult, crate::doc::structural::StructuralEditError> {
+        crate::doc::structural::merge_with_prev_sibling(self, id, base_revision)
     }
 }

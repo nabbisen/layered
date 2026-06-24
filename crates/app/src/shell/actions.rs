@@ -6,10 +6,10 @@
 use dioxus::prelude::*;
 use omriss_ui::EditorSession;
 
-use crate::app_ctx::{AppCtx, Modal, commit_pending, sync_draft};
 use crate::components::{ConfirmDeleteChoice, ExtModifiedChoice, SplitChoice, UnsavedChoice};
-use crate::file_dialog::{self, OpenOutcome, SaveOutcome};
-use crate::settings::AppSettings;
+use crate::file::file_dialog::{self, OpenOutcome, SaveOutcome};
+use crate::shell::app_ctx::{AppCtx, Modal, commit_pending, sync_draft};
+use crate::storage::settings::AppSettings;
 
 // ── File operations ──────────────────────────────────────────────────────────
 

@@ -30,17 +30,16 @@
 //! assert_eq!(doc.source(), "# A\nbody\n\n# B\nkeep me\n");
 //! ```
 
-// ── Internal modules ────────────────────────────────────────────────────────
-// doc/ groups the document model; index/ groups the heading tree.
-// Public-facing modules stay at the top level for a clean surface.
-
-mod doc;
+// ── Cross-cutting primitives (depended on by both doc/ and index/) ──────────
 mod error;
-mod index;
 mod range;
 
-pub mod preview;
-pub mod structural;
+// ── Domain modules ───────────────────────────────────────────────────────────
+//
+// doc/     : document model, edit operations, undo, preview, structural edits
+// index/   : Markdown heading parser and derived outline tree
+mod doc;
+mod index;
 
 #[cfg(test)]
 mod tests;
@@ -49,9 +48,9 @@ mod tests;
 pub use doc::document::{Document, FocusSnapshot, OutlineItem};
 pub use doc::edit::{EditResult, ReplaceSectionBody};
 pub use doc::history::{DEFAULT_HISTORY_CAPACITY, EditHistory, EditRecord};
+pub use doc::preview::{document_html, section_html};
 pub use doc::revision::DocumentRevision;
+pub use doc::structural::{MoveTarget, StructuralEditError};
 pub use error::{DocumentError, EditError, IndexError};
 pub use index::outline::{HeadingLevel, NodeId, Outline, SectionNode};
-pub use preview::{document_html, section_html};
 pub use range::{ByteRange, RangeError};
-pub use structural::{MoveTarget, StructuralEditError};

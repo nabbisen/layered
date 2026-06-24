@@ -1,7 +1,7 @@
 //! Tests for DocumentMapNode generation and capability computation (RFC-049).
 
 use crate::EditorSession;
-use crate::document_map::{CapabilityReason, DraftState, MapCapability};
+use crate::interface::document_map::{CapabilityReason, DraftState, MapCapability};
 
 // ── DraftState ────────────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 use omriss::EditError;
 
+use crate::editor::view_state::ViewMode;
 use crate::session::EditorSession;
-use crate::view_state::ViewMode;
 
 const DOC: &str =
     "Intro paragraph.\n\n# One\n\nBody one.\n\n## Child\n\nChild body.\n\n# Two\n\nBody two.\n";

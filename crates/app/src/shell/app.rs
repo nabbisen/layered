@@ -9,23 +9,23 @@ use dioxus::prelude::*;
 use omriss_ui::i18n::{Locale, t};
 use omriss_ui::{EditorSession, ViewMode};
 
-use crate::actions::{
-    handle_confirm_delete, handle_ext_modified_choice, handle_load, handle_new_guarded,
-    handle_open_guarded, handle_save, handle_split_choice, handle_unsaved_choice,
-};
-use crate::app_ctx::{AppCtx, Modal};
 use crate::components::{
     CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, DocumentMapPane, ErrorDialog,
     ExtModifiedChoice, ExtModifiedDialog, FocusedContentPane, OverviewPane, RawSourceView,
     SearchPanel, SplitChoice, SplitDialog, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog,
     WelcomeScreen,
 };
-use crate::dispatch::{dispatch_command, dispatch_palette};
-use crate::file_dialog;
-use crate::keyboard;
-use crate::settings::AppSettings;
+use crate::file::file_dialog;
+use crate::input::keyboard;
+use crate::shell::actions::{
+    handle_confirm_delete, handle_ext_modified_choice, handle_load, handle_new_guarded,
+    handle_open_guarded, handle_save, handle_split_choice, handle_unsaved_choice,
+};
+use crate::shell::app_ctx::{AppCtx, Modal};
+use crate::shell::dispatch::{dispatch_command, dispatch_palette};
+use crate::storage::settings::AppSettings;
 
-const STYLE: &str = include_str!("../assets/style.css");
+const STYLE: &str = include_str!("../../assets/style.css");
 
 #[component]
 pub fn App() -> Element {

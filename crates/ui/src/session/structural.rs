@@ -39,7 +39,7 @@ impl super::EditorSession {
         let Some(id) = self.view.focused() else {
             return false;
         };
-        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        let info = crate::editor::navigation::sibling_info(self.document.outline(), id);
         info.prev_sibling.is_some()
     }
 
@@ -135,7 +135,7 @@ impl super::EditorSession {
             .view
             .focused()
             .ok_or(omriss::StructuralEditError::NoAdjacentSibling)?;
-        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        let info = crate::editor::navigation::sibling_info(self.document.outline(), id);
         let prev = info
             .prev_sibling
             .ok_or(omriss::StructuralEditError::NoAdjacentSibling)?;
@@ -148,7 +148,7 @@ impl super::EditorSession {
             .view
             .focused()
             .ok_or(omriss::StructuralEditError::NoAdjacentSibling)?;
-        let info = crate::navigation::sibling_info(self.document.outline(), id);
+        let info = crate::editor::navigation::sibling_info(self.document.outline(), id);
         let next = info
             .next_sibling
             .ok_or(omriss::StructuralEditError::NoAdjacentSibling)?;
@@ -160,7 +160,7 @@ impl super::EditorSession {
         self.view
             .focused()
             .map(|id| {
-                crate::navigation::sibling_info(self.document.outline(), id)
+                crate::editor::navigation::sibling_info(self.document.outline(), id)
                     .prev_sibling
                     .is_some()
             })
@@ -172,7 +172,7 @@ impl super::EditorSession {
         self.view
             .focused()
             .map(|id| {
-                crate::navigation::sibling_info(self.document.outline(), id)
+                crate::editor::navigation::sibling_info(self.document.outline(), id)
                     .next_sibling
                     .is_some()
             })

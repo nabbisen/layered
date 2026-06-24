@@ -9,7 +9,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-use omriss_ui::file_profile::FileTextProfile;
+use omriss_ui::FileTextProfile;
 
 const MD_EXTENSIONS: &[&str] = &["md", "markdown", "mdown", "txt"];
 

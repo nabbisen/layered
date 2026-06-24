@@ -4,6 +4,45 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.2] - 2026-06-24
+
+### Changed
+
+- **Domain-based source grouping across all three crates.** Each crate's
+  `src/` directory is now organised by domain rather than left as a flat list
+  of files.
+
+  `omriss` (core):
+
+  | Before | After |
+  |--------|-------|
+  | `src/document.rs`, `edit.rs`, `history.rs`, `revision.rs` | `src/doc/` |
+  | `src/index.rs`, `outline.rs` | `src/index/` |
+  | `src/preview.rs`, `structural.rs` | `src/doc/` (operate on `Document`) |
+  | `src/error.rs`, `range.rs` | `src/` (cross-cutting primitives, kept at root) |
+
+  `omriss-ui`:
+
+  | Before | After |
+  |--------|-------|
+  | `src/navigation.rs`, `search.rs`, `view_state.rs`, `stats.rs` | `src/editor/` |
+  | `src/file_profile.rs` | `src/file/` |
+  | `src/commands.rs`, `document_map.rs` | `src/interface/` |
+  | `src/i18n.rs` + `src/i18n/` | unchanged |
+  | `src/session.rs` + `src/session/` | unchanged |
+
+  `omriss-app`:
+
+  | Before | After |
+  |--------|-------|
+  | `src/app.rs`, `app_ctx.rs`, `actions.rs`, `dispatch.rs` | `src/shell/` |
+  | `src/file_dialog.rs` | `src/file/` |
+  | `src/keyboard.rs` + `src/keyboard/` | `src/input/` |
+  | `src/settings.rs` + `src/settings/` | `src/storage/` |
+  | `src/components.rs` + `src/components/` | unchanged |
+
+  Public API and all test counts are unchanged.
+
 ## [0.15.1] - 2026-06-24
 
 ### Fixed

@@ -1,6 +1,6 @@
 use omriss::NodeId;
 
-use crate::view_state::{ViewMode, ViewState};
+use crate::editor::view_state::{ViewMode, ViewState};
 
 fn node(seed: u64) -> NodeId {
     NodeId(seed)

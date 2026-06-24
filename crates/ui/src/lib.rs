@@ -18,29 +18,34 @@
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 
-pub mod commands;
-pub mod document_map;
-pub mod file_profile;
-pub mod i18n;
-pub mod navigation;
-pub mod search;
-mod session;
-pub mod stats;
-mod view_state;
+// ── Domain modules ───────────────────────────────────────────────────────────
+//
+// editor/    : in-editor state — navigation, search, view mode, statistics
+// file/      : file-level concerns — encoding and line-ending profile
+// interface/ : UI model types — command registry, Document Map view model
+// i18n/      : internationalization catalogs and locale lookup
+// session    : EditorSession facade (wires everything together)
 
-pub use commands::{COMMANDS, CommandSpec, filter_commands};
-pub use document_map::{
-    CapabilityReason, DocumentMapNode, DraftState, MapCapability, MapNodeCapabilities,
-    node_id_from_raw,
-};
-pub use file_profile::{FileTextProfile, NewlinePolicy};
-pub use navigation::SiblingInfo;
-pub use search::SearchMatch;
-pub use session::{EditorSession, OutlineNode};
-pub use stats::DocumentStats;
-pub use view_state::{ViewMode, ViewState};
-// Structural editing types re-exported for the desktop crate.
-pub use omriss::{MoveTarget, StructuralEditError};
+pub mod editor;
+pub mod file;
+pub mod i18n;
+pub mod interface;
+mod session;
 
 #[cfg(test)]
 mod tests;
+
+// ── Public API ──────────────────────────────────────────────────────────────
+pub use editor::navigation::SiblingInfo;
+pub use editor::search::SearchMatch;
+pub use editor::stats::DocumentStats;
+pub use editor::view_state::{ViewMode, ViewState};
+pub use file::file_profile::{FileTextProfile, NewlinePolicy};
+pub use interface::commands::{COMMANDS, CommandSpec, filter_commands};
+pub use interface::document_map::{
+    CapabilityReason, DocumentMapNode, DraftState, MapCapability, MapNodeCapabilities,
+    node_id_from_raw,
+};
+pub use session::{EditorSession, OutlineNode};
+// Structural editing types re-exported for the desktop crate.
+pub use omriss::{MoveTarget, StructuralEditError};

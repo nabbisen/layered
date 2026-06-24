@@ -6,10 +6,10 @@
 use dioxus::prelude::*;
 use omriss_ui::ViewMode;
 
-use crate::actions::{handle_new_guarded, handle_open_guarded, handle_save};
-use crate::app_ctx::{AppCtx, sync_draft};
 use crate::components::CommandId;
-use crate::keyboard::AppCommand;
+use crate::input::keyboard::AppCommand;
+use crate::shell::actions::{handle_new_guarded, handle_open_guarded, handle_save};
+use crate::shell::app_ctx::{AppCtx, sync_draft};
 
 // ── Keyboard dispatch ─────────────────────────────────────────────────────────
 
