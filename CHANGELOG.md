@@ -4,6 +4,60 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.0] - 2026-06-24
+
+### Added
+
+- **Document Map panel** (`DocumentMapPane`) replaces the outline sidebar as
+  the left-panel structure-organization surface (RFC-048, RFC-049). The panel
+  owns all structural editing actions (move up/down, move inside/out, join with
+  previous, delete, add section); they are no longer visible in the right
+  content area. Per-node `⋯` row menus expose only the actions the active
+  adapter permits, with plain-language disabled reasons from the i18n catalog.
+
+- **Focused Content pane** (`FocusedContentPane`) replaces `FocusEditor` as
+  the right panel (RFC-050). It contains only the body textarea, Preview
+  toggle, save status, and read-only child navigation links. All structural
+  controls have been removed from this area. Drafts apply on navigation, blur,
+  save, and preview (apply-on-navigation; no primary "Done" action).
+
+- **`omriss-ui::document_map` module** with `DocumentMapNode`,
+  `MapNodeCapabilities`, `MapCapability`, `CapabilityReason`, and `DraftState`
+  — the RFC-053 format-neutral types, Dioxus-free and fully unit-tested.
+
+- **`EditorSession::document_map_nodes()`** builds a `DocumentMapNode` tree
+  with per-node granular capability flags (`can_move_up`, `can_move_down`,
+  `can_move_inside_previous`, `can_move_out_one_level`, `can_join_with_previous`,
+  `can_add_inside`, `can_add_after`, `can_rename`, `can_delete`,
+  `can_show_plain_text`) derived from sibling/parent state without exposing
+  Markdown internals to the UI.
+
+- **16 new i18n keys** (EN + JA) covering capability disabled reasons, Document
+  Map action labels, and panel titles (`document_map.*`,
+  `capability.disabled.*`, `focused_content.*`).
+
+- **16 new unit tests** in `omriss-ui` for `DraftState`, `CapabilityReason`
+  catalog keys, `DocumentMapNode` tree shape, and all capability edge cases.
+
+### Changed
+
+- `app.rs` now renders `DocumentMapPane` (left) + `FocusedContentPane` (right
+  in focus mode) instead of `OutlinePane` + `FocusEditor`. Both old components
+  remain compiled in for reference during the transition.
+
+- RFC directory updated: RFC-048–056 imported to `rfcs/proposed/` in repo
+  conventions (`NNN-slug.md`, `**Status.** Proposed` header). RFC-000 lifecycle
+  checks pass. README index updated; next free RFC number: 057.
+
+### RFC compliance
+
+Implements RFC-048 (role split), RFC-049 (Document Map structural editing
+surface), RFC-050 (Focused Content panel, no structure controls), RFC-051
+(migration: old components kept, new components wired into layout). Lays
+groundwork for RFC-052/053 (format adapter architecture). Does not touch
+RFC-001 boundary: core has no Dioxus dependency; `dioxus-swdir-tree` remains
+confined to `omriss-app`.
+
 ## [0.14.1] - 2026-06-23
 
 ### Changed

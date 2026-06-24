@@ -19,6 +19,7 @@
 //! ```
 
 pub mod commands;
+pub mod document_map;
 pub mod file_profile;
 pub mod i18n;
 pub mod navigation;
@@ -28,6 +29,10 @@ pub mod stats;
 mod view_state;
 
 pub use commands::{COMMANDS, CommandSpec, filter_commands};
+pub use document_map::{
+    CapabilityReason, DocumentMapNode, DraftState, MapCapability, MapNodeCapabilities,
+    node_id_from_raw,
+};
 pub use file_profile::{FileTextProfile, NewlinePolicy};
 pub use navigation::SiblingInfo;
 pub use search::SearchMatch;

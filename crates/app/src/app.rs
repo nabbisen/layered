@@ -15,9 +15,10 @@ use crate::actions::{
 };
 use crate::app_ctx::{AppCtx, Modal};
 use crate::components::{
-    CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, ErrorDialog, ExtModifiedChoice,
-    ExtModifiedDialog, FocusEditor, OutlinePane, OverviewPane, RawSourceView, SearchPanel,
-    SplitChoice, SplitDialog, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog, WelcomeScreen,
+    CommandPalette, ConfirmDeleteChoice, ConfirmDeleteDialog, DocumentMapPane, ErrorDialog,
+    ExtModifiedChoice, ExtModifiedDialog, FocusedContentPane, OverviewPane, RawSourceView,
+    SearchPanel, SplitChoice, SplitDialog, StatusBar, Toolbar, UnsavedChoice, UnsavedDialog,
+    WelcomeScreen,
 };
 use crate::dispatch::{dispatch_command, dispatch_palette};
 use crate::file_dialog;
@@ -136,7 +137,8 @@ pub fn App() -> Element {
                 }
             } else {
                 div { class: "body",
-                    OutlinePane { session, locale, draft }
+                    // RFC-049: Document Map is the single structure-organization surface.
+                    DocumentMapPane { session, locale, draft, status }
                     if is_raw {
                         RawSourceView {
                             session,
@@ -151,8 +153,9 @@ pub fn App() -> Element {
                             ViewMode::Outline | ViewMode::RawSource => rsx! {
                                 OverviewPane { session, locale, draft, selected_card }
                             },
+                            // RFC-050: FocusedContentPane has no structure controls.
                             ViewMode::Focus(_) => rsx! {
-                                FocusEditor { session, locale, draft, status, preview_open }
+                                FocusedContentPane { session, locale, draft, status, preview_open }
                             },
                         }
                     }

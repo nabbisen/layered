@@ -575,3 +575,170 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
 
 /* ── RFC-046: Stats in status bar ────────────────────────────────────────── */
 .stats { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── RFC-048/049: Document Map panel ────────────────────────────────────── */
+
+.document-map-pane {
+  width: 260px;
+  min-width: 200px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--panel-edge);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.document-map-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.document-map-add-top {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  background: transparent;
+  border: 1px dashed var(--panel-edge);
+  border-radius: 6px;
+  color: var(--muted);
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.document-map-add-top:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.document-map-tree {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+.document-map-empty {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.document-map-hint {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 2px 0 0;
+}
+.document-map-up {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  border-style: dashed;
+}
+/* Overlay container for ⋯ buttons — positioned relative to the panel */
+.document-map-menus {
+  position: relative;
+}
+
+/* ── Row ⋯ trigger and menu ──────────────────────────────────────────────── */
+
+.row-menu-trigger {
+  display: inline-block;
+  position: relative;
+}
+.row-menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 2px 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+}
+.row-menu-btn:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+.row-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 200;
+  min-width: 200px;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.row-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text);
+}
+.row-menu-item:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.row-menu-item:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+.row-menu-item--danger { color: var(--danger); }
+.row-menu-item--danger:hover:not(:disabled) {
+  background: rgba(255, 122, 122, 0.10);
+  color: var(--danger);
+}
+.row-menu-sep {
+  height: 1px;
+  background: var(--panel-edge);
+  margin: 4px 6px;
+}
+
+/* ── RFC-050: Focused Content pane ──────────────────────────────────────── */
+
+.focused-content-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.focused-content-empty-hint {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.focused-content-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 18px;
+}
+.save-status {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+.focused-content-children {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

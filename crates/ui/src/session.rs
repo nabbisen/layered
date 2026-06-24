@@ -62,6 +62,7 @@ pub struct EditorSession {
     document_open: bool,
 }
 
+mod document_map_bridge;
 mod outline_bridge;
 mod structural;
 pub use outline_bridge::OutlineNode;

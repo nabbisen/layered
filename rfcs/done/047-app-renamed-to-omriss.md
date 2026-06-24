@@ -1,4 +1,4 @@
-# RFC-047: Document Statistics
+# RFC-047: App Renamed to omriss
 
 **Project:** omriss — Omriss Editor
 **Milestone:** Post-MVP Expansion

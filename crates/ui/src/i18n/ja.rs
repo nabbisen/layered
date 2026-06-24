@@ -5,9 +5,36 @@
 pub(super) static CATALOG: &[(&str, &str)] = &[
     ("app.title", "Omriss"),
     ("aria.breadcrumb", "セクションパス"),
+    ("aria.document_map", "ドキュメントマップ"),
     ("aria.editor", "セクション本文を編集"),
     ("aria.outline", "ドキュメントのアウトライン"),
     ("breadcrumb.root", "ドキュメント"),
+    (
+        "capability.disabled.experimental_format",
+        "このフォーマットはまだテスト中です。",
+    ),
+    (
+        "capability.disabled.external_change_conflict",
+        "ディスク上のファイルが変更されました。編集前に再読み込みしてください。",
+    ),
+    ("capability.disabled.no_parent", "すでに最上位レベルです。"),
+    (
+        "capability.disabled.no_sibling",
+        "交換できる項目がありません。",
+    ),
+    (
+        "capability.disabled.read_only_format",
+        "このファイルは表示のみで、まだ編集できません。",
+    ),
+    ("capability.disabled.root_node", "これはトップレベルです。"),
+    (
+        "capability.disabled.unsafe_preservation",
+        "この編集はファイルの他の部分を変更する可能性があります。",
+    ),
+    (
+        "capability.disabled.unsupported_for_format",
+        "このアクションはこのファイル形式では使用できません。",
+    ),
     (
         "dialog.confirm_delete.body",
         "このセクションとすべての子セクションを削除しますか？元に戻す操作で取り消せます。",
@@ -39,6 +66,35 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
     ("dialog.unsaved.discard", "保存せずに閉じる"),
     ("dialog.unsaved.save", "保存"),
     ("dialog.unsaved.title", "未保存の変更"),
+    ("document_map.action.add_after", "後ろにセクションを追加"),
+    ("document_map.action.add_inside", "内側にセクションを追加"),
+    ("document_map.action.delete", "削除"),
+    (
+        "document_map.action.join_with_previous",
+        "上のセクションと結合",
+    ),
+    ("document_map.action.move_down", "下へ移動"),
+    (
+        "document_map.action.move_inside_previous",
+        "前のセクションの内側へ移動",
+    ),
+    ("document_map.action.move_out_one_level", "一段階外側へ移動"),
+    ("document_map.action.move_up", "上へ移動"),
+    ("document_map.action.rename", "名前を変更"),
+    (
+        "document_map.action.show_plain_text",
+        "ファイルテキストを表示",
+    ),
+    ("document_map.add_top_level", "セクションを追加"),
+    (
+        "document_map.empty",
+        "セクションはまだありません — 文書全体がひとつの層です。",
+    ),
+    (
+        "document_map.no_headings_hint",
+        "# で見出しを追加して整理を始めましょう。",
+    ),
+    ("document_map.title", "ドキュメントマップ"),
     ("editor.body.placeholder", "このセクションの本文を入力…"),
     ("editor.preview", "プレビュー"),
     ("editor.source", "ソース"),
@@ -79,6 +135,11 @@ pub(super) static CATALOG: &[(&str, &str)] = &[
         "focus.empty_body",
         "このセクションにはまだ本文がありません。",
     ),
+    (
+        "focused_content.empty_section_hint",
+        "ここに書き始めるか、ドキュメントマップを使って小セクションを追加してください。",
+    ),
+    ("focused_content.title", "ライティングエリア"),
     (
         "keyboard.overview.hint",
         "↑/↓ で選択  ·  Enter でズームイン  ·  Esc で戻る",

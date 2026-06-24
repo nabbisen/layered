@@ -1,0 +1,414 @@
+# RFC-054: JSON Structure View and Focus Editing
+
+**Project:** omriss — Omriss Editor
+**Milestone:** M12 — Structured Format Support
+**Status.** Proposed
+**Document type:** Detailed RFC design
+**Primary audience:** Architect, Rust developer, UI/UX designer, QA engineer
+**Depends on:** RFC-053
+**Related RFCs:** RFC-055, RFC-056
+
+---
+
+## 1. Summary
+
+This RFC defines JSON support as the first non-Markdown structured plain-text format for omriss.
+
+Initial JSON support should be delivered in two stages:
+
+1. **Read-only structure view:** open `.json`, build a Document Map, select nodes, and show focused content.
+2. **Focused value editing:** safely edit selected values or raw selected containers without reformatting the whole file.
+
+JSON is chosen first because it has a strict grammar, a clear object/list/value hierarchy, and no standard comments to preserve.
+
+## 2. Goals
+
+- Open standard `.json` files.
+- Build a Document Map from JSON object, list, and value hierarchy.
+- Let users select a JSON node and inspect its focused content.
+- Support safe focused editing for scalar values.
+- Support conservative raw focused editing for objects/lists when validation succeeds.
+- Preserve source text outside the edited node.
+- Avoid full-file reserialization during normal save.
+- Use plain-language labels for non-technical users.
+
+## 3. Non-goals
+
+- JSONC support is not included.
+- Comments in JSON-like files are not supported by this RFC.
+- Schema validation is not included.
+- Automatic formatting of the whole file is not included.
+- Full visual form generation is not included.
+- Drag-and-drop reordering of array items is not included in the first implementation.
+- Network schema fetching is prohibited.
+
+## 4. User experience
+
+### 4.1 Open JSON file
+
+When opening a valid JSON file:
+
+```text
+Document Map
+
+▾ root
+  ▾ package
+    name
+    version
+  ▾ dependencies
+    serde
+    pulldown-cmark
+```
+
+The right panel shows the selected item.
+
+### 4.2 Plain labels
+
+| JSON concept | omriss label |
+|--------------|--------------|
+| object | group |
+| array | list |
+| property/key | name |
+| string | text |
+| number | number |
+| boolean | on/off |
+| null | No value |
+
+### 4.3 Selected group
+
+```text
+package
+
+This group contains 2 items.
+Use the Document Map to choose an item.
+
+[Show this part as text]
+```
+
+### 4.4 Selected text value
+
+```text
+name
+
+Text
+[ omriss ]
+
+[Done]
+```
+
+### 4.5 Selected number value
+
+```text
+version
+
+Number
+[ 3 ]
+
+[Done]
+```
+
+If invalid:
+
+```text
+This number is not valid yet.
+```
+
+### 4.6 Selected on/off value
+
+```text
+enabled
+
+[ On ] [ Off ]
+
+[Done]
+```
+
+### 4.7 Selected empty value
+
+```text
+description
+
+This is empty.
+
+[Change to text] [Change to number] [Change to on/off]
+```
+
+Type-changing controls are optional for the first editable version. If not implemented, show:
+
+```text
+This is empty.
+Use Show plain file text to change its type.
+```
+
+## 5. JSON structure model
+
+The adapter should produce nodes for:
+
+- root document;
+- object;
+- object property;
+- array;
+- array item;
+- scalar value: string, number, boolean, null.
+
+Recommended map behavior:
+
+```text
+object property with scalar value → one row named by key
+object property with object value → group row named by key
+object property with array value  → list row named by key
+array item scalar                 → row named “Item 1”, “Item 2”, etc.
+array item object/list            → row named “Item 1”, etc., with children
+```
+
+## 6. Node identity
+
+Use JSON-pointer-like paths:
+
+```text
+/                         root
+/package                  object property
+/package/name             scalar
+/dependencies/serde       scalar
+/items/0                  array item
+/items/0/title            scalar under array item
+```
+
+The user must never see raw JSON pointer syntax in the normal UI. Breadcrumbs should use plain labels:
+
+```text
+root › package › name
+```
+
+## 7. Source preservation strategy
+
+### 7.1 Canonical source
+
+The original `.json` text remains canonical.
+
+### 7.2 Structural index
+
+The JSON adapter must produce byte ranges for selected values and containers.
+
+A standard value parser alone is not enough if it loses source ranges. The implementation should use a JSON scanner / parser that can retain byte ranges, or pair validation with a lexical structure index.
+
+### 7.3 Focused value replacement
+
+For scalar values, replacement should touch only the selected value range.
+
+Example:
+
+Before:
+
+```json
+{
+  "name": "old",
+  "version": 1
+}
+```
+
+Edit `name` to `new`.
+
+After:
+
+```json
+{
+  "name": "new",
+  "version": 1
+}
+```
+
+Unrelated bytes, including indentation and line endings, must remain unchanged.
+
+### 7.4 Container raw editing
+
+For object/list nodes, the right panel may offer `Show this part as text`.
+
+If edited, the replacement must:
+
+- parse as valid JSON;
+- be valid in the selected location;
+- preserve outside bytes exactly;
+- refresh the Document Map after apply.
+
+This is a power feature and may be deferred after scalar editing.
+
+## 8. Validation rules
+
+### 8.1 Text value
+
+The UI may allow plain text entry and the adapter will JSON-escape it.
+
+Example:
+
+User enters:
+
+```text
+hello "world"
+```
+
+Adapter writes:
+
+```json
+"hello \"world\""
+```
+
+### 8.2 Number value
+
+User input must be a valid JSON number. No leading plus sign, no NaN, no Infinity.
+
+Friendly error:
+
+```text
+This number is not valid yet.
+```
+
+### 8.3 On/off value
+
+The UI should use a toggle or two buttons. It must write `true` or `false`.
+
+### 8.4 Empty value
+
+For `null`, default view is read-only unless type-changing is implemented.
+
+### 8.5 Object/list raw text
+
+The edited text must parse as a valid JSON value and be appropriate to the selected node.
+
+If the selected node is an object, replacing it with an array should be allowed only if the design explicitly supports type-changing. Conservative first implementation should preserve container type.
+
+## 9. Structure operations
+
+### 9.1 First editable version
+
+The first JSON editable version should support:
+
+- edit scalar value;
+- edit raw selected object/list text, optional;
+- delete property/item, optional only after confirmation;
+- add property/item: deferred;
+- rename property: deferred;
+- reorder array items: deferred.
+
+### 9.2 Later operations
+
+Future JSON structure operations may include:
+
+- add name/content inside group;
+- add item to list;
+- rename object property;
+- delete property;
+- delete array item;
+- move array item up/down.
+
+These must be implemented as source-preserving edits and should be added by follow-up RFC or amendment.
+
+## 10. Error handling
+
+| Cause | User-facing message |
+|-------|---------------------|
+| file parse failure | “This file does not look like valid JSON.” |
+| invalid number | “This number is not valid yet.” |
+| invalid raw value | “This text does not look like valid JSON yet.” |
+| unsafe replacement | “This change could not be made safely.” |
+| unsupported operation | “This JSON change is not supported yet.” |
+
+## 11. Accessibility requirements
+
+- Document Map rows must announce group/list/value kinds in plain language.
+- Text fields must have visible labels.
+- Number validation must be associated with the number input.
+- On/off controls must expose selected state.
+- Applying invalid edits must not move focus unexpectedly.
+
+## 12. Testing requirements
+
+### 12.1 Structure tests
+
+- empty object;
+- empty array;
+- nested object;
+- nested array;
+- object in array;
+- array in object;
+- all scalar types;
+- duplicate keys handling policy;
+- strings with escapes;
+- Unicode strings;
+- deep nesting within limit.
+
+### 12.2 Preservation tests
+
+- edit string value preserves all outside bytes;
+- edit number preserves all outside bytes;
+- edit boolean preserves all outside bytes;
+- edit nested value preserves all outside bytes;
+- LF and CRLF are preserved;
+- indentation style around edited value remains unchanged outside range;
+- undo restores exact original file.
+
+### 12.3 Error tests
+
+- malformed JSON does not crash;
+- invalid number is rejected;
+- invalid container raw edit is rejected;
+- stale node edit is rejected;
+- unsupported operation returns friendly error.
+
+## 13. Implementation phases
+
+### Phase 1 — Read-only JSON tree
+
+- detect `.json`;
+- parse/validate JSON;
+- build structure tree with node paths;
+- render Document Map;
+- render focused content summaries;
+- malformed JSON opens friendly error/read-only source path.
+
+### Phase 2 — Scalar editing
+
+- string editing with escaping;
+- number editing with validation;
+- boolean editing with toggle;
+- null read-only or type-change design;
+- save/undo/redo integration.
+
+### Phase 3 — Container raw focused editing
+
+- show selected object/list text;
+- validate replacement;
+- apply range replacement;
+- rebuild structure.
+
+### Phase 4 — Optional structure operations
+
+- delete property/item;
+- add property/item;
+- rename property;
+- move array item.
+
+Phase 4 may require additional RFC detail.
+
+## 14. Acceptance criteria
+
+- `.json` files can be opened without treating them as Markdown.
+- Document Map shows JSON hierarchy with plain labels.
+- Selecting a JSON node updates the right panel.
+- Scalar string/number/boolean editing works safely.
+- Invalid edits are rejected before changing source text.
+- Normal save does not reformat the whole file.
+- Unrelated bytes are preserved after focused edits.
+- Undo restores exact prior source text.
+- User-facing messages avoid technical parser details.
+
+## 15. Open questions
+
+1. Should JSONC be a separate future adapter?
+2. How should duplicate object keys be displayed and edited?
+3. Should null values support type-changing in the first editable version?
+4. Should object/list raw editing be available before add/delete operations?
+
+## 16. Final decision summary
+
+JSON is the first non-Markdown structured format target. Start with read-only structure view, then add focused scalar editing. Preserve source text outside edited ranges and avoid full-file reformatting.

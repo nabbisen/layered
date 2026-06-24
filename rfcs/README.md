@@ -3,9 +3,10 @@
 Design documents for **omriss — Omriss Editor**, governed by the lifecycle
 policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
-> The canonical document is the raw Markdown source text. The outline tree
-> is a derived navigational index. Editing one section must not rewrite
-> unrelated source bytes.
+> The canonical document is the raw source text. For Markdown, the heading
+> outline is a derived navigational index. For structured formats, the
+> Document Map is a derived projection. Editing focused content must not
+> rewrite unrelated source bytes.
 
 ## Implemented
 
@@ -62,12 +63,22 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No RFCs currently proposed.
+| ID | Title | Milestone |
+|----|-------|-----------|
+| 048 | [Split Document Organization and Focused Content Editing](./proposed/048-split-document-organization-and-focused-content-editing.md) | M10 |
+| 049 | [Document Map Structural Editing Model](./proposed/049-document-map-structural-editing-model.md) | M10 |
+| 050 | [Writing Area Simplification and Guided Editing](./proposed/050-writing-area-simplification-and-guided-editing.md) | M10 |
+| 051 | [Migration Plan and Acceptance Criteria](./proposed/051-migration-plan-and-acceptance-criteria.md) | M10 |
+| 052 | [Structured Plain-Text Format Expansion](./proposed/052-structured-plain-text-format-expansion.md) | M11 |
+| 053 | [Document Format Adapter Architecture](./proposed/053-document-format-adapter-architecture.md) | M11 |
+| 054 | [JSON Structure View and Focus Editing](./proposed/054-json-structure-view-and-focus-editing.md) | M12 |
+| 055 | [TOML Structure View and Preservation Rules](./proposed/055-toml-structure-view-and-preservation-rules.md) | M12 |
+| 056 | [YAML Feasibility Spike](./proposed/056-yaml-feasibility-spike.md) | M12 |
 
 ## Archive
 
 No RFCs withdrawn or superseded yet.
 
-Next free RFC number: **048**.
+Next free RFC number: **057**.
 
 Run `scripts/check-rfcs.sh` to verify invariants.

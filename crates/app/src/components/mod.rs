@@ -1,12 +1,12 @@
-//! Desktop GUI components (RFC-010..013, RFC-017, RFC-019..026, RFC-027..030, RFC-039..041).
+//! Desktop GUI components (RFC-010..013, RFC-017, RFC-019..026, RFC-027..030, RFC-039..041, RFC-048..050).
 
 mod breadcrumb;
 mod command_palette;
 mod confirm_delete_dialog;
+mod document_map_pane;
 mod error_dialog;
 mod ext_modified_dialog;
-mod focus_editor;
-mod outline_pane;
+mod focused_content_pane;
 mod overview_pane;
 mod preview_pane;
 mod raw_source;
@@ -20,10 +20,10 @@ mod welcome;
 pub use breadcrumb::Breadcrumb;
 pub use command_palette::{CommandId, CommandPalette};
 pub use confirm_delete_dialog::{ConfirmDeleteChoice, ConfirmDeleteDialog};
+pub use document_map_pane::DocumentMapPane;
 pub use error_dialog::ErrorDialog;
 pub use ext_modified_dialog::{ExtModifiedChoice, ExtModifiedDialog};
-pub use focus_editor::FocusEditor;
-pub use outline_pane::OutlinePane;
+pub use focused_content_pane::FocusedContentPane;
 pub use overview_pane::OverviewPane;
 pub use preview_pane::PreviewPane;
 pub use raw_source::RawSourceView;
