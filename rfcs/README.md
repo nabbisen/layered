@@ -58,6 +58,7 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 044 | [Undo and Redo for Body Edit Operations](./done/044-undo-and-redo-for-body-edit-operations.md) | v0.1.0 |
 | 045 | [Markdown Preview Pane](./done/045-markdown-preview-pane.md) | v0.12.0 |
 | 046 | [Document Statistics](./done/046-document-statistics.md) | v0.12.0 |
+| 047 | [App renamed to omriss](./done/047-app-renamed-to-omriss.md) | v0.14.0 |
 
 ## Proposed
 
@@ -67,6 +68,6 @@ No RFCs currently proposed.
 
 No RFCs withdrawn or superseded yet.
 
-Next free RFC number: **047**.
+Next free RFC number: **048**.
 
 Run `scripts/check-rfcs.sh` to verify invariants.
