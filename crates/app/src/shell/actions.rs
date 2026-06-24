@@ -30,6 +30,17 @@ pub(crate) fn handle_load(outcome: OpenOutcome, mut ctx: AppCtx) {
                 Ok(opened) => {
                     ctx.session.set(opened);
                     ctx.selected_card.set(0);
+                    // Auto-focus the first section so the editor is immediately ready.
+                    let first_id = ctx
+                        .session
+                        .read()
+                        .outline_items()
+                        .into_iter()
+                        .next()
+                        .map(|i| i.id);
+                    if let Some(id) = first_id {
+                        let _ = ctx.session.write().focus(id);
+                    }
                     sync_draft(ctx);
                     ctx.saved_mtime.set(mtime);
                     ctx.status.set("status.ready".into());

@@ -251,8 +251,34 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
 .card-meta { margin-top: 4px; font-size: 12px; color: var(--muted); }
 
 /* Breadcrumb: semantic nav, accessible ellipsis */
-.breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 0;
-              color: var(--muted); margin-bottom: 10px; }
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  color: var(--muted);
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+.breadcrumb-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+/* Up one level — icon button at the right edge of the breadcrumb */
+.breadcrumb-up {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.breadcrumb-up:hover { color: var(--accent); }
 .crumb-btn {
   border: none; background: transparent; padding: 0 2px;
   color: var(--muted); cursor: pointer; font-size: inherit;
@@ -631,14 +657,16 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   min-height: 0;
 }
 /* The button column approach is replaced: buttons are inline inside each row.
-   .dx-swdir-tree gets flex:1 only when ItemTreeView is used — not needed now. */
 /* Each row is a flex container: caret · icon · label · [+ ⋯] */
 .dx-swdir-row {
-  padding-right: 0; /* let buttons sit flush at the right edge */
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
+/* Action buttons: hidden by default, appear as a horizontal group on hover */
 .row-add-btn,
 .row-menu-btn {
-  display: none; /* hidden by default; shown on row hover via parent:hover */
+  display: none;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
@@ -664,8 +692,6 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   color: var(--text);
   background: var(--accent-soft);
 }
-  background: var(--accent-soft);
-}
 .document-map-empty {
   color: var(--muted);
   font-style: italic;
@@ -677,13 +703,23 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   font-size: 11px;
   margin: 2px 0 0;
 }
-.document-map-up {
+/* "Show file text" button anchored at the bottom of the Document Map panel */
+.document-map-show-raw {
   display: block;
   width: 100%;
   margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
   border-style: dashed;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 6px;
+}
+.document-map-show-raw:hover {
+  color: var(--text);
+  border-color: var(--muted);
 }
 /* ── Row ⋯ trigger and menu ──────────────────────────────────────────────── */
 .row-menu {

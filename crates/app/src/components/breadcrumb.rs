@@ -1,9 +1,3 @@
-//! Breadcrumb trail: displays the focus path from root to the current section
-//! and allows clicking any segment to navigate there (RFC-013).
-//!
-//! Long paths (> 4 segments) collapse the middle to `…` so the component
-//! stays readable at narrow widths while always showing root and current.
-
 use dioxus::prelude::*;
 use omriss_ui::EditorSession;
 use omriss_ui::i18n::{Locale, t};
@@ -25,15 +19,13 @@ pub fn Breadcrumb(
     let path = snapshot.path.clone();
     let total = path.len();
 
-    // Build the display path: keep first (root) and last (current), collapse
-    // the middle when total exceeds MAX_VISIBLE.
     let collapsed = total > MAX_VISIBLE;
     let display: Vec<(usize, bool)> = if collapsed {
         let mut v: Vec<(usize, bool)> = Vec::with_capacity(MAX_VISIBLE);
-        v.push((0, false)); // root
-        v.push((usize::MAX, false)); // sentinel = ellipsis
-        v.push((total - 2, false)); // parent
-        v.push((total - 1, true)); // current
+        v.push((0, false));
+        v.push((usize::MAX, false));
+        v.push((total - 2, false));
+        v.push((total - 1, true));
         v
     } else {
         (0..total).map(|i| (i, i + 1 == total)).collect()
@@ -73,7 +65,6 @@ pub fn Breadcrumb(
                                 button {
                                     class: "crumb-btn",
                                     onclick: move |_| {
-                                        // Commit before navigating.
                                         let snap = session.read().current_snapshot();
                                         if let Some(snapshot) = snap {
                                             let d = draft.read().clone();
@@ -100,6 +91,29 @@ pub fn Breadcrumb(
                         }
                     }
                 }
+            }
+            // Up one level — icon button at the right edge of the breadcrumb bar.
+            button {
+                class: "breadcrumb-up",
+                title: t(lang, "nav.up"),
+                "aria-label": t(lang, "nav.up"),
+                onclick: move |_| {
+                    let snap = session.read().current_snapshot();
+                    if let Some(s) = snap {
+                        let d = draft.read().clone();
+                        if d != s.body {
+                            let _ = session.write().commit_focused_body(&s, d);
+                        }
+                    }
+                    session.write().zoom_out();
+                    let body = session
+                        .read()
+                        .current_snapshot()
+                        .map(|s| s.body)
+                        .unwrap_or_default();
+                    draft.set(body);
+                },
+                "↑"
             }
         }
     }

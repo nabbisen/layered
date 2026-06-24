@@ -4,6 +4,60 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.6] - 2026-06-25
+
+### Changed
+
+- **"Show file text" moved from `⋯` row menu to the left panel footer** —
+  replaces the "Up one level" button at the bottom of the Document Map. Always
+  visible regardless of focus state. Styled as a dashed footer button.
+
+- **"Up one level" moved to the breadcrumb right edge as an ↑ icon button** —
+  removed from the Document Map panel; now lives in the breadcrumb bar of the
+  right panel, flush right. Commits any pending draft before navigating up,
+  then syncs the draft to the new focus.
+
+- **Row click selects the section** — clicking anywhere on a `dx-swdir-row`
+  now selects it and focuses the session, not just clicking the label span.
+  The label has `pointer-events: none` so clicks pass through to the row div.
+  The `+` and `⋯` buttons still stop propagation so they don't also trigger
+  a row selection.
+
+- **Action buttons always in a horizontal group** — `dx-swdir-row` is now
+  explicitly `display: flex; align-items: center` so the caret, icon, label,
+  and action buttons always sit in a single horizontal line. Removed the stray
+  `background` declaration that was left from an earlier edit.
+
+- **Auto-focus first section on file open** — after loading a file the first
+  top-level section is immediately focused so the editor is ready without an
+  extra click. On "New" (blank document) the outline panel is shown ready and
+  the user clicks `+ Add section` to create the first H1; no dialog opens
+  automatically.
+
+- **Synthetic root row no longer rendered in the Document Map** — the document
+  root (no title, no actions) was previously drawn as a blank first row, which
+  shifted every real section row down one visual position. The `+`/`⋯` buttons
+  then aligned to the wrong row, so clicking H1's `+` actually targeted H2 and
+  added an H3. The root is now filtered out before rendering; H1 sections start
+  at indent 0 and click targets line up with what the user sees.
+
+### Fixed
+
+- **H1 section showed no `⋯` menu** — the `⋯` button now correctly stops
+  propagation so the `aside`'s `close_menu` handler does not fire in the same
+  event bubble and instantly dismiss the menu that was just opened. Combined
+  with row-level selection (the row is focused before `⋯` is clicked),
+  `find_node` reliably finds the correct node to render `NodeRowMenu`.
+
+- **"Add section" on an H1 added an H3 instead of an H2** — caused by the blank
+  root row shifting click targets (see above). With the root row suppressed,
+  the `+` button on an H1 row focuses the real H1, and the child level is
+  computed as H2.
+
+- **"New" no longer auto-opens the Add Section dialog** — a New document now
+  shows the blank editor with the outline panel ready; the dialog opens only
+  when the user explicitly clicks `+ Add section`.
+
 ## [0.15.5] - 2026-06-24
 
 ### Changed

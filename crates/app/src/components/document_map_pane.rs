@@ -142,7 +142,7 @@ pub fn DocumentMapPane(
         .as_ref()
         .map(|r| r.children.is_empty())
         .unwrap_or(true);
-    let in_focus = matches!(session.read().view_mode(), ViewMode::Focus(_));
+    // (view_mode is read only via session signal in use_effect; in_focus not needed here)
 
     rsx! {
         aside {
@@ -196,21 +196,39 @@ pub fn DocumentMapPane(
                             on_event(ev);
                         }
                     },
-                    {item_tree.read().visible_rows().into_iter().map(|row| {
+                    {item_tree.read().visible_rows().into_iter().filter_map(|row| {
                         let node_id = node_id_from_raw(row.id.0);
                         let raw_id = row.id.0;
-                        let indent_px = row.depth * 16;
-                        let is_root_row = raw_id == doc_root_raw_id;
+                        // Never render the synthetic document root. It has no
+                        // title and no buttons; rendering it as a blank first
+                        // row shifts every real section row down one position,
+                        // so clicks land on the wrong row (H1's + would target
+                        // H2 and add an H3). Suppress it entirely.
+                        if raw_id == doc_root_raw_id {
+                            return None;
+                        }
+                        // Subtract the root's depth so H1 (tree depth 1) starts
+                        // at indent 0, H2 at 16px, and so on.
+                        let indent_px = row.depth.saturating_sub(1) * 16;
                         let caret = if row.has_children {
                             if row.is_expanded { "▾" } else { "▸" }
                         } else { " " };
                         let mut row_class = "dx-swdir-row".to_string();
                         if row.is_selected { row_class.push_str(" dx-swdir-row--selected"); }
-                        rsx! {
+                        Some(rsx! {
                             div {
                                 key: "{raw_id}",
                                 class: "{row_class}",
                                 style: "padding-left: {indent_px}px;",
+                                // Clicking anywhere on the row selects it.
+                                onclick: move |ev| {
+                                    ev.stop_propagation();
+                                    item_tree.write().on_selected(SwNodeId(raw_id), SelectionMode::Replace);
+                                    menu_open_for.set(None);
+                                    commit_draft_if_dirty(&mut session.clone(), &mut draft.clone());
+                                    let _ = session.write().focus(node_id);
+                                    sync_draft(&session, &mut draft.clone());
+                                },
                                 // Caret toggles expand/collapse
                                 span {
                                     class: "dx-swdir-caret",
@@ -222,64 +240,55 @@ pub fn DocumentMapPane(
                                 }
                                 // Icon
                                 span { class: "dx-swdir-icon" }
-                                // Label — clicking selects
+                                // Label (no separate onclick — the row div handles click)
                                 span {
                                     class: "dx-swdir-label",
-                                    style: "flex: 1; overflow: hidden; text-overflow: ellipsis;",
-                                    onclick: move |_| {
-                                        item_tree.write().on_selected(SwNodeId(raw_id), SelectionMode::Replace);
-                                        menu_open_for.set(None);
-                                        commit_draft_if_dirty(&mut session.clone(), &mut draft.clone());
-                                        let _ = session.write().focus(node_id);
-                                        sync_draft(&session, &mut draft.clone());
-                                    },
+                                    style: "flex: 1; overflow: hidden; text-overflow: ellipsis; pointer-events: none;",
                                     "{row.label}"
                                 }
-                                // Action buttons — only for non-root rows
-                                if !is_root_row {
-                                    button {
-                                        class: "row-add-btn",
-                                        title: "Add section inside",
-                                        "aria-label": "Add section inside",
-                                        onmousedown: move |ev| ev.prevent_default(),
-                                        onclick: move |ev| {
-                                            ev.stop_propagation();
-                                            commit_draft_if_dirty(
-                                                &mut session.clone(),
-                                                &mut draft.clone(),
-                                            );
-                                            let _ = session.write().focus(node_id);
-                                            sync_draft(&session, &mut draft.clone());
-                                            item_tree
-                                                .write()
-                                                .on_selected(SwNodeId(raw_id), SelectionMode::Replace);
-                                            status.clone().set("struct.split.pending".into());
-                                        },
-                                        "+"
-                                    }
-                                    button {
-                                        class: "row-menu-btn",
-                                        title: "Section actions",
-                                        "aria-label": "Section actions",
-                                        onmousedown: move |ev| ev.prevent_default(),
-                                        onclick: move |ev| {
-                                            ev.stop_propagation();
-                                            commit_draft_if_dirty(
-                                                &mut session.clone(),
-                                                &mut draft.clone(),
-                                            );
-                                            let _ = session.write().focus(node_id);
-                                            sync_draft(&session, &mut draft.clone());
-                                            let cur = *menu_open_for.read();
-                                            menu_open_for.set(
-                                                if cur == Some(raw_id) { None } else { Some(raw_id) },
-                                            );
-                                        },
-                                        "⋯"
-                                    }
+                                // Action buttons
+                                button {
+                                    class: "row-add-btn",
+                                    title: "Add section inside",
+                                    "aria-label": "Add section inside",
+                                    onmousedown: move |ev| ev.prevent_default(),
+                                    onclick: move |ev| {
+                                        ev.stop_propagation();
+                                        commit_draft_if_dirty(
+                                            &mut session.clone(),
+                                            &mut draft.clone(),
+                                        );
+                                        let _ = session.write().focus(node_id);
+                                        sync_draft(&session, &mut draft.clone());
+                                        item_tree
+                                            .write()
+                                            .on_selected(SwNodeId(raw_id), SelectionMode::Replace);
+                                        status.clone().set("struct.split.pending".into());
+                                    },
+                                    "+"
+                                }
+                                button {
+                                    class: "row-menu-btn",
+                                    title: "Section actions",
+                                    "aria-label": "Section actions",
+                                    onmousedown: move |ev| ev.prevent_default(),
+                                    onclick: move |ev| {
+                                        ev.stop_propagation();
+                                        commit_draft_if_dirty(
+                                            &mut session.clone(),
+                                            &mut draft.clone(),
+                                        );
+                                        let _ = session.write().focus(node_id);
+                                        sync_draft(&session, &mut draft.clone());
+                                        let cur = *menu_open_for.read();
+                                        menu_open_for.set(
+                                            if cur == Some(raw_id) { None } else { Some(raw_id) },
+                                        );
+                                    },
+                                    "⋯"
                                 }
                             }
-                        }
+                        })
                     })}
                 }
             }
@@ -300,16 +309,14 @@ pub fn DocumentMapPane(
                 }
             }
 
-            if in_focus {
-                button {
-                    class: "document-map-up",
-                    onclick: move |_| {
-                        commit_draft_if_dirty(&mut session.clone(), &mut draft.clone());
-                        session.write().zoom_out();
-                        sync_draft(&session, &mut draft.clone());
-                    },
-                    {t(lang, "nav.up")}
-                }
+            // "Show file text" is anchored at the bottom of the panel (always visible).
+            button {
+                class: "document-map-show-raw",
+                onclick: move |ev| {
+                    ev.stop_propagation();
+                    session.write().show_raw();
+                },
+                {t(lang, "document_map.action.show_plain_text")}
             }
         }
     }
@@ -441,8 +448,6 @@ fn NodeRowMenu(
                 }
             }
 
-            div { class: "row-menu-sep" }
-
             if !caps.can_delete.is_hidden() {
                 button {
                     class: "row-menu-item row-menu-item--danger",
@@ -458,17 +463,7 @@ fn NodeRowMenu(
                     {t(lang, "document_map.action.delete")}
                 }
             }
-            if !caps.can_show_plain_text.is_hidden() {
-                button {
-                    class: "row-menu-item",
-                    role: "menuitem",
-                    onclick: move |_| {
-                        session.write().show_raw();
-                        menu_open_for.set(None);
-                    },
-                    {t(lang, "document_map.action.show_plain_text")}
-                }
-            }
+
         }
     }
 }

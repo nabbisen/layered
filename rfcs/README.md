@@ -74,11 +74,12 @@ policy in [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 054 | [JSON Structure View and Focus Editing](./proposed/054-json-structure-view-and-focus-editing.md) | M12 |
 | 055 | [TOML Structure View and Preservation Rules](./proposed/055-toml-structure-view-and-preservation-rules.md) | M12 |
 | 056 | [YAML Feasibility Spike](./proposed/056-yaml-feasibility-spike.md) | M12 |
+| 057 | [Multi-Document Workspace and Tabs](./proposed/057-multi-document-workspace-and-tabs.md) | M13 |
 
 ## Archive
 
 No RFCs withdrawn or superseded yet.
 
-Next free RFC number: **057**.
+Next free RFC number: **058**.
 
 Run `scripts/check-rfcs.sh` to verify invariants.
