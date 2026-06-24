@@ -241,8 +241,15 @@ pub(crate) fn split_section(
         .node(id)
         .ok_or(StructuralEditError::StaleNode(id))?;
     let body = node.body_range;
+    let full = node.full_range;
 
-    if offset_in_body > body.len() {
+    // offset_in_body is relative to body_range.start.
+    // Valid range: 0..=body.len() places the heading within the section body.
+    // full.end - body.start is also valid: it inserts the heading after all
+    // existing children (at full_range.end), which is the correct position
+    // for appending a new child at the bottom.
+    let max_offset = full.end - body.start;
+    if offset_in_body > max_offset {
         return Err(StructuralEditError::InvalidSplitOffset);
     }
     let insert_pos = body.start + offset_in_body;

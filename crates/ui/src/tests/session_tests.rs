@@ -236,3 +236,69 @@ fn current_children_in_focus_mode_returns_section_children() {
     assert_eq!(children.len(), 1, "section One has one child (Child)");
     assert_eq!(children[0].title, "Child");
 }
+
+// ── append_child_to_focused ───────────────────────────────────────────────────
+
+#[test]
+fn append_child_to_focused_adds_at_bottom_when_children_exist() {
+    // Doc: # One with existing child ## Child, then # Two.
+    // Focus "One", add "Second Child" — must appear AFTER "Child", not before.
+    let mut session = session();
+    let one = id_of(&session, "One");
+    session.focus(one).unwrap();
+    session
+        .append_child_to_focused("Second Child", omriss::HeadingLevel::H2)
+        .unwrap();
+    // Re-read the snapshot for "One" after the split.
+    let snap = session.current_snapshot().unwrap();
+    let titles: Vec<&str> = snap.children.iter().map(|c| c.title.as_str()).collect();
+    assert_eq!(
+        titles,
+        vec!["Child", "Second Child"],
+        "Second Child must appear after existing Child, got: {titles:?}"
+    );
+}
+
+#[test]
+fn append_child_to_focused_adds_at_bottom_when_no_children() {
+    // Focus "Two" (no children), add "New" — should become first and only child.
+    let mut session = session();
+    let two = id_of(&session, "Two");
+    session.focus(two).unwrap();
+    session
+        .append_child_to_focused("New", omriss::HeadingLevel::H2)
+        .unwrap();
+    let snap = session.current_snapshot().unwrap();
+    let titles: Vec<&str> = snap.children.iter().map(|c| c.title.as_str()).collect();
+    assert_eq!(titles, vec!["New"]);
+}
+
+// ── add_top_level_section ─────────────────────────────────────────────────────
+
+#[test]
+fn add_top_level_section_appends_after_existing_sections() {
+    // Doc already has "One" and "Two". Adding "Three" must appear last.
+    let mut session = session();
+    session.add_top_level_section("Three").unwrap();
+    let items = session.outline_items();
+    let titles: Vec<&str> = items.iter().map(|i| i.title.as_str()).collect();
+    assert_eq!(
+        titles,
+        vec!["One", "Two", "Three"],
+        "Three must appear after Two, got: {titles:?}"
+    );
+}
+
+#[test]
+fn add_top_level_section_twice_preserves_order() {
+    let mut session = session();
+    session.add_top_level_section("Alpha").unwrap();
+    session.add_top_level_section("Beta").unwrap();
+    let items = session.outline_items();
+    let titles: Vec<&str> = items.iter().map(|i| i.title.as_str()).collect();
+    assert_eq!(
+        titles,
+        vec!["One", "Two", "Alpha", "Beta"],
+        "Alpha then Beta must appear in addition order, got: {titles:?}"
+    );
+}

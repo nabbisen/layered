@@ -31,11 +31,7 @@ html, body, #main {
 }
 .toolbar .spacer { flex: 1; }
 .toolbar select {
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--panel-edge);
-  border-radius: 6px;
-  padding: 4px 6px;
+  display: none; /* language switcher moved to status bar */
 }
 
 button {
@@ -190,7 +186,19 @@ textarea.body-editor:focus { outline: none; border-color: var(--accent); }
   border-top: 1px solid var(--panel-edge);
 }
 .statusbar .dirty { color: var(--danger); }
-.statusbar .file { flex: 1; text-align: right; }
+.statusbar .file { text-align: right; }
+.statusbar > span:first-child { flex: 1; }
+.statusbar-locale {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+.statusbar-locale:hover { color: var(--text); }
+.statusbar-locale:focus { outline: 1px solid var(--accent); border-radius: 2px; }
 
 /* ── M2 additions (RFC-010..013, RFC-014) ───────────────────────────────── */
 
@@ -589,6 +597,7 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
 }
 .document-map-title {
   margin: 0 0 6px;
@@ -621,6 +630,42 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   overflow-y: auto;
   min-height: 0;
 }
+/* The button column approach is replaced: buttons are inline inside each row.
+   .dx-swdir-tree gets flex:1 only when ItemTreeView is used — not needed now. */
+/* Each row is a flex container: caret · icon · label · [+ ⋯] */
+.dx-swdir-row {
+  padding-right: 0; /* let buttons sit flush at the right edge */
+}
+.row-add-btn,
+.row-menu-btn {
+  display: none; /* hidden by default; shown on row hover via parent:hover */
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 3px;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+.dx-swdir-row:hover .row-add-btn,
+.dx-swdir-row:hover .row-menu-btn {
+  display: flex;
+}
+.row-add-btn:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.row-menu-btn:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+  background: var(--accent-soft);
+}
 .document-map-empty {
   color: var(--muted);
   font-style: italic;
@@ -640,36 +685,11 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   font-size: 12px;
   border-style: dashed;
 }
-/* Overlay container for ⋯ buttons — positioned relative to the panel */
-.document-map-menus {
-  position: relative;
-}
-
 /* ── Row ⋯ trigger and menu ──────────────────────────────────────────────── */
-
-.row-menu-trigger {
-  display: inline-block;
-  position: relative;
-}
-.row-menu-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  font-size: 14px;
-  padding: 2px 5px;
-  cursor: pointer;
-  border-radius: 4px;
-  line-height: 1;
-}
-.row-menu-btn:hover {
-  color: var(--text);
-  background: var(--accent-soft);
-  border-color: transparent;
-}
 .row-menu {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 40px;   /* below the panel title, clear of the add-top button */
+  right: 0;
   z-index: 200;
   min-width: 200px;
   background: var(--panel);
@@ -745,6 +765,12 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
 
 /* ── dioxus-swdir-tree overrides ─────────────────────────────────────────── */
 
+/* Row: increase vertical padding for easier clicking and visual breathing room. */
+.dx-swdir-row {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+}
+
 /* Selected row: high-contrast accent highlight matching the app theme.
    The widget's default rgba(66,133,244,0.18) is too faint on our dark panel. */
 .dx-swdir-row--selected {
@@ -776,8 +802,9 @@ header.toolbar { display: flex; align-items: center; gap: 6px;
   flex-shrink: 0;
 }
 .dx-swdir-icon::before {
-  font-size: 12px;
-  content: "§";
+  font-size: 11px;
+  font-weight: 700;
+  content: "#";
   color: var(--muted);
 }
 .dx-swdir-row:hover .dx-swdir-icon::before,

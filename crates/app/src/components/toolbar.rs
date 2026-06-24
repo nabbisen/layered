@@ -1,5 +1,4 @@
-//! Application toolbar: file actions, navigation controls, dirty marker, and
-//! locale switcher (RFC-010 shell, RFC-014 keyboard contract).
+//! Application toolbar: file actions, navigation controls, dirty marker (RFC-010 shell, RFC-014 keyboard contract).
 
 use dioxus::prelude::*;
 use omriss_ui::EditorSession;
@@ -82,21 +81,6 @@ pub fn Toolbar(
                 span { class: "dirty-indicator", "aria-label": t(lang, "status.unsaved"), "●" }
             }
             span { class: "file-label", "{file}" }
-            select {
-                "aria-label": t(lang, "menu.language"),
-                onchange: move |event| {
-                    if let Some(picked) = Locale::from_tag(&event.value()) {
-                        locale.set(picked);
-                    }
-                },
-                for entry in Locale::ALL {
-                    option {
-                        value: entry.tag(),
-                        selected: *entry == lang,
-                        {entry.native_name()}
-                    }
-                }
-            }
         }
     }
 }

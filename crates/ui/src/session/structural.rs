@@ -103,23 +103,54 @@ impl super::EditorSession {
             .split_section(id, offset_in_body, new_title, new_level, rev)
     }
 
-    /// Appends a new top-level H1 section at the end of the document.
-    /// Used when "Add section" is triggered from overview mode (no focused
-    /// section) or when a top-level section is needed regardless of focus.
+    /// Appends a new child section at the very end of the focused section —
+    /// after all existing children — by splitting at `full_range.end`.
+    /// This is the correct offset for "Add section inside" so that repeated
+    /// additions produce children in the order they were added.
+    pub fn append_child_to_focused(
+        &mut self,
+        new_title: &str,
+        new_level: omriss::HeadingLevel,
+    ) -> Result<EditResult, omriss::StructuralEditError> {
+        let id = self
+            .view
+            .focused()
+            .ok_or(omriss::StructuralEditError::CannotDeleteRoot)?;
+        let node = self
+            .document
+            .outline()
+            .node(id)
+            .ok_or(omriss::StructuralEditError::CannotDeleteRoot)?;
+        // offset_in_body must be relative to body_range.start.
+        // full_range.end is past all children; body_range.start is after the
+        // heading line. Their difference places the new heading at the bottom.
+        let offset = node.full_range.end - node.body_range.start;
+        let rev = self.document.revision();
+        self.document
+            .split_section(id, offset, new_title, new_level, rev)
+    }
+
+    /// Appends a new top-level H1 section at the end of the document —
+    /// after all existing top-level sections. Uses `full_range.end` so
+    /// repeated additions produce sections in the order they were added
+    /// (same logic as `append_child_to_focused`).
     pub fn add_top_level_section(
         &mut self,
         title: &str,
     ) -> Result<EditResult, omriss::StructuralEditError> {
         let root_id = self.document.outline().root_id();
-        let rev = self.document.revision();
-        let body_len = self
+        let root = self
             .document
             .outline()
             .node(root_id)
-            .map(|n| n.body_range.len())
-            .unwrap_or(0);
+            .ok_or(omriss::StructuralEditError::CannotDeleteRoot)?;
+        // full_range.end covers the entire document; body_range.start is 0
+        // for the synthetic root. Their difference places the new H1 after
+        // every existing top-level section and its subtree.
+        let offset = root.full_range.end - root.body_range.start;
+        let rev = self.document.revision();
         self.document
-            .split_section(root_id, body_len, title, omriss::HeadingLevel::H1, rev)
+            .split_section(root_id, offset, title, omriss::HeadingLevel::H1, rev)
     }
 
     /// Deletes the focused section and its subtree (RFC-025).

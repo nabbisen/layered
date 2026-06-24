@@ -4,14 +4,37 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.15.4] - 2026-06-24
+## [0.15.5] - 2026-06-24
+
+### Changed
+
+- **MSRV raised to Rust 1.88** — the dependency tree requires it:
+  `dioxus-swdir-tree-core 0.9.1` uses let-chains (stabilized in 1.88) and
+  `rfd 0.17.2` (a transitive dependency of `dioxus-desktop 0.7.9`) only
+  compiles on 1.88+. The previous `rust-version = "1.87"` could not build the
+  app crate. Updated `Cargo.toml` and `README.md` accordingly.
+
+- **Language switcher moved to status bar footer** — removed from the toolbar
+  header; added to the right end of the `StatusBar` footer. Styled as
+  `.statusbar-locale`: `background: transparent`, `color: var(--muted)`,
+  `border: none`, `font-size: 11px`. Using CSS variables means it renders
+  correctly on both light and dark OS themes without the contrast issues that
+  appeared in the toolbar's OS-native `<select>`.
+
+- **Outline item icon changed from `§` to `#`** — `#` is the Markdown heading
+  marker, directly communicating "section" in this editor's context. Bold 11px,
+  no font file required.
 
 ### Fixed
 
-- **"Add section" dialog input not focused** — `autofocus: true` only fires on
-  initial page load in a WebView; dynamically-mounted elements are ignored by
-  the browser. Replaced with a `use_effect` call to `document::eval` that
-  programmatically focuses the `.split-dialog-input` element after mount.
+- **Outline tree item could not be collapsed** — the `use_effect` in
+  `DocumentMapPane` re-expanded ancestors of the focused node on every session
+  change, immediately undoing any manual collapse. Fixed by gating the expand
+  pass on `item_tree.is_expanded(focused_sw).is_none()`: a `None` result means
+  the node is new to the tree and needs its ancestors opened; an existing node
+  is left alone so the user's expand/collapse state is respected.
+
+## [0.15.4] - 2026-06-24
 
 ### Changed
 
@@ -27,6 +50,13 @@ project adheres to [Semantic Versioning](https://semver.org/).
   `.dx-swdir-icon` and replaced with a neutral `§` glyph injected via CSS
   `::before`. The caret (`▸`/`▾`) already communicates branch vs leaf, so a
   single consistent icon is sufficient. No Rust changes required.
+
+### Fixed
+
+- **"Add section" dialog input not focused** — `autofocus: true` only fires on
+  initial page load in a WebView; dynamically-mounted elements are ignored by
+  the browser. Replaced with a `use_effect` call to `document::eval` that
+  programmatically focuses the `.split-dialog-input` element after mount.
 
 ## [0.15.3] - 2026-06-24
 
@@ -90,24 +120,6 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.15.1] - 2026-06-24
 
-### Fixed
-
-- **`components/mod.rs` doubled on build** — a previous `str_replace` appended
-  a second copy of the original module block, producing 40 duplicate-definition
-  errors when building `omriss-app`. The file is now a single clean block.
-
-- **`FocusEditor` and `OutlinePane` unused-import warnings** — both superseded
-  components were removed from the components module and from the `app.rs`
-  import list. They are no longer compiled into the binary.
-
-- **`DocumentMapNode` missing `PartialEq`** — the Dioxus `#[component]` macro
-  requires all prop types to implement `PartialEq` for change detection.
-  `PartialEq` is now derived on `DocumentMapNode`.
-
-- **`focus_then` closure borrow error** — the closure in `NodeRowMenu` was
-  declared immutably but captured signals requiring mutable access. Declared
-  `mut`.
-
 ### Changed
 
 - **`dirs` dependency upgraded from `"5"` to `"6"`** — Dioxus already pulls
@@ -148,7 +160,23 @@ project adheres to [Semantic Versioning](https://semver.org/).
   rules, leaving the left panel invisible. Styles for `.document-map-pane`,
   `.row-menu`, `.focused-content-pane`, and related classes are now present.
 
-### Fixed (also in 0.15.1)
+### Fixed
+
+- **`components/mod.rs` doubled on build** — a previous `str_replace` appended
+  a second copy of the original module block, producing 40 duplicate-definition
+  errors when building `omriss-app`. The file is now a single clean block.
+
+- **`FocusEditor` and `OutlinePane` unused-import warnings** — both superseded
+  components were removed from the components module and from the `app.rs`
+  import list. They are no longer compiled into the binary.
+
+- **`DocumentMapNode` missing `PartialEq`** — the Dioxus `#[component]` macro
+  requires all prop types to implement `PartialEq` for change detection.
+  `PartialEq` is now derived on `DocumentMapNode`.
+
+- **`focus_then` closure borrow error** — the closure in `NodeRowMenu` was
+  declared immutably but captured signals requiring mutable access. Declared
+  `mut`.
 
 - **`DocumentMapPane` froze on "New"** — a Dioxus reactive loop: `session` was
   subscribed both inside `use_effect` and directly in the component render body

@@ -102,6 +102,15 @@ pub fn App() -> Element {
             let mut status = status;
             modal.set(Modal::SplitSection);
             status.set("status.ready".into());
+            // Focus the dialog input after the DOM fully settles.
+            // The + button's session.write().focus() triggers DocumentMapPane's
+            // use_effect → item_tree write → another render+patch inside the
+            // first rAF. A second rAF is guaranteed to fire after that patch.
+            spawn(async move {
+                let _ = document::eval(
+                    "requestAnimationFrame(() => requestAnimationFrame(() => document.querySelector('.split-dialog-input')?.focus()))",
+                );
+            });
         }
     }
 

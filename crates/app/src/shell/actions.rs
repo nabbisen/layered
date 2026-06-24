@@ -186,12 +186,7 @@ pub(crate) fn handle_split_choice(choice: SplitChoice, mut ctx: AppCtx) {
         let has_focus = ctx.session.read().current_snapshot().is_some();
 
         let result = if has_focus {
-            let body_len = ctx
-                .session
-                .read()
-                .current_snapshot()
-                .map(|s| s.body.len())
-                .unwrap_or(0);
+            // Compute the child heading level from the focused snapshot.
             let level = ctx
                 .session
                 .read()
@@ -208,7 +203,9 @@ pub(crate) fn handle_split_choice(choice: SplitChoice, mut ctx: AppCtx) {
                     }
                 })
                 .unwrap_or(omriss::HeadingLevel::H2);
-            ctx.session.write().split_focused(body_len, &title, level)
+            // append_child_to_focused inserts at full_range.end so the new
+            // section always appears after all existing children.
+            ctx.session.write().append_child_to_focused(&title, level)
         } else {
             ctx.session.write().add_top_level_section(&title)
         };

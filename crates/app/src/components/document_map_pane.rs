@@ -15,7 +15,7 @@
 use dioxus::prelude::*;
 use dioxus_swdir_tree::item_tree::node::ItemNode;
 use dioxus_swdir_tree::item_tree::node::NodeId as SwNodeId;
-use dioxus_swdir_tree::{ItemTree, ItemTreeEvent, ItemTreeView};
+use dioxus_swdir_tree::{ItemTree, ItemTreeEvent, SelectionMode};
 use omriss_ui::i18n::{Locale, t};
 use omriss_ui::{DocumentMapNode, EditorSession, MapCapability, ViewMode, node_id_from_raw};
 
@@ -70,36 +70,51 @@ pub fn DocumentMapPane(
     // during the effect, not what is written. `item_tree` and `map_root_sig`
     // are therefore not deps of this effect and do not re-trigger it.
     use_effect(move || {
-        // Read session once; build both derived representations.
         let root_node = session.read().document_map_nodes();
         let view = session.read().view_mode();
 
+        // Check whether the focused node is new BEFORE set_tree adds it.
+        // `is_expanded` returns `None` for ids not yet in the tree.
+        // After set_tree all nodes exist, so the only reliable "new node"
+        // signal is to query before the tree update.
+        let focused_is_new = if let ViewMode::Focus(focused_id) = view {
+            item_tree
+                .read()
+                .is_expanded(SwNodeId(focused_id.0))
+                .is_none()
+        } else {
+            false
+        };
+
         item_tree.write().set_tree(to_item_node(&root_node));
 
-        // After every tree update, ensure all ancestors of the currently
-        // focused node are expanded. This covers both the normal navigation
-        // case and the "node just added" case — when a brand-new node enters
-        // set_tree it defaults to is_expanded=false, so we must force-expand
-        // its parents to make it visible. Expanding a leaf is a no-op.
-        if let ViewMode::Focus(focused_id) = view {
-            let focused_sw = SwNodeId(focused_id.0);
-            // Collect ancestor ids from the DocumentMapNode tree.
-            let mut ancestors: Vec<SwNodeId> = Vec::new();
-            collect_ancestors(&root_node, focused_sw, &mut ancestors);
-            // Also include the focused node itself in case it has children
-            // that were just added (the existing behaviour).
-            ancestors.push(focused_sw);
-            for id in ancestors {
-                if item_tree.read().is_expanded(id) == Some(false) {
-                    item_tree.write().on_toggled(id);
+        // Expand ancestors of a newly created focused node so it is visible.
+        // For existing nodes we leave the user's expand/collapse state alone.
+        if focused_is_new {
+            if let ViewMode::Focus(focused_id) = view {
+                let focused_sw = SwNodeId(focused_id.0);
+                let mut ancestors: Vec<SwNodeId> = Vec::new();
+                collect_ancestors(&root_node, focused_sw, &mut ancestors);
+                // ancestors is bottom-up (child before parent); reverse to
+                // expand outermost first so each level becomes visible.
+                ancestors.reverse();
+                for id in ancestors {
+                    if item_tree.read().is_expanded(id) == Some(false) {
+                        item_tree.write().on_toggled(id);
+                    }
                 }
+                // Sync the tree's visual selection to the new node so it is
+                // highlighted in the left panel, not its parent.
+                item_tree
+                    .write()
+                    .on_selected(focused_sw, SelectionMode::Replace);
             }
         }
 
         map_root_sig.set(Some(root_node));
     });
 
-    let on_event = move |ev: ItemTreeEvent| match ev {
+    let mut on_event = move |ev: ItemTreeEvent| match ev {
         ItemTreeEvent::Toggled(id) => {
             item_tree.write().on_toggled(id);
         }
@@ -120,6 +135,9 @@ pub fn DocumentMapPane(
 
     // Read local signals only — no session subscription here.
     let map_root = map_root_sig.read();
+    // The document root's raw id — we skip action buttons for this row since
+    // the top-level "+ Add section" button already covers adding H1 sections.
+    let doc_root_raw_id: u64 = map_root.as_ref().map(|r| r.id).unwrap_or(u64::MAX);
     let is_empty = map_root
         .as_ref()
         .map(|r| r.children.is_empty())
@@ -149,12 +167,126 @@ pub fn DocumentMapPane(
                 p { class: "document-map-empty", {t(lang, "document_map.empty")} }
                 p { class: "document-map-hint", {t(lang, "document_map.no_headings_hint")} }
             } else {
-                div { class: "document-map-tree",
-                    ItemTreeView { tree: item_tree, on_event }
+                // Render rows directly from item_tree so each row contains
+                // both the tree content and the action buttons in one element.
+                // This eliminates the parallel-column alignment problem.
+                div {
+                    class: "document-map-tree",
+                    tabindex: "0",
+                    onkeydown: move |evt| {
+                        use dioxus_swdir_tree::TreeKey;
+                        let tree_key = match evt.key() {
+                            Key::ArrowUp => TreeKey::Up,
+                            Key::ArrowDown => TreeKey::Down,
+                            Key::ArrowLeft => TreeKey::Left,
+                            Key::ArrowRight => TreeKey::Right,
+                            Key::Enter => TreeKey::Enter,
+                            Key::Home => TreeKey::Home,
+                            Key::End => TreeKey::End,
+                            Key::Escape => TreeKey::Escape,
+                            Key::Character(ref ch) if ch == " " => TreeKey::Space,
+                            _ => return,
+                        };
+                        let mods = dioxus_swdir_tree::Modifiers {
+                            shift: evt.modifiers().shift(),
+                            ctrl: evt.modifiers().ctrl(),
+                        };
+                        if let Some(ev) = item_tree.read().handle_key(tree_key, mods) {
+                            evt.prevent_default();
+                            on_event(ev);
+                        }
+                    },
+                    {item_tree.read().visible_rows().into_iter().map(|row| {
+                        let node_id = node_id_from_raw(row.id.0);
+                        let raw_id = row.id.0;
+                        let indent_px = row.depth * 16;
+                        let is_root_row = raw_id == doc_root_raw_id;
+                        let caret = if row.has_children {
+                            if row.is_expanded { "▾" } else { "▸" }
+                        } else { " " };
+                        let mut row_class = "dx-swdir-row".to_string();
+                        if row.is_selected { row_class.push_str(" dx-swdir-row--selected"); }
+                        rsx! {
+                            div {
+                                key: "{raw_id}",
+                                class: "{row_class}",
+                                style: "padding-left: {indent_px}px;",
+                                // Caret toggles expand/collapse
+                                span {
+                                    class: "dx-swdir-caret",
+                                    onclick: move |ev| {
+                                        ev.stop_propagation();
+                                        item_tree.write().on_toggled(SwNodeId(raw_id));
+                                    },
+                                    "{caret}"
+                                }
+                                // Icon
+                                span { class: "dx-swdir-icon" }
+                                // Label — clicking selects
+                                span {
+                                    class: "dx-swdir-label",
+                                    style: "flex: 1; overflow: hidden; text-overflow: ellipsis;",
+                                    onclick: move |_| {
+                                        item_tree.write().on_selected(SwNodeId(raw_id), SelectionMode::Replace);
+                                        menu_open_for.set(None);
+                                        commit_draft_if_dirty(&mut session.clone(), &mut draft.clone());
+                                        let _ = session.write().focus(node_id);
+                                        sync_draft(&session, &mut draft.clone());
+                                    },
+                                    "{row.label}"
+                                }
+                                // Action buttons — only for non-root rows
+                                if !is_root_row {
+                                    button {
+                                        class: "row-add-btn",
+                                        title: "Add section inside",
+                                        "aria-label": "Add section inside",
+                                        onmousedown: move |ev| ev.prevent_default(),
+                                        onclick: move |ev| {
+                                            ev.stop_propagation();
+                                            commit_draft_if_dirty(
+                                                &mut session.clone(),
+                                                &mut draft.clone(),
+                                            );
+                                            let _ = session.write().focus(node_id);
+                                            sync_draft(&session, &mut draft.clone());
+                                            item_tree
+                                                .write()
+                                                .on_selected(SwNodeId(raw_id), SelectionMode::Replace);
+                                            status.clone().set("struct.split.pending".into());
+                                        },
+                                        "+"
+                                    }
+                                    button {
+                                        class: "row-menu-btn",
+                                        title: "Section actions",
+                                        "aria-label": "Section actions",
+                                        onmousedown: move |ev| ev.prevent_default(),
+                                        onclick: move |ev| {
+                                            ev.stop_propagation();
+                                            commit_draft_if_dirty(
+                                                &mut session.clone(),
+                                                &mut draft.clone(),
+                                            );
+                                            let _ = session.write().focus(node_id);
+                                            sync_draft(&session, &mut draft.clone());
+                                            let cur = *menu_open_for.read();
+                                            menu_open_for.set(
+                                                if cur == Some(raw_id) { None } else { Some(raw_id) },
+                                            );
+                                        },
+                                        "⋯"
+                                    }
+                                }
+                            }
+                        }
+                    })}
                 }
             }
 
-            // Row menu for the node whose id is in `menu_open_for`.
+            // NodeRowMenu is rendered outside the overlay — it is positioned
+            // absolute relative to the document-map-pane aside, with a right
+            // offset so it appears next to the ⋯ button column.
             if let (Some(menu_id), Some(root)) = (*menu_open_for.read(), map_root.as_ref()) {
                 if let Some(node) = find_node(root, menu_id) {
                     NodeRowMenu {
@@ -165,15 +297,6 @@ pub fn DocumentMapPane(
                         status,
                         menu_open_for,
                     }
-                }
-            }
-
-            // ⋯ trigger buttons — one per non-root node, rendered flat.
-            if let Some(root) = map_root.as_ref() {
-                div { class: "document-map-menus",
-                    {root.children.iter().map(|child| {
-                        render_node_menu_trigger(child, menu_open_for)
-                    })}
                 }
             }
 
@@ -188,37 +311,6 @@ pub fn DocumentMapPane(
                     {t(lang, "nav.up")}
                 }
             }
-        }
-    }
-}
-
-// ── Per-node ⋯ trigger (non-recursive free function returning Element) ────────
-
-fn render_node_menu_trigger(
-    node: &DocumentMapNode,
-    mut menu_open_for: Signal<Option<u64>>,
-) -> Element {
-    let node_id = node.id;
-    rsx! {
-        span {
-            key: "{node_id}-btn",
-            class: "row-menu-trigger",
-            button {
-                class: "row-menu-btn",
-                title: "Section actions",
-                "aria-label": "Section actions",
-                onclick: move |ev| {
-                    ev.stop_propagation();
-                    let cur = *menu_open_for.read();
-                    menu_open_for.set(if cur == Some(node_id) { None } else { Some(node_id) });
-                },
-                "⋯"
-            }
-            // Render children triggers inline (avoids recursive `fn` call
-            // inside rsx! which would create nested reactive scopes).
-            {node.children.iter().map(|child| {
-                render_node_menu_trigger(child, menu_open_for)
-            })}
         }
     }
 }
