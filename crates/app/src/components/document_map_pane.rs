@@ -74,16 +74,24 @@ pub fn DocumentMapPane(
         let root_node = session.read().document_map_nodes();
         let view = session.read().view_mode();
 
-        let count_before = item_tree.read().node_count();
         item_tree.write().set_tree(to_item_node(&root_node));
-        let count_after = item_tree.read().node_count();
 
-        // Auto-expand the focused section when a child was just added.
-        if count_after > count_before {
-            if let ViewMode::Focus(focused_id) = view {
-                let sw_id = SwNodeId(focused_id.0);
-                if item_tree.read().is_expanded(sw_id) == Some(false) {
-                    item_tree.write().on_toggled(sw_id);
+        // After every tree update, ensure all ancestors of the currently
+        // focused node are expanded. This covers both the normal navigation
+        // case and the "node just added" case — when a brand-new node enters
+        // set_tree it defaults to is_expanded=false, so we must force-expand
+        // its parents to make it visible. Expanding a leaf is a no-op.
+        if let ViewMode::Focus(focused_id) = view {
+            let focused_sw = SwNodeId(focused_id.0);
+            // Collect ancestor ids from the DocumentMapNode tree.
+            let mut ancestors: Vec<SwNodeId> = Vec::new();
+            collect_ancestors(&root_node, focused_sw, &mut ancestors);
+            // Also include the focused node itself in case it has children
+            // that were just added (the existing behaviour).
+            ancestors.push(focused_sw);
+            for id in ancestors {
+                if item_tree.read().is_expanded(id) == Some(false) {
+                    item_tree.write().on_toggled(id);
                 }
             }
         }
@@ -388,4 +396,19 @@ fn find_node(root: &DocumentMapNode, id: u64) -> Option<&DocumentMapNode> {
         return Some(root);
     }
     root.children.iter().find_map(|c| find_node(c, id))
+}
+
+/// Collect the `SwNodeId`s of all ancestors of `target` (root → parent,
+/// not including `target` itself) into `out`. Returns `true` if found.
+fn collect_ancestors(node: &DocumentMapNode, target: SwNodeId, out: &mut Vec<SwNodeId>) -> bool {
+    if SwNodeId(node.id) == target {
+        return true;
+    }
+    for child in &node.children {
+        if collect_ancestors(child, target, out) {
+            out.push(SwNodeId(node.id));
+            return true;
+        }
+    }
+    false
 }

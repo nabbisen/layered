@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.15.3] - 2026-06-24
+
+### Fixed
+
+- **"Add section" result not reflected immediately** — after confirming the
+  split dialog, the Document Map and Focused Content pane showed no change
+  until two or three more interactions forced a refresh. Root cause: the
+  `handle_split_choice` action handler mutated the session but never called
+  `sync_draft`, so the `draft` signal kept the pre-split body text and the
+  right panel displayed stale content. The Document Map tree updated
+  eventually only because unrelated session reads triggered its `use_effect`.
+  Fixed by:
+  1. Calling `sync_draft` after every successful split so the right panel
+     immediately reflects the new section's body.
+  2. Navigating focus to the newly created section after the split, so the
+     user lands directly in the new section ready to write.
+  3. Handling "Add section" from overview mode (no focused section) with a
+     new `EditorSession::add_top_level_section` method that appends an H1
+     at the document root, instead of failing silently with
+     `CannotDeleteRoot`.
+
 ## [0.15.2] - 2026-06-24
 
 ### Changed

@@ -103,6 +103,25 @@ impl super::EditorSession {
             .split_section(id, offset_in_body, new_title, new_level, rev)
     }
 
+    /// Appends a new top-level H1 section at the end of the document.
+    /// Used when "Add section" is triggered from overview mode (no focused
+    /// section) or when a top-level section is needed regardless of focus.
+    pub fn add_top_level_section(
+        &mut self,
+        title: &str,
+    ) -> Result<EditResult, omriss::StructuralEditError> {
+        let root_id = self.document.outline().root_id();
+        let rev = self.document.revision();
+        let body_len = self
+            .document
+            .outline()
+            .node(root_id)
+            .map(|n| n.body_range.len())
+            .unwrap_or(0);
+        self.document
+            .split_section(root_id, body_len, title, omriss::HeadingLevel::H1, rev)
+    }
+
     /// Deletes the focused section and its subtree (RFC-025).
     /// The UI must confirm with the user before calling.
     pub fn delete_focused(&mut self) -> Result<EditResult, omriss::StructuralEditError> {

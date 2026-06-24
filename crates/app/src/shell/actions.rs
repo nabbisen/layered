@@ -181,30 +181,64 @@ pub(crate) fn handle_confirm_delete(choice: ConfirmDeleteChoice, mut ctx: AppCtx
 pub(crate) fn handle_split_choice(choice: SplitChoice, mut ctx: AppCtx) {
     ctx.modal.set(Modal::None);
     if let SplitChoice::Confirm(title) = choice {
-        let body_len = ctx
-            .session
-            .read()
-            .current_snapshot()
-            .map(|s| s.body.len())
-            .unwrap_or(0);
-        let level = ctx
-            .session
-            .read()
-            .current_snapshot()
-            .and_then(|s| s.level)
-            .map(|l| {
-                use omriss::HeadingLevel::*;
-                match l {
-                    H1 => H2,
-                    H2 => H3,
-                    H3 => H4,
-                    H4 => H5,
-                    _ => H6,
+        // Determine whether we have a focused section to split inside, or
+        // whether we are adding a new top-level section from overview mode.
+        let has_focus = ctx.session.read().current_snapshot().is_some();
+
+        let result = if has_focus {
+            let body_len = ctx
+                .session
+                .read()
+                .current_snapshot()
+                .map(|s| s.body.len())
+                .unwrap_or(0);
+            let level = ctx
+                .session
+                .read()
+                .current_snapshot()
+                .and_then(|s| s.level)
+                .map(|l| {
+                    use omriss::HeadingLevel::*;
+                    match l {
+                        H1 => H2,
+                        H2 => H3,
+                        H3 => H4,
+                        H4 => H5,
+                        _ => H6,
+                    }
+                })
+                .unwrap_or(omriss::HeadingLevel::H2);
+            ctx.session.write().split_focused(body_len, &title, level)
+        } else {
+            ctx.session.write().add_top_level_section(&title)
+        };
+
+        match result {
+            Ok(_) => {
+                // Navigate to the newly created child so it is immediately
+                // visible and editable. For split_focused: last child of
+                // the currently focused section. For add_top_level_section:
+                // last top-level item.
+                let new_child = if has_focus {
+                    ctx.session
+                        .read()
+                        .current_snapshot()
+                        .and_then(|s| s.children.last().map(|c| c.id))
+                } else {
+                    ctx.session
+                        .read()
+                        .outline_items()
+                        .last()
+                        .map(|item| item.id)
+                };
+                if let Some(child_id) = new_child {
+                    let _ = ctx.session.write().focus(child_id);
                 }
-            })
-            .unwrap_or(omriss::HeadingLevel::H2);
-        match ctx.session.write().split_focused(body_len, &title, level) {
-            Ok(_) => ctx.status.set("status.unsaved".into()),
+                // Sync draft to the new section's body (empty for a freshly
+                // created section) so the textarea reflects reality.
+                sync_draft(ctx);
+                ctx.status.set("status.unsaved".into());
+            }
             Err(_) => ctx.status.set("error.struct.stale_node".into()),
         }
     }
