@@ -14,6 +14,8 @@ zoom into one section, refine just that thought, and zoom back out — without
 the rest of the document getting in the way, and without the editor ever
 rewriting a byte you didn't touch.
 
+![screenshot-01](docs/assets/screenshot-01.png)
+
 ## Design principles
 
 1. **The raw Markdown text is the canonical document.** The outline tree is a
